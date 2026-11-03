@@ -39,6 +39,7 @@ const Rsvp = mongoose.model("Rsvp", RsvpSchema);
 
 const EventSettingsSchema = new mongoose.Schema({
   key: { type: String, unique: true, default: "main" },
+  eventName: { type: String, trim: true, maxlength: 80, default: "" },
   venue: { type: String, trim: true, maxlength: 120, default: "" },
   address: { type: String, trim: true, maxlength: 240, default: "" },
   mapUrl: { type: String, trim: true, maxlength: 500, default: "" }
@@ -99,7 +100,7 @@ app.get("/api/config", async (req, res) => {
     catch (err) { console.error("Erro ao carregar configurações do evento:", err.message); }
   }
   res.json({
-    eventName: process.env.EVENT_NAME || "Agnes",
+    eventName: settings?.eventName || process.env.EVENT_NAME || "Helena",
     age: process.env.EVENT_AGE || "5",
     date: process.env.EVENT_DATE || "Data a definir",
     time: process.env.EVENT_TIME || "Horário a definir",
@@ -141,7 +142,7 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const settings = await EventSettings.findOne({ key: "main" }).lean();
-    res.json({ venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "" });
+    res.json({ eventName: settings?.eventName || process.env.EVENT_NAME || "Helena", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "" });
   } catch (err) {
     console.error("Erro ao carregar configurações:", err.message);
     res.status(500).json({ error: "Não foi possível carregar os dados do evento." });
@@ -150,12 +151,14 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
 app.put("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   const venue = String(req.body.venue || "").trim();
+  const eventName = String(req.body.eventName || "").trim();
   const address = String(req.body.address || "").trim();
   const mapUrl = String(req.body.mapUrl || "").trim();
+  if (eventName.length < 2 || eventName.length > 80) return res.status(400).json({ error: "Informe o nome da aniversariante (2 a 80 caracteres)." });
   if (venue.length > 120 || address.length > 240 || mapUrl.length > 500) return res.status(400).json({ error: "Confira os limites: local até 120, endereço até 240 e link até 500 caracteres." });
   if (mapUrl && !/^https:\/\//i.test(mapUrl)) return res.status(400).json({ error: "O link do mapa deve começar com https://" });
   try {
-    await EventSettings.findOneAndUpdate({ key: "main" }, { $set: { venue, address, mapUrl } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
+    await EventSettings.findOneAndUpdate({ key: "main" }, { $set: { eventName, venue, address, mapUrl } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
     res.json({ ok: true });
   } catch (err) {
     console.error("Erro ao salvar configurações:", err.message);

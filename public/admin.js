@@ -73,6 +73,7 @@
     notice($("#settings-message"), "Carregando informações do local...");
     try {
       const data = await api("/api/admin/settings");
+      $("#event-name-input").value = data.eventName || "Helena";
       $("#event-venue-input").value = data.venue || "";
       $("#event-address-input").value = data.address || "";
       $("#event-map-input").value = data.mapUrl || "";
@@ -85,8 +86,8 @@
     button.disabled = true;
     notice($("#settings-message"), "Salvando...");
     try {
-      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value }) });
-      notice($("#settings-message"), "Local e endereço salvos. O convite público já está atualizado.");
+      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ eventName: $("#event-name-input").value, venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value }) });
+      notice($("#settings-message"), "Nome, local e endereço salvos. O convite público já está atualizado.");
     } catch (err) { notice($("#settings-message"), err.message, true); }
     finally { button.disabled = false; }
   });

@@ -60,8 +60,8 @@
     try {
       const response = await fetch("/api/config");
       const config = await response.json();
-      $("#event-name").childNodes[0].textContent = config.eventName + " ";
-      $(".age-bubble").textContent = config.age;
+      $("#event-name").textContent = config.eventName + "!";
+      document.title = "Aniversário da " + config.eventName + " | Convite especial";
       $("#event-date").textContent = config.date;
       $("#event-time").textContent = config.time;
       $("#event-venue").textContent = config.venue;
