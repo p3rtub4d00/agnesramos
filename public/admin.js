@@ -26,7 +26,7 @@
       await api("/api/admin/login", { method: "POST", body: JSON.stringify({ password: $("#admin-password").value }) });
       $("#admin-password").value = "";
       showDashboard();
-      await loadItems();
+      await Promise.all([loadItems(), loadSettings()]);
     } catch (err) { notice($("#login-message"), err.message, true); }
     finally { button.disabled = false; }
   });
@@ -69,6 +69,27 @@
       action.append(toggle); tr.append(people, contact, quantity, statusCell, action); rows.append(tr);
     });
   }
+  async function loadSettings() {
+    notice($("#settings-message"), "Carregando informações do local...");
+    try {
+      const data = await api("/api/admin/settings");
+      $("#event-venue-input").value = data.venue || "";
+      $("#event-address-input").value = data.address || "";
+      $("#event-map-input").value = data.mapUrl || "";
+      notice($("#settings-message"), "");
+    } catch (err) { notice($("#settings-message"), err.message, true); }
+  }
+  $("#event-settings-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const button = e.currentTarget.querySelector("button");
+    button.disabled = true;
+    notice($("#settings-message"), "Salvando...");
+    try {
+      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value }) });
+      notice($("#settings-message"), "Local e endereço salvos. O convite público já está atualizado.");
+    } catch (err) { notice($("#settings-message"), err.message, true); }
+    finally { button.disabled = false; }
+  });
   async function loadItems() {
     notice($("#list-message"), "Carregando lista...");
     try {

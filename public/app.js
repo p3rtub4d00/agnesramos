@@ -64,6 +64,7 @@
       $(".age-bubble").textContent = config.age;
       $("#event-date").textContent = config.date;
       $("#event-time").textContent = config.time;
+      $("#event-venue").textContent = config.venue;
       $("#event-address").textContent = config.address;
       if (config.mapUrl) {
         $("#map-link").href = config.mapUrl;

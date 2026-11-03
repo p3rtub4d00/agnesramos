@@ -4,33 +4,33 @@
 html{scroll-behavior:smooth}
 body{margin:0;font-family:'Nunito',sans-serif;color:var(--ink);background:#fff4fa;min-height:100vh}
 button,input,textarea{font:inherit}button{cursor:pointer}
-.invite-page{position:relative;overflow-x:hidden;padding:22px 14px 42px;background:radial-gradient(circle at 8% 18%,#ffd8eb 0,transparent 28%),radial-gradient(circle at 95% 55%,#d9f3ff 0,transparent 30%),linear-gradient(145deg,#fff4fa,#fffaff 55%,#f0fbff)}
-.invite-shell{position:relative;z-index:1;width:min(100%,850px);margin:auto}
+.invite-page{position:relative;overflow-x:hidden;padding:22px 14px 42px;background:repeating-conic-gradient(from 251deg at 50% 36%,#fff0fa 0deg 11deg,#ffb4dd 11deg 22deg,#ec4aab 22deg 29deg,#55d1f6 29deg 40deg,#fff4fa 40deg 51deg,#b6ef74 51deg 62deg);background-attachment:fixed}
+.invite-shell{position:relative;z-index:1;width:min(100%,850px);margin:auto;filter:drop-shadow(0 15px 24px #7e42932b)}
 .sparkle-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;color:#ff70ad;z-index:0}
 .sparkle-layer span{position:absolute;font-size:27px;animation:twinkle 3s ease-in-out infinite}
 .sparkle-layer span:nth-child(1){left:4%;top:12%}.sparkle-layer span:nth-child(2){right:7%;top:10%;animation-delay:.4s}.sparkle-layer span:nth-child(3){right:4%;top:45%;animation-delay:.8s}.sparkle-layer span:nth-child(4){left:7%;top:70%;animation-delay:1.2s}.sparkle-layer span:nth-child(5){right:10%;top:82%;animation-delay:.6s}.sparkle-layer span:nth-child(6){left:15%;top:92%;animation-delay:1.4s}.sparkle-layer span:nth-child(7){left:72%;top:5%;animation-delay:1.8s}.sparkle-layer span:nth-child(8){left:45%;top:88%;animation-delay:1s}
-.poster-top{position:relative;padding:20px 22px 0;border:5px solid white;border-radius:30px 30px 0 0;background:linear-gradient(120deg,#ffb3d8,#d9eaff 52%,#c8f2ad);box-shadow:0 18px 45px #b74b8a20;overflow:hidden}
+.poster-top{position:relative;padding:20px 22px 0;border:5px solid white;border-radius:30px 30px 0 0;background:radial-gradient(ellipse at 50% 88%,#f641a7 0%,transparent 54%),repeating-conic-gradient(from 249deg at 50% 85%,#ff83c0 0deg 18deg,#ffd3e9 18deg 36deg,#31c7f6 36deg 54deg,#a8ed75 54deg 72deg);box-shadow:0 18px 45px #b74b8a20;overflow:hidden}
 .poster-brand{position:relative;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-height:116px}
 .brand-mark{position:relative;display:flex;flex-direction:column;align-items:flex-start;line-height:.8;transform:rotate(-4deg);filter:drop-shadow(2px 3px 0 white)}
 .brand-mark span{font-size:14px;font-weight:1000;color:#fff;background:#262036;padding:4px 9px;border-radius:5px;letter-spacing:2px}
 .brand-mark strong{font-family:'Baloo 2',sans-serif;font-size:clamp(27px,5vw,44px);font-weight:1000;letter-spacing:-2px;line-height:.78;color:#ff4b9b;-webkit-text-stroke:1.5px #2d203b;text-shadow:2px 3px 0 white,4px 5px 0 #2d203b}
 .brand-mark b{font-family:'Baloo 2',sans-serif;font-size:22px;color:#49b9f2;-webkit-text-stroke:1px #2d203b;text-shadow:1px 2px white}
-.mission-bubble{position:relative;padding:13px 20px;background:#ff4b9b;color:#fff;border:3px solid #fff;border-radius:22px 22px 22px 5px;text-align:center;font-family:'Baloo 2',sans-serif;font-size:clamp(14px,2.6vw,21px);font-weight:800;line-height:1.02;box-shadow:0 7px 0 #d92b7c;transform:rotate(2deg)}
+.mission-bubble{position:relative;padding:13px 20px;background:#fff4fb;color:#17131e;border:3px solid #252033;border-radius:48%;text-align:center;font-family:'Baloo 2',sans-serif;font-size:clamp(14px,2.6vw,21px);font-weight:800;line-height:1.02;box-shadow:0 5px 0 #f276bd;transform:rotate(2deg)}
 .mission-bubble strong{color:#fff8a8}.mission-bubble i{position:absolute;right:-13px;bottom:-18px;color:#ff4b9b;font-size:27px;font-style:normal;text-shadow:1px 2px white}
 .girls-scene{position:relative;height:clamp(220px,39vw,340px);margin:0 -10px;overflow:hidden;isolation:isolate}
 .ray{position:absolute;inset:-70% 0 0;z-index:-1;opacity:.32;transform-origin:50% 100%;clip-path:polygon(50% 100%,0 0,28% 0)}
 .ray-pink{background:#ff6ba9;transform:rotate(-24deg)}.ray-blue{background:#59c5fa;transform:rotate(0)}.ray-green{background:#8cdd60;transform:rotate(24deg)}
 .powerpuff-art{position:relative;display:block;width:min(100%,760px);height:100%;margin:0 auto;object-fit:contain;filter:drop-shadow(0 8px 7px #73417a2c);animation:heroFloat 4s ease-in-out infinite}
 .cityline{position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(0deg,#7161a0aa,transparent);color:#67588f;text-align:center;font-size:31px;line-height:1;letter-spacing:8px;opacity:.5}
-.birthday-title{position:relative;text-align:center;padding:24px 20px 28px;background:linear-gradient(180deg,#fff 0%,#fff8fc 100%);border-left:5px solid white;border-right:5px solid white}
-.title-ribbon{display:inline-block;padding:5px 18px;margin-bottom:4px;background:#ffb6d8;color:#a22d70;border-radius:7px;font-size:13px;font-weight:1000;letter-spacing:2px;transform:rotate(-2deg)}
-.birthday-title h1{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin:0;color:#f52f91;font-family:'Baloo 2',sans-serif;font-size:clamp(68px,13vw,112px);font-weight:900;line-height:.95;letter-spacing:-4px;-webkit-text-stroke:1.5px white;text-shadow:0 5px 0 #ffb2d4,2px 7px 0 #a72d71}
+.birthday-title{position:relative;text-align:center;padding:18px 20px 21px;background:linear-gradient(180deg,#fff9fe 0%,#ffe8f5 100%);border-left:5px solid white;border-right:5px solid white}
+.title-ribbon{display:inline-block;padding:5px 22px;margin-bottom:4px;background:#f11b89;color:white;border:3px solid white;border-radius:50% 50% 20% 20%;font-size:clamp(15px,2.6vw,22px);font-weight:1000;letter-spacing:1px;transform:rotate(-2deg);box-shadow:0 4px 0 #ab1c6a}
+.birthday-title h1{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin:0;color:#f5238d;font-family:'Baloo 2',sans-serif;font-size:clamp(68px,13vw,112px);font-weight:900;line-height:.95;letter-spacing:-4px;-webkit-text-stroke:2px white;text-shadow:0 5px 0 #ffb2d4,3px 7px 0 #27192d,5px 9px 0 #a72d71}
 .age-bubble{display:inline-flex;align-items:center;justify-content:center;width:clamp(39px,6vw,58px);height:clamp(39px,6vw,58px);border:4px solid white;border-radius:50%;background:var(--green);color:white;font-size:clamp(23px,4vw,34px);letter-spacing:0;text-shadow:0 1px 2px #3a963c;box-shadow:0 4px 9px #4b9d4840;transform:rotate(8deg);-webkit-text-stroke:0}
 .title-heart{position:absolute;right:12%;top:8px;color:#ff73b1;font-size:25px;-webkit-text-stroke:0;text-shadow:none}
 .invite-message{margin:13px auto 0;max-width:630px;color:#5c426d;font-family:'Baloo 2',sans-serif;font-size:clamp(15px,2.4vw,20px);font-weight:700;line-height:1.35}
 .title-swoosh{width:170px;height:8px;margin:9px auto 0;border-bottom:4px solid #ff7bb5;border-radius:50%;transform:rotate(-2deg)}
-.event-details{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:0;background:#fff;border:5px solid white;border-top:2px solid #f7dce9;border-bottom:2px solid #f7dce9;box-shadow:0 12px 25px #ad4b8810}
-.detail-card{display:flex;align-items:center;gap:11px;min-width:0;padding:18px 14px;background:#fff8fc;border-right:2px dashed #f3b6d5}
+.event-details{display:grid;grid-template-columns:1.12fr .9fr 1.12fr;gap:8px;margin:0;padding:5px 20px 15px;background:#ffe8f5;border:5px solid white;border-top:0;border-bottom:0;box-shadow:0 12px 25px #ad4b8810}
+.detail-card{display:flex;align-items:center;gap:11px;min-width:0;padding:14px 12px;background:#fff8fc;border:3px solid white;border-radius:26px;box-shadow:0 3px 0 #eab7d3}
 .detail-card:last-child{border-right:0}
 .detail-icon{display:grid;place-items:center;flex:0 0 43px;height:43px;border-radius:50%;font-size:25px;font-weight:900}
 .pink-icon{background:#ffe0ef;color:#ee4b98}.blue-icon{background:#dff4ff;color:#278fca}.green-icon{background:#e5f9dd;color:#4da93b}
@@ -38,8 +38,8 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 .detail-card strong{display:block;color:#d52f83;font-family:'Baloo 2',sans-serif;font-size:clamp(13px,1.8vw,17px);font-weight:800;line-height:1.12;overflow-wrap:anywhere}
 .detail-card em{display:block;margin-top:2px;color:#886e8d;font-size:11px;font-style:normal}
 .detail-card a{display:inline-block;margin-top:4px;color:#2586c4;font-size:11px;font-weight:900}
-.rsvp-card{margin:24px auto 0;padding:25px clamp(18px,5vw,46px) 30px;border:4px solid #fff;border-radius:25px;background:#fff;box-shadow:0 15px 35px #aa4e851c;max-width:720px}
-.rsvp-heading{display:flex;align-items:center;justify-content:center;gap:13px;padding:11px 14px;margin:-4px -8px 20px;border-radius:12px;background:linear-gradient(90deg,#f83d91,#ff82b8);color:white;text-align:center;box-shadow:0 5px 0 #e7b1ce}
+.rsvp-card{margin:0 auto;padding:25px clamp(18px,5vw,46px) 24px;border:4px solid #f32191;border-radius:54px;background:linear-gradient(145deg,#fff 0%,#fff0f9 100%);box-shadow:0 15px 35px #aa4e851c;max-width:720px}
+.rsvp-heading{display:flex;align-items:center;justify-content:center;gap:13px;padding:8px 14px;margin:-35px 5% 20px;border:3px solid white;border-radius:50%;background:linear-gradient(90deg,#f20b86,#ff63ae);color:white;text-align:center;box-shadow:0 5px 0 #c52478}
 .rsvp-heading h2{margin:0;font-family:'Baloo 2',sans-serif;font-size:clamp(25px,4.6vw,36px);font-weight:900;line-height:1.05;color:white}
 .rsvp-heading p{margin:4px 0 0;color:#fff7fb;font-size:12px;font-weight:800}
 .mini-star{color:#fff4a4;font-size:24px}
@@ -67,7 +67,7 @@ input::placeholder,textarea::placeholder{color:#b6a9bd}
 .privacy-note{margin:14px 0 0;color:#a28ca5;text-align:center;font-size:10px;line-height:1.5}
 .form-message{display:none;margin-top:15px;padding:13px 15px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.5}
 .form-message.show{display:block}.form-message.success{background:#e9fbe6;color:#286d31}.form-message.error{background:#fff0f3;color:#a3224b}
-.invite-footer{margin-top:23px;padding:22px 15px 8px;border-radius:0 0 25px 25px;background:linear-gradient(90deg,#f8b5d6,#d6eaff,#c9efb2);color:#fff;text-align:center;text-shadow:0 2px 3px #a14b8c66;font-family:'Baloo 2',sans-serif}
+.invite-footer{margin-top:0;padding:23px 15px 20px;border-radius:0 0 25px 25px;background:radial-gradient(ellipse at 50% 120%,#f32f9b 0 47%,transparent 48%),linear-gradient(90deg,#ffadd4,#d6eaff,#c9efb2);color:#fff;text-align:center;text-shadow:2px 3px 0 #21152f,-1px -1px 0 #21152f;font-family:'Baloo 2',sans-serif}
 .invite-footer strong{font-size:clamp(20px,4vw,28px);line-height:1.05}.invite-footer div{margin:5px 0;color:#ff3f98;font-size:27px;text-shadow:none}.invite-footer small{font-size:11px;font-weight:800}
 .reveal{opacity:0;transform:translateY(18px);animation:riseIn .75s forwards}
 .event-details.reveal{animation-delay:.18s}.rsvp-card.reveal{animation-delay:.28s}
