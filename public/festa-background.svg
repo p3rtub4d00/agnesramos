@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" preserveAspectRatio="xMidYMid slice">
+ <defs>
+  <linearGradient id="pink" x2="0" y2="1"><stop stop-color="#ffe5f3"/><stop offset="1" stop-color="#f735a5"/></linearGradient>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#4972ee"/><stop offset="1" stop-color="#a5e4ff"/></linearGradient>
+  <pattern id="windows" width="22" height="28" patternUnits="userSpaceOnUse"><rect x="5" y="5" width="6" height="10" rx="1" fill="#a6b9ff"/><rect x="14" y="5" width="4" height="10" rx="1" fill="#8be1ff"/></pattern>
+ </defs>
+ <rect width="1000" height="1400" fill="url(#pink)"/>
+ <path d="M0 0H1000V720Q750 590 500 720T0 700Z" fill="url(#sky)" opacity=".65"/>
+ <path d="M0 0L500 650 0 560Z" fill="#f22e9a" opacity=".3"/><path d="M1000 0L500 650 1000 600Z" fill="#8ce349" opacity=".48"/>
+ <g fill="#3c50cb" opacity=".84">
+  <path d="M0 770h42v-180h28v180h38v-270h32v270h36v-145h32v145h50v630H0z"/>
+  <path d="M1000 770h-42V565h-30v205h-35V486h-36v284h-37V616h-34v154h-50v630h222z"/>
+ </g>
+ <g fill="url(#windows)" opacity=".88"><path d="M0 770h42v-180h28v180h38v-270h32v270h36v-145h32v145h50v630H0z"/><path d="M1000 770h-42V565h-30v205h-35V486h-36v284h-37V616h-34v154h-50v630h222z"/></g>
+ <path d="M0 940Q180 835 340 955T680 930T1000 940V1400H0Z" fill="#3ebc50"/>
+ <path d="M0 1020Q250 900 500 1020T1000 1000V1400H0Z" fill="#f8279a"/>
+</svg>
