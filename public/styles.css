@@ -1,225 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap');
-:root{--pink:#f52f91;--pink2:#ff8ec3;--blue:#49b9f2;--green:#6bd34f;--ink:#34213f;--purple:#68418e;--paper:#fffdfd}
+:root{--pink:#f22d91;--pink-dark:#bb176c;--blue:#3db7ec;--green:#65c942;--ink:#2b1d35;--muted:#8e7e92;--line:#eadce9;--paper:#fffafd}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;font-family:'Nunito',sans-serif;color:var(--ink);background:#fff4fa;min-height:100vh}
-button,input,textarea{font:inherit}button{cursor:pointer}
-.invite-page{position:relative;overflow-x:hidden;padding:22px 14px 42px;background:repeating-conic-gradient(from 251deg at 50% 36%,#fff0fa 0deg 11deg,#ffb4dd 11deg 22deg,#ec4aab 22deg 29deg,#55d1f6 29deg 40deg,#fff4fa 40deg 51deg,#b6ef74 51deg 62deg);background-attachment:fixed}
-.invite-shell{position:relative;z-index:1;width:min(100%,850px);margin:auto;filter:drop-shadow(0 15px 24px #7e42932b)}
-.sparkle-layer{position:fixed;inset:0;pointer-events:none;overflow:hidden;color:#ff70ad;z-index:0}
-.sparkle-layer span{position:absolute;font-size:27px;animation:twinkle 3s ease-in-out infinite}
-.sparkle-layer span:nth-child(1){left:4%;top:12%}.sparkle-layer span:nth-child(2){right:7%;top:10%;animation-delay:.4s}.sparkle-layer span:nth-child(3){right:4%;top:45%;animation-delay:.8s}.sparkle-layer span:nth-child(4){left:7%;top:70%;animation-delay:1.2s}.sparkle-layer span:nth-child(5){right:10%;top:82%;animation-delay:.6s}.sparkle-layer span:nth-child(6){left:15%;top:92%;animation-delay:1.4s}.sparkle-layer span:nth-child(7){left:72%;top:5%;animation-delay:1.8s}.sparkle-layer span:nth-child(8){left:45%;top:88%;animation-delay:1s}
-.poster-top{position:relative;padding:20px 22px 0;border:5px solid white;border-radius:30px 30px 0 0;background:radial-gradient(ellipse at 50% 88%,#f641a7 0%,transparent 54%),repeating-conic-gradient(from 249deg at 50% 85%,#ff83c0 0deg 18deg,#ffd3e9 18deg 36deg,#31c7f6 36deg 54deg,#a8ed75 54deg 72deg);box-shadow:0 18px 45px #b74b8a20;overflow:hidden}
-.poster-brand{position:relative;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-height:116px}
-.brand-mark{position:relative;display:flex;flex-direction:column;align-items:flex-start;line-height:.8;transform:rotate(-4deg);filter:drop-shadow(2px 3px 0 white)}
-.brand-mark span{font-size:14px;font-weight:1000;color:#fff;background:#262036;padding:4px 9px;border-radius:5px;letter-spacing:2px}
-.brand-mark strong{font-family:'Baloo 2',sans-serif;font-size:clamp(27px,5vw,44px);font-weight:1000;letter-spacing:-2px;line-height:.78;color:#ff4b9b;-webkit-text-stroke:1.5px #2d203b;text-shadow:2px 3px 0 white,4px 5px 0 #2d203b}
-.brand-mark b{font-family:'Baloo 2',sans-serif;font-size:22px;color:#49b9f2;-webkit-text-stroke:1px #2d203b;text-shadow:1px 2px white}
-.mission-bubble{position:relative;padding:13px 20px;background:#fff4fb;color:#17131e;border:3px solid #252033;border-radius:48%;text-align:center;font-family:'Baloo 2',sans-serif;font-size:clamp(14px,2.6vw,21px);font-weight:800;line-height:1.02;box-shadow:0 5px 0 #f276bd;transform:rotate(2deg)}
-.mission-bubble strong{color:#fff8a8}.mission-bubble i{position:absolute;right:-13px;bottom:-18px;color:#ff4b9b;font-size:27px;font-style:normal;text-shadow:1px 2px white}
-.girls-scene{position:relative;height:clamp(220px,39vw,340px);margin:0 -10px;overflow:hidden;isolation:isolate}
-.ray{position:absolute;inset:-70% 0 0;z-index:-1;opacity:.32;transform-origin:50% 100%;clip-path:polygon(50% 100%,0 0,28% 0)}
-.ray-pink{background:#ff6ba9;transform:rotate(-24deg)}.ray-blue{background:#59c5fa;transform:rotate(0)}.ray-green{background:#8cdd60;transform:rotate(24deg)}
-.powerpuff-art{position:relative;display:block;width:min(100%,760px);height:100%;margin:0 auto;object-fit:contain;filter:drop-shadow(0 8px 7px #73417a2c);animation:heroFloat 4s ease-in-out infinite}
-.cityline{position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(0deg,#7161a0aa,transparent);color:#67588f;text-align:center;font-size:31px;line-height:1;letter-spacing:8px;opacity:.5}
-.birthday-title{position:relative;text-align:center;padding:18px 20px 21px;background:linear-gradient(180deg,#fff9fe 0%,#ffe8f5 100%);border-left:5px solid white;border-right:5px solid white}
-.title-ribbon{display:inline-block;padding:5px 22px;margin-bottom:4px;background:#f11b89;color:white;border:3px solid white;border-radius:50% 50% 20% 20%;font-size:clamp(15px,2.6vw,22px);font-weight:1000;letter-spacing:1px;transform:rotate(-2deg);box-shadow:0 4px 0 #ab1c6a}
-.birthday-title h1{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin:0;color:#f5238d;font-family:'Baloo 2',sans-serif;font-size:clamp(68px,13vw,112px);font-weight:900;line-height:.95;letter-spacing:-4px;-webkit-text-stroke:2px white;text-shadow:0 5px 0 #ffb2d4,3px 7px 0 #27192d,5px 9px 0 #a72d71}
-.age-bubble{display:inline-flex;align-items:center;justify-content:center;width:clamp(39px,6vw,58px);height:clamp(39px,6vw,58px);border:4px solid white;border-radius:50%;background:var(--green);color:white;font-size:clamp(23px,4vw,34px);letter-spacing:0;text-shadow:0 1px 2px #3a963c;box-shadow:0 4px 9px #4b9d4840;transform:rotate(8deg);-webkit-text-stroke:0}
-.title-heart{position:absolute;right:12%;top:8px;color:#ff73b1;font-size:25px;-webkit-text-stroke:0;text-shadow:none}
-.invite-message{margin:13px auto 0;max-width:630px;color:#5c426d;font-family:'Baloo 2',sans-serif;font-size:clamp(15px,2.4vw,20px);font-weight:700;line-height:1.35}
-.title-swoosh{width:170px;height:8px;margin:9px auto 0;border-bottom:4px solid #ff7bb5;border-radius:50%;transform:rotate(-2deg)}
-.event-details{display:grid;grid-template-columns:1.12fr .9fr 1.12fr;gap:8px;margin:0;padding:5px 20px 15px;background:#ffe8f5;border:5px solid white;border-top:0;border-bottom:0;box-shadow:0 12px 25px #ad4b8810}
-.detail-card{display:flex;align-items:center;gap:11px;min-width:0;padding:14px 12px;background:#fff8fc;border:3px solid white;border-radius:26px;box-shadow:0 3px 0 #eab7d3}
-.detail-card:last-child{border-right:0}
-.detail-icon{display:grid;place-items:center;flex:0 0 43px;height:43px;border-radius:50%;font-size:25px;font-weight:900}
-.pink-icon{background:#ffe0ef;color:#ee4b98}.blue-icon{background:#dff4ff;color:#278fca}.green-icon{background:#e5f9dd;color:#4da93b}
-.detail-card small{display:block;margin-bottom:4px;color:#805c7f;font-size:12px;font-weight:900}
-.detail-card strong{display:block;color:#d52f83;font-family:'Baloo 2',sans-serif;font-size:clamp(13px,1.8vw,17px);font-weight:800;line-height:1.12;overflow-wrap:anywhere}
-.detail-card em{display:block;margin-top:2px;color:#886e8d;font-size:11px;font-style:normal}
-.detail-card a{display:inline-block;margin-top:4px;color:#2586c4;font-size:11px;font-weight:900}
-.rsvp-card{margin:0 auto;padding:25px clamp(18px,5vw,46px) 24px;border:4px solid #f32191;border-radius:54px;background:linear-gradient(145deg,#fff 0%,#fff0f9 100%);box-shadow:0 15px 35px #aa4e851c;max-width:720px}
-.rsvp-heading{display:flex;align-items:center;justify-content:center;gap:13px;padding:8px 14px;margin:-35px 5% 20px;border:3px solid white;border-radius:50%;background:linear-gradient(90deg,#f20b86,#ff63ae);color:white;text-align:center;box-shadow:0 5px 0 #c52478}
-.rsvp-heading h2{margin:0;font-family:'Baloo 2',sans-serif;font-size:clamp(25px,4.6vw,36px);font-weight:900;line-height:1.05;color:white}
-.rsvp-heading p{margin:4px 0 0;color:#fff7fb;font-size:12px;font-weight:800}
-.mini-star{color:#fff4a4;font-size:24px}
-form>label,.guest-label-row>label{display:block;margin:15px 0 7px;color:#4b3a5c;font-size:13px;font-weight:900}
-form label span{color:#ed3c8e}
-form label small{font-size:10px;color:#a38ca5}
-input:not([type=radio]),textarea{width:100%;padding:13px 14px;border:1.5px solid #dceaf3;border-radius:11px;background:#f9fdff;color:#3e2b46;font-size:14px;outline:none;transition:.2s}
-input:focus,textarea:focus{border-color:#62bce9;box-shadow:0 0 0 4px #75cdf329}
-input::placeholder,textarea::placeholder{color:#b6a9bd}
-.guest-label-row{display:flex;align-items:end;justify-content:space-between;gap:8px;margin-top:14px}
-.guest-label-row>label{margin:0 0 7px}
-.field-hint{margin-bottom:7px;color:#a38ca5;font-size:10px;text-align:right}
-.guest-list{display:grid;gap:8px}
-.guest-row{display:flex;gap:8px;align-items:center}
-.guest-row input{flex:1;min-width:0}
-.remove-guest{width:42px;height:43px;border:0;border-radius:10px;background:#fff0f6;color:#d94b8c;font-size:20px}
-.add-guest{margin-top:9px;padding:10px 14px;border:1.5px dashed #73bde6;border-radius:10px;background:#f3fbff;color:#2586c4;font-size:12px;font-weight:900}
-.attendance-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0 15px}
-.attendance-option{position:relative;display:block;cursor:pointer}
-.attendance-option input{position:absolute;opacity:0}
-.attendance-option span{display:block;padding:12px 8px;border:1.5px solid #d9ead6;border-radius:11px;background:#f7fff4;color:#4c8248;text-align:center;font-size:12px;font-weight:900;transition:.2s}
-.attendance-option input:checked+span{border-color:#6dce59;background:#eaffdf;box-shadow:0 0 0 2px #6dce5920}
-.submit-button{display:block;width:100%;padding:16px 18px;border:0;border-radius:13px;background:linear-gradient(100deg,#f62f8b,#ff6dad);color:white;font-family:'Baloo 2',sans-serif;font-size:19px;font-weight:900;box-shadow:0 7px 0 #cf2878,0 12px 20px #ed4d9630;transition:transform .2s}
-.submit-button:hover{transform:translateY(-2px)}.submit-button:disabled{opacity:.65;cursor:wait}
-.privacy-note{margin:14px 0 0;color:#a28ca5;text-align:center;font-size:10px;line-height:1.5}
-.form-message{display:none;margin-top:15px;padding:13px 15px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.5}
-.form-message.show{display:block}.form-message.success{background:#e9fbe6;color:#286d31}.form-message.error{background:#fff0f3;color:#a3224b}
-.invite-footer{margin-top:0;padding:23px 15px 20px;border-radius:0 0 25px 25px;background:radial-gradient(ellipse at 50% 120%,#f32f9b 0 47%,transparent 48%),linear-gradient(90deg,#ffadd4,#d6eaff,#c9efb2);color:#fff;text-align:center;text-shadow:2px 3px 0 #21152f,-1px -1px 0 #21152f;font-family:'Baloo 2',sans-serif}
-.invite-footer strong{font-size:clamp(20px,4vw,28px);line-height:1.05}.invite-footer div{margin:5px 0;color:#ff3f98;font-size:27px;text-shadow:none}.invite-footer small{font-size:11px;font-weight:800}
-.reveal{opacity:0;transform:translateY(18px);animation:riseIn .75s forwards}
-.event-details.reveal{animation-delay:.18s}.rsvp-card.reveal{animation-delay:.28s}
-.celebration-overlay{position:fixed;z-index:20;left:0;right:0;top:12%;text-align:center;color:#ef4b97;font-size:clamp(22px,6vw,48px);letter-spacing:8px;pointer-events:none;text-shadow:0 2px white;animation:celebrate 2.5s ease-out forwards}
-@keyframes riseIn{to{opacity:1;transform:translateY(0)}}@keyframes twinkle{0%,100%{opacity:.55;transform:scale(.8) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(12deg)}}@keyframes heroFloat{0%,100%{translate:0 0}50%{translate:0 -9px}}@keyframes celebrate{0%{opacity:0;transform:translateY(30px) scale(.5)}15%{opacity:1;transform:translateY(0) scale(1)}70%{opacity:1;transform:translateY(-18px) scale(1.08)}100%{opacity:0;transform:translateY(-60px) scale(1.2)}}
-@media(max-width:650px){
- .invite-page{padding:12px 8px 25px}
- .poster-top{padding:14px 12px 0;border-radius:22px 22px 0 0;border-width:4px}
- .poster-brand{min-height:92px;gap:8px}
- .brand-mark span{font-size:10px}.brand-mark strong{font-size:31px}.brand-mark b{font-size:17px}
- .mission-bubble{padding:10px 12px;font-size:14px;border-width:2px}
- .girls-scene{height:clamp(175px,53vw,245px);margin:0 -7px}
- .birthday-title{padding:20px 10px 22px;border-left-width:4px;border-right-width:4px}
- .birthday-title h1{font-size:clamp(61px,16vw,88px);gap:7px;letter-spacing:-3px}
- .title-heart{right:5%;top:0;font-size:18px}
- .invite-message{font-size:15px}
- .event-details{grid-template-columns:1fr;border-width:4px}
- .detail-card{padding:12px 15px;border-right:0;border-bottom:2px dashed #f3b6d5}
- .detail-card:last-child{border-bottom:0}
- .detail-icon{flex-basis:39px;height:39px;font-size:22px}
- .detail-card small{font-size:11px}
- .detail-card strong{font-size:15px}
- .rsvp-card{margin-top:18px;padding:20px 14px 24px;border-radius:20px;border-width:3px}
- .rsvp-heading{margin:-2px -4px 18px;padding:10px 7px;gap:7px}
- .rsvp-heading h2{font-size:26px}.rsvp-heading p{font-size:11px}.mini-star{font-size:18px}
- .guest-label-row{display:block}.field-hint{display:block;text-align:left}
- .attendance-options{grid-template-columns:1fr}
- .invite-footer{margin-top:18px}
-}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
-
-/* Poster composition tuned to the supplied invitation reference. */
-body.invite-page{padding:24px 12px 38px;background-color:#fff0f8;background-image:repeating-conic-gradient(from 258deg at 50% 38%,#ffd8ed 0deg 10deg,#f43ca3 10deg 19deg,#54c8f1 19deg 31deg,#fff0f8 31deg 42deg,#a9e96b 42deg 54deg);background-attachment:fixed}
-.invite-page .invite-shell{width:min(100%,790px);overflow:hidden;border:6px solid #fff;border-radius:30px 30px 24px 24px;background:#ffedf7;box-shadow:0 15px 45px #56276635;filter:none}
-.invite-page .poster-top{height:clamp(365px,53vw,485px);padding:0 20px;border:0;border-radius:0;background:repeating-conic-gradient(from 252deg at 50% 88%,#ff8bc5 0deg 15deg,#ffd1e9 15deg 30deg,#45c7f1 30deg 45deg,#ff93c5 45deg 60deg,#b2ec71 60deg 75deg);overflow:hidden}
-.invite-page .poster-brand{position:absolute;inset:17px 18px auto;min-height:0;align-items:flex-start}
-.invite-page .brand-mark{transform:rotate(-5deg) scale(1.08);transform-origin:top left;filter:drop-shadow(2px 3px 0 #fff) drop-shadow(4px 5px 0 #17121c)}
-.invite-page .brand-mark strong{color:#f72b9b;font-size:clamp(30px,5vw,49px);line-height:.76;-webkit-text-stroke:2px #17121c;text-shadow:2px 2px 0 white}
-.invite-page .brand-mark b{color:#49c6f4;font-size:27px;-webkit-text-stroke:1.5px #17121c;text-shadow:1px 2px white}
-.invite-page .mission-bubble{max-width:275px;padding:17px 26px;background:#fff3fb;border:4px solid #201923;border-radius:48%;font-size:clamp(17px,2.6vw,24px);line-height:1.04;box-shadow:0 5px 0 #f66bb1;transform:rotate(2deg)}
-.invite-page .mission-bubble strong{color:#17121c}
-.invite-page .mission-bubble i{display:none}
-.invite-page .girls-scene{position:absolute;inset:auto 0 0;height:81%;margin:0;overflow:hidden}
-.invite-page .ray{inset:-5% 0 0;opacity:.22}
-.invite-page .powerpuff-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;filter:drop-shadow(0 8px 7px #73417a2c)}
-.invite-page .cityline{display:none}
-.invite-page .hero-spark{position:absolute;z-index:2;color:#ffd72e;font-size:38px;-webkit-text-stroke:2px #e99a00;text-shadow:2px 3px white;animation:twinkle 2.7s infinite}
-.invite-page .hero-spark-one{left:20%;top:28%}.invite-page .hero-spark-two{right:8%;top:42%;color:#f4218b;font-size:42px}.invite-page .hero-spark-three{left:63%;top:48%;font-size:32px}
-.invite-page .birthday-title{padding:12px 20px 8px;border:0;background:linear-gradient(180deg,#fff9fd,#ffedf7)}
-.invite-page .title-ribbon{margin-bottom:5px;padding:5px 34px;border-width:4px;border-radius:50% 50% 18% 18%;font-size:clamp(19px,3.4vw,29px);letter-spacing:0}
-.invite-page .birthday-title h1{gap:10px;font-size:clamp(74px,13vw,122px);line-height:.88;letter-spacing:-5px}
-.invite-page .age-bubble{width:54px;height:54px;border:4px solid white;background:#72d34e;font-size:30px}
-.invite-page .title-heart{display:none}
-.invite-page .invite-message{margin:11px auto 0;color:#17121c;font-size:clamp(16px,2.55vw,22px);line-height:1.15;text-shadow:1px 1px white}
-.invite-page .title-swoosh{display:none}
-.invite-page .event-details{position:relative;z-index:1;grid-template-columns:1.1fr .82fr 1.1fr;gap:7px;padding:6px 16px 14px;border:0;background:#ffedf7;box-shadow:none}
-.invite-page .detail-card{gap:8px;min-height:91px;padding:10px 9px;border:3px solid white;border-radius:24px;background:linear-gradient(135deg,#fff 0%,#ffe3f1 100%);box-shadow:0 3px 0 #efa8d0}
-.invite-page .detail-card:nth-child(2){background:linear-gradient(135deg,#fff,#dbeeff);box-shadow:0 3px 0 #6cbaf1}
-.invite-page .detail-card:nth-child(3){background:linear-gradient(135deg,#fff,#e8f7d4);box-shadow:0 3px 0 #99d45d}
-.invite-page .detail-icon{flex-basis:42px;height:42px;background:#fff;border:2px solid currentColor;font-size:24px}
-.invite-page .detail-card small{margin-bottom:2px;color:#17121c;font-size:14px}
-.invite-page .detail-card strong{font-size:clamp(13px,1.9vw,18px)}
-.invite-page .detail-card em{color:#17121c;font-size:11px;line-height:1.1}
-.invite-page .rsvp-card{position:relative;z-index:1;margin:0 auto;padding:27px clamp(18px,4vw,34px) 16px;max-width:680px;border:4px solid #ed1686;border-radius:48px;background:linear-gradient(145deg,#fff,#ffedf8);box-shadow:none}
-.invite-page .rsvp-heading{min-height:54px;margin:-36px 3% 11px;padding:5px 12px;border:3px solid white;border-radius:45%;background:linear-gradient(90deg,#ec1684,#ff53a5);box-shadow:0 4px 0 #c32677}
-.invite-page .rsvp-heading h2{font-size:clamp(24px,4vw,37px)}
-.invite-page .rsvp-heading p{display:none}
-.invite-page form>label,.invite-page .guest-label-row>label{margin:10px 0 5px;color:#17121c;font-size:14px}
-.invite-page .optional-field,.invite-page .field-hint,.invite-page #phone,.invite-page form>label[for="notes"],.invite-page #notes,.invite-page .add-guest{display:none}
-.invite-page input:not([type=radio]){padding:10px 13px;border:2px solid #aeb6c5;border-radius:22px;background:#fff;font-size:15px}
-.invite-page .guest-label-row{display:block;margin-top:6px}
-.invite-page .guest-list{gap:5px}
-.invite-page .guest-row input{min-height:39px}
-.invite-page .remove-guest{width:34px;height:34px}
-.invite-page .attendance-options{grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}
-.invite-page .attendance-option span{padding:8px 5px;border:0;background:transparent;color:#17121c;font-size:13px}
-.invite-page .attendance-option input:checked+span{background:#ecf9e8;box-shadow:inset 0 0 0 2px #74c866;border-radius:18px}
-.invite-page .submit-button{width:min(100%,385px);margin:0 auto;padding:10px 16px;border:2px solid white;border-radius:28px;background:linear-gradient(100deg,#f20b82,#fd3695);font-size:24px;box-shadow:0 4px 0 #c81d73}
-.invite-page .privacy-note{display:none}
-.invite-page .invite-footer{margin:0;padding:19px 15px 22px;border-radius:0;background:radial-gradient(ellipse at 50% 120%,#f73d9e 0 48%,transparent 49%),linear-gradient(90deg,#ffadd4,#d6eaff,#c9efb2);color:white;text-shadow:2px 3px 0 #21152f,-1px -1px 0 #21152f}
-.invite-page .invite-footer strong{font-size:clamp(23px,4vw,34px);font-style:italic}
-.invite-page .invite-footer div,.invite-page .invite-footer small{display:none}
-@media(max-width:650px){body.invite-page{padding:10px 7px 24px;background-attachment:scroll}.invite-page .invite-shell{border-width:4px;border-radius:22px}.invite-page .poster-top{height:clamp(285px,86vw,410px);padding:0 9px}.invite-page .poster-brand{inset:13px 10px auto}.invite-page .brand-mark{transform:rotate(-5deg) scale(.8)}.invite-page .brand-mark strong{font-size:34px}.invite-page .brand-mark b{font-size:20px}.invite-page .mission-bubble{max-width:55%;padding:11px 13px;font-size:clamp(13px,3.5vw,17px);border-width:3px}.invite-page .girls-scene{height:78%}.invite-page .powerpuff-art{object-position:center 45%}.invite-page .hero-spark{font-size:27px}.invite-page .birthday-title{padding:12px 8px 6px}.invite-page .title-ribbon{font-size:18px;padding:4px 23px}.invite-page .birthday-title h1{font-size:clamp(62px,16vw,91px);gap:6px;letter-spacing:-3px}.invite-page .age-bubble{width:42px;height:42px;font-size:22px}.invite-page .invite-message{font-size:14px}.invite-page .event-details{grid-template-columns:1fr 1fr;gap:6px;padding:6px 9px 11px}.invite-page .detail-card{min-height:70px;padding:7px;border-radius:18px}.invite-page .detail-card:last-child{grid-column:1/-1;min-height:65px}.invite-page .detail-icon{flex-basis:34px;height:34px;font-size:19px}.invite-page .detail-card small{font-size:12px}.invite-page .detail-card strong{font-size:14px}.invite-page .detail-card em{font-size:10px}.invite-page .rsvp-card{margin:0 8px;padding:24px 12px 13px;border-width:3px;border-radius:30px}.invite-page .rsvp-heading{min-height:46px;margin:-32px 1% 7px;padding:4px 6px}.invite-page .rsvp-heading h2{font-size:23px}.invite-page form>label,.invite-page .guest-label-row>label{font-size:13px;margin:8px 0 4px}.invite-page input:not([type=radio]){min-height:38px;padding:7px 11px;font-size:14px}.invite-page .attendance-options{grid-template-columns:1fr 1fr;gap:2px;margin:7px 0}.invite-page .attendance-option span{font-size:11px}.invite-page .submit-button{padding:8px;font-size:21px}.invite-page .invite-footer{padding:16px 9px}.invite-page .invite-footer strong{font-size:23px}}
-
-/* The supplied invitation is the poster artwork; live controls align over its RSVP panel. */
-.invite-page .invite-shell{position:relative;width:min(100%,700px);aspect-ratio:2/3;height:auto;border:0;border-radius:0;overflow:hidden;background:#ffb3dc;box-shadow:0 16px 44px #4d245038}
-.invite-page .reference-poster{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:fill}
-.invite-page .poster-rsvp-overlay,.invite-page .original-layout{display:none}
-.invite-page .live-rsvp-card{position:absolute;z-index:3;left:12%;top:62.1%;width:76%;height:25.6%;padding:0;border:0;border-radius:5%;background:transparent;box-shadow:none}
-.invite-page .live-rsvp-card h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.invite-page .live-rsvp-card form{position:absolute;inset:0}
-.invite-page .live-rsvp-card form>label,.invite-page .live-rsvp-card .guest-label-row{position:absolute;left:8%;top:16%;margin:0;color:transparent;font-size:1px}
-.invite-page .live-rsvp-card #responsible{position:absolute;left:5%;top:27%;width:90%;height:14%;padding:0 12px;border:0!important;border-radius:20px!important;background:transparent!important;box-shadow:none!important;color:#21162b;font-size:clamp(12px,2vw,19px)}
-.invite-page .live-rsvp-card #responsible::placeholder{color:#85858e;opacity:1}
-.invite-page .live-rsvp-card .guest-label-row{top:44%}
-.invite-page .live-rsvp-card #guest-list{position:absolute;left:5%;top:53%;width:90%;height:17%}
-.invite-page .live-rsvp-card #guest-list .guest-row{height:100%}
-.invite-page .live-rsvp-card #guest-list input{width:100%;height:100%;padding:0 12px;border:0!important;border-radius:20px!important;background:transparent!important;box-shadow:none!important;color:#21162b;font-size:clamp(12px,2vw,19px)}
-.invite-page .live-rsvp-card #guest-list input::placeholder{color:#85858e;opacity:1}
-.invite-page .live-rsvp-card #guest-list .remove-guest{position:absolute;right:-8px;top:0;width:25px;height:25px;padding:0}
-.invite-page .live-rsvp-card #guest-list .remove-guest{display:none}
-.invite-page .live-rsvp-card .optional-field,.invite-page .live-rsvp-card #phone,.invite-page .live-rsvp-card .add-guest,.invite-page .live-rsvp-card form>label[for="notes"],.invite-page .live-rsvp-card #notes,.invite-page .live-rsvp-card .privacy-note{display:none!important}
-.invite-page .live-rsvp-card .attendance-options{position:absolute;left:4%;top:69%;width:92%;height:11%;display:grid;grid-template-columns:1fr 1fr;gap:3%;margin:0}
-.invite-page .live-rsvp-card .attendance-option{height:100%;display:block}
-.invite-page .live-rsvp-card .attendance-option input{position:absolute;left:0;top:18%;width:24px;height:24px;opacity:0;cursor:pointer}
-.invite-page .live-rsvp-card .attendance-option span{height:100%;padding:0 0 0 28px;display:flex;align-items:center;justify-content:flex-start;border:0;border-radius:0;background:transparent;color:transparent;font-size:clamp(10px,1.65vw,16px);white-space:nowrap}
-.invite-page .live-rsvp-card .attendance-option input:checked+span{background:transparent;box-shadow:none}
-.invite-page .live-rsvp-card .attendance-option input:focus-visible+span{outline:2px solid #247aca;border-radius:10px}
-.invite-page .live-rsvp-card .submit-button{position:absolute;left:18%;top:79%;width:64%;height:13%;padding:0;border:0;border-radius:30px;background:transparent;color:transparent;font-size:1px;box-shadow:none}
-.invite-page .live-rsvp-card .submit-button span{color:transparent;font-size:1px}
-.invite-page .live-rsvp-card .form-message{position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;color:#34213f;font-size:13px}
-.invite-page .poster-live-details,.invite-page .poster-live-date{position:absolute;z-index:2;display:flex;flex-direction:column;justify-content:center;text-align:center;pointer-events:none;color:#ed1681}
-.invite-page .poster-live-details{left:75%;top:53.1%;width:20%;height:4.7%;padding:1px 3px;border-radius:8px;background:rgba(239,248,220,.97);font-family:'Nunito',sans-serif;font-size:clamp(10px,1.7vw,16px);line-height:1.05}
-.invite-page .poster-live-details strong{font-weight:1000}.invite-page .poster-live-details span{margin-top:3px;color:#17121c;font-size:.78em;font-weight:900}
-.invite-page .poster-live-date{left:16%;top:54.2%;width:19%;height:3.8%;padding:1px 2px;border-radius:7px;background:rgba(255,238,247,.97);font-size:clamp(13px,2.2vw,21px);line-height:1.05;font-weight:1000}
-.invite-page .poster-live-date span{color:#17121c;font-size:.78em}
-@media(max-width:650px){.invite-page .invite-shell{width:min(100%,460px);border:0;border-radius:0}.invite-page .live-rsvp-card{left:11.5%;width:77%;top:62.2%;height:25.5%}.invite-page .live-rsvp-card #responsible,.invite-page .live-rsvp-card #guest-list input{font-size:12px}.invite-page .live-rsvp-card .attendance-option span{font-size:9px;padding-left:19px}.invite-page .live-rsvp-card .attendance-option input{width:18px;height:18px}.invite-page .live-rsvp-card .submit-button{left:18%;width:64%}.invite-page .poster-live-details{font-size:10px}.invite-page .poster-live-date{font-size:13px}}
-
-/* Clean, animated layout: the supplied artwork is used only for the character scene. */
-body.invite-page{padding:24px 14px 42px;background:radial-gradient(ellipse at 7% 22%,#ffd6ec 0,transparent 28%),radial-gradient(ellipse at 94% 44%,#d5f3ff 0,transparent 28%),linear-gradient(145deg,#fff5fb,#fffaff 58%,#f0fbff);background-attachment:scroll}
-.invite-page .invite-shell{width:min(100%,700px);height:auto;aspect-ratio:auto;overflow:hidden;border:5px solid white;border-radius:28px;background:#fff8fc;box-shadow:0 16px 45px #81426d2b}
-.hero-scene{position:relative;width:100%;aspect-ratio:2.13;overflow:hidden;isolation:isolate;background:repeating-conic-gradient(from 258deg at 50% 78%,#ffb3db 0deg 16deg,#55c9f4 16deg 32deg,#f4efff 32deg 48deg,#a9e971 48deg 64deg)}
-.hero-art{position:absolute;z-index:2;left:0;top:0;width:100%;height:auto;display:block;animation:heroArrive 1.25s cubic-bezier(.17,.8,.25,1) both;clip-path:inset(0 0 50% 0)}
-.hero-trails{position:absolute;z-index:1;left:15%;right:15%;top:53%;height:38%;pointer-events:none}
-.hero-trails i{position:absolute;left:50%;top:10%;width:35%;height:18%;border-radius:50%;filter:blur(13px);opacity:0;transform:translate(-50%,-50%) rotate(-25deg);animation:trailAppear 1.1s ease-out forwards}
-.hero-trails i:nth-child(1){background:#35bdf5;top:30%;left:28%;animation-delay:.35s}.hero-trails i:nth-child(2){background:#fb3c9e;top:8%;left:52%;animation-delay:.5s}.hero-trails i:nth-child(3){background:#80dc48;top:34%;left:76%;animation-delay:.65s}
-.mission-note{position:absolute;z-index:3;right:3%;top:4%;padding:10px 20px;background:#fff3fb;border:3px solid #25172a;border-radius:50%;color:#24162b;text-align:center;font-family:'Baloo 2',sans-serif;font-size:clamp(13px,2.5vw,21px);font-weight:800;line-height:1;box-shadow:0 4px 0 #ef79ba;transform:rotate(2deg)}
-.birthday-title{padding:17px 14px 16px;text-align:center;background:linear-gradient(#fffafd,#ffedf7);border:0}
+body{margin:0;min-height:100vh;font-family:'Nunito',sans-serif;color:var(--ink)}
+button,input,textarea{font:inherit}button{cursor:pointer}[hidden]{display:none!important}
+.invite-page{padding:24px 14px 40px;background:#fff1f8 url('/festa-background.svg') center top/cover fixed no-repeat;overflow-x:hidden}
+.sparkle-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;color:#f15ba6;z-index:0}
+.sparkle-layer span{position:absolute;font-size:25px;animation:twinkle 3s ease-in-out infinite}
+.sparkle-layer span:nth-child(1){left:4%;top:14%}.sparkle-layer span:nth-child(2){right:6%;top:10%;animation-delay:.4s}.sparkle-layer span:nth-child(3){right:4%;top:44%;animation-delay:.8s}.sparkle-layer span:nth-child(4){left:7%;top:68%;animation-delay:1.2s}.sparkle-layer span:nth-child(5){right:10%;top:81%;animation-delay:.6s}.sparkle-layer span:nth-child(6){left:15%;top:91%;animation-delay:1.4s}.sparkle-layer span:nth-child(7){left:73%;top:5%;animation-delay:1.8s}.sparkle-layer span:nth-child(8){left:44%;top:87%;animation-delay:1s}
+.invite-shell{position:relative;z-index:1;width:min(100%,700px);margin:0 auto;overflow:hidden;border:5px solid #fff;border-radius:28px;background:#fff8fc;box-shadow:0 16px 45px #56276635}
+.hero-scene{position:relative;width:100%;aspect-ratio:2.2;overflow:hidden;isolation:isolate;background:repeating-conic-gradient(from 258deg at 50% 78%,#ffb3db 0deg 16deg,#55c9f4 16deg 32deg,#f4efff 32deg 48deg,#a9e971 48deg 64deg)}
+.hero-art{position:absolute;inset:0;z-index:2;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;animation:heroArrive 1.2s cubic-bezier(.17,.8,.25,1) both}
+.hero-trails{position:absolute;z-index:1;left:10%;right:10%;top:38%;height:58%;pointer-events:none}
+.hero-trails i{position:absolute;left:50%;top:12%;width:34%;height:18%;border-radius:50%;filter:blur(12px);opacity:0;transform:translate(-50%,20px) rotate(-25deg);animation:trailAppear 1s ease-out both;mix-blend-mode:screen}
+.hero-trails i:nth-child(1){background:#27b9f2;left:27%;top:35%;animation-delay:.2s}.hero-trails i:nth-child(2){background:#f52d91;left:52%;top:8%;animation-delay:.35s}.hero-trails i:nth-child(3){background:#73d842;left:76%;top:37%;animation-delay:.5s}
+.brand-logo-pt{position:absolute;z-index:4;left:.7%;top:0;width:44%;height:43%;object-fit:contain;filter:drop-shadow(2px 3px 0 white) drop-shadow(3px 4px 0 #171321);animation:logoPop .75s .2s both cubic-bezier(.2,.8,.2,1)}
+.birthday-title{padding:17px 14px 16px;text-align:center;background:linear-gradient(#fffafd,#ffedf7)}
 .title-ribbon{display:inline-block;margin:0 auto 4px;padding:5px 24px;border:3px solid white;border-radius:40% 40% 17% 17%;background:#f01885;color:#fff;font-size:clamp(17px,3vw,24px);font-weight:1000;box-shadow:0 3px 0 #a6206e;transform:rotate(-1deg)}
 .birthday-title h1{margin:0;color:#f21a89;font-family:'Baloo 2',sans-serif;font-size:clamp(54px,10vw,88px);font-weight:1000;line-height:1;letter-spacing:-2px;-webkit-text-stroke:2px white;text-shadow:2px 4px 0 #24172b,4px 7px 0 #b82d79}
 .invite-message{margin:8px auto 0;color:#21182c;font-family:'Baloo 2',sans-serif;font-size:clamp(14px,2.5vw,19px);font-weight:800;line-height:1.16}
-.event-details{display:grid;grid-template-columns:1.08fr .82fr 1.15fr;gap:8px;padding:0 16px 16px;border:0;background:#ffedf7;box-shadow:none}
+.event-details{display:grid;grid-template-columns:1.08fr .82fr 1.15fr;gap:8px;padding:0 16px 16px;background:#ffedf7}
 .detail-card{display:flex;align-items:center;gap:10px;min-width:0;min-height:86px;padding:10px;border:3px solid white;border-radius:24px;background:linear-gradient(135deg,#fff,#ffe2f0);box-shadow:0 3px 0 #efa8d0}
 .time-card{background:linear-gradient(135deg,#fff,#dcefff);box-shadow:0 3px 0 #67b9ef}.venue-card{background:linear-gradient(135deg,#fff,#e8f7d4);box-shadow:0 3px 0 #98d45d}
-.detail-icon{display:grid;place-items:center;flex:0 0 40px;height:40px;border:2px solid currentColor;border-radius:50%;background:#fff;color:#ed328b;font-size:24px;font-weight:900}
-.time-card .detail-icon{color:#288ecb}.venue-card .detail-icon{color:#e82484}
+.detail-icon{display:grid;place-items:center;flex:0 0 40px;height:40px;border:2px solid currentColor;border-radius:50%;background:#fff;color:#ed328b;font-size:24px;font-weight:900}.time-card .detail-icon{color:#288ecb}.venue-card .detail-icon{color:#e82484}
 .detail-card small{display:block;color:#21182c;font-size:12px;font-weight:900}.detail-card strong{display:block;color:#df267f;font-family:'Baloo 2',sans-serif;font-size:clamp(12px,1.9vw,17px);font-weight:900;line-height:1.1;overflow-wrap:anywhere}.time-card strong{color:#2357a6}.detail-card em{display:block;margin-top:3px;color:#21182c;font-size:10px;font-style:normal;font-weight:800;line-height:1.15}.detail-card a{color:#2386ba;font-size:10px;font-weight:900}
-.invite-page .rsvp-card{width:calc(100% - 60px);max-width:600px;margin:12px auto 17px;padding:22px clamp(16px,4vw,32px);border:3px solid #f01885;border-radius:36px;background:linear-gradient(145deg,#fff,#ffedf7);box-shadow:0 8px 20px #ac4a8415}
-.invite-page .rsvp-heading{display:flex;align-items:center;justify-content:center;gap:14px;margin:-34px 4% 11px;padding:7px 12px;border:3px solid white;border-radius:40px;background:linear-gradient(90deg,#ef1685,#fa4da2);color:white;box-shadow:0 4px 0 #c42477}.invite-page .rsvp-heading h2{margin:0;color:white;font-family:'Baloo 2',sans-serif;font-size:clamp(23px,4vw,32px);line-height:1.1}.invite-page .rsvp-heading span{color:#ffdf39;font-size:22px;text-shadow:1px 2px #24172b}
-.invite-page .rsvp-card form>label,.invite-page .guest-label-row>label{display:block;margin:10px 0 5px;color:#21182c;font-size:13px;font-weight:900}.invite-page .rsvp-card form>label small{color:#99879a;font-size:10px}
-.invite-page .rsvp-card input:not([type=radio]),.invite-page .rsvp-card textarea{width:100%;min-height:42px;padding:9px 13px;border:2px solid #adb5c7;border-radius:18px;background:#fff;color:#34213f;font-size:14px}.invite-page .rsvp-card textarea{min-height:58px;border-radius:13px;resize:vertical}
-.invite-page .guest-label-row{display:flex;align-items:end;justify-content:space-between;gap:8px;margin-top:10px}.invite-page .guest-label-row>label{margin:0 0 5px}.invite-page .field-hint{margin:0 0 5px;color:#99879a;font-size:10px;text-align:right}.invite-page .guest-list{display:grid;gap:7px}.invite-page .guest-row{display:flex;align-items:center;gap:7px}.invite-page .guest-row input{flex:1;min-width:0}.invite-page .remove-guest{width:36px;height:36px;border:0;border-radius:10px;background:#fff0f6;color:#d94b8c;font-size:20px}.invite-page .add-guest{margin-top:7px;padding:8px 12px;border:1px dashed #73bde6;border-radius:10px;background:#f3fbff;color:#2586c4;font-size:11px;font-weight:900}
-.invite-page .attendance-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.invite-page .attendance-option span{display:block;padding:9px 6px;border:1px solid #cfe6c8;border-radius:12px;background:#f7fff4;color:#315d32;text-align:center;font-size:12px;font-weight:900}.invite-page .attendance-option input:checked+span{border-color:#67c652;background:#ebffe6}
-.invite-page .submit-button{display:block;width:min(100%,390px);margin:0 auto;padding:11px 14px;border:2px solid white;border-radius:26px;background:linear-gradient(100deg,#ef1685,#fc4ca0);color:white;font-family:'Baloo 2',sans-serif;font-size:21px;font-weight:900;box-shadow:0 4px 0 #c52477}.invite-page .privacy-note{margin:9px 0 0;color:#9a899d;text-align:center;font-size:10px}.invite-page .invite-footer{margin:0;padding:20px 12px;background:linear-gradient(90deg,#f9b3d6,#d6eaff,#c7efae);border-radius:0;text-align:center;text-shadow:1px 2px #8d4a82;color:white;font-family:'Baloo 2',sans-serif}.invite-page .invite-footer strong{font-size:clamp(21px,4vw,29px);line-height:1.05}
+.rsvp-card{width:calc(100% - 60px);max-width:600px;margin:12px auto 17px;padding:22px clamp(16px,4vw,32px);border:3px solid #f01885;border-radius:36px;background:linear-gradient(145deg,#fff,#ffedf7);box-shadow:0 8px 20px #ac4a8415}
+.rsvp-heading{display:flex;align-items:center;justify-content:center;gap:14px;margin:-34px 4% 11px;padding:7px 12px;border:3px solid white;border-radius:40px;background:linear-gradient(90deg,#ef1685,#fa4da2);color:white;box-shadow:0 4px 0 #c42477}.rsvp-heading h2{margin:0;color:white;font-family:'Baloo 2',sans-serif;font-size:clamp(23px,4vw,32px);line-height:1.1}.rsvp-heading span{color:#ffdf39;font-size:22px;text-shadow:1px 2px #24172b}
+.rsvp-card form>label,.guest-label-row>label{display:block;margin:10px 0 5px;color:#21182c;font-size:13px;font-weight:900}.rsvp-card form>label small{color:#99879a;font-size:10px}
+.rsvp-card input:not([type=radio]),.rsvp-card textarea{width:100%;min-height:42px;padding:9px 13px;border:2px solid #adb5c7;border-radius:18px;background:#fff;color:#34213f;font-size:14px;outline:none}.rsvp-card textarea{min-height:58px;border-radius:13px;resize:vertical}.rsvp-card input:focus,.rsvp-card textarea:focus{border-color:#54bce9;box-shadow:0 0 0 3px #54bce92b}
+.guest-label-row{display:flex;align-items:end;justify-content:space-between;gap:8px;margin-top:10px}.guest-label-row>label{margin:0 0 5px}.field-hint{margin:0 0 5px;color:#99879a;font-size:10px;text-align:right}.guest-list{display:grid;gap:7px}.guest-row{display:flex;align-items:center;gap:7px}.guest-row input{flex:1;min-width:0}.remove-guest{width:36px;height:36px;border:0;border-radius:10px;background:#fff0f6;color:#d94b8c;font-size:20px}.add-guest{margin-top:7px;padding:8px 12px;border:1px dashed #73bde6;border-radius:10px;background:#f3fbff;color:#2586c4;font-size:11px;font-weight:900}
+.attendance-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.attendance-option{position:relative;display:block;cursor:pointer}.attendance-option input{position:absolute;opacity:0}.attendance-option span{display:block;padding:9px 6px;border:1px solid #cfe6c8;border-radius:12px;background:#f7fff4;color:#315d32;text-align:center;font-size:12px;font-weight:900}.attendance-option input:checked+span{border-color:#67c652;background:#ebffe6}.attendance-option input:focus-visible+span{outline:2px solid #288ecb}
+.submit-button{display:block;width:min(100%,390px);margin:0 auto;padding:11px 14px;border:2px solid white;border-radius:26px;background:linear-gradient(100deg,#ef1685,#fc4ca0);color:white;font-family:'Baloo 2',sans-serif;font-size:21px;font-weight:900;box-shadow:0 4px 0 #c52477;transition:transform .18s}.submit-button:hover{transform:translateY(-2px)}.submit-button:disabled{opacity:.65;cursor:wait}
+.privacy-note{margin:9px 0 0;color:#9a899d;text-align:center;font-size:10px}.form-message{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.5}.form-message.show{display:block}.form-message.success{background:#e9fbe6;color:#286d31}.form-message.error{background:#fff0f3;color:#a3224b}
+.invite-footer{padding:20px 12px;background:linear-gradient(90deg,#f9b3d6,#d6eaff,#c7efae);text-align:center;color:white;text-shadow:1px 2px #8d4a82;font-family:'Baloo 2',sans-serif}.invite-footer strong{font-size:clamp(21px,4vw,29px);line-height:1.05}
+.celebration-overlay{position:fixed;z-index:20;inset:12% 0 auto;text-align:center;color:#ef4b97;font-size:clamp(22px,6vw,48px);letter-spacing:8px;pointer-events:none;text-shadow:0 2px white;animation:celebrate 2.5s ease-out forwards}
 @keyframes heroArrive{0%{opacity:0;transform:translateY(32px) scale(.96);filter:saturate(.5)}72%{opacity:1;transform:translateY(-5px) scale(1.01);filter:saturate(1.2)}100%{opacity:1;transform:translateY(0) scale(1);filter:saturate(1)}}
-@keyframes trailAppear{0%{opacity:0;transform:translate(-50%,25px) scaleX(.1) rotate(-25deg)}40%{opacity:.75}100%{opacity:.16;transform:translate(-50%,-40px) scaleX(2.2) rotate(-25deg)}}
-@media(max-width:600px){.invite-page{padding:10px 7px 24px}.invite-page .invite-shell{border-width:3px;border-radius:19px}.mission-note{right:2%;top:4%;padding:8px 12px;font-size:clamp(11px,3vw,15px)}.birthday-title{padding:13px 8px}.birthday-title h1{font-size:clamp(50px,13vw,72px)}.invite-message{font-size:13px}.event-details{grid-template-columns:1fr 1fr;padding:0 8px 12px;gap:6px}.detail-card{min-height:67px;padding:7px;border-radius:17px;gap:7px}.venue-card{grid-column:1/-1}.detail-icon{flex-basis:33px;height:33px;font-size:19px}.detail-card small{font-size:11px}.detail-card strong{font-size:14px}.invite-page .rsvp-card{width:calc(100% - 24px);margin:10px auto 14px;padding:19px 12px 14px;border-radius:27px}.invite-page .rsvp-heading{margin:-30px 1% 9px;gap:7px;padding:6px}.invite-page .rsvp-heading h2{font-size:22px}.invite-page .rsvp-card form>label,.invite-page .guest-label-row>label{font-size:12px}.invite-page .field-hint{font-size:9px}.invite-page .attendance-options{gap:4px}.invite-page .attendance-option span{font-size:10px}.invite-page .submit-button{font-size:19px}}
-@media(prefers-reduced-motion:reduce){.hero-art,.hero-trails i{animation:none!important}}
-body.invite-page{background-image:url('/festa-background.svg');background-repeat:no-repeat;background-size:cover;background-position:center top}
-.hero-scene{aspect-ratio:2.2}
-.hero-art{width:100%;height:100%;object-fit:cover;object-position:center top;clip-path:none}
-.brand-logo-pt{position:absolute;z-index:4;left:1.2%;top:1%;width:40%;height:39%;object-fit:contain;filter:drop-shadow(2px 3px 0 white) drop-shadow(3px 4px 0 #171321);animation:logoPop .75s .2s both cubic-bezier(.2,.8,.2,1)}
-.hero-trails i{mix-blend-mode:screen;filter:blur(10px)}
+@keyframes trailAppear{0%{opacity:0;transform:translate(-50%,25px) scaleX(.1) rotate(-25deg)}35%{opacity:.8}100%{opacity:.14;transform:translate(-50%,-40px) scaleX(2.2) rotate(-25deg)}}
 @keyframes logoPop{0%{opacity:0;transform:scale(.75) rotate(-5deg)}75%{opacity:1;transform:scale(1.04) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
-@media(max-width:600px){.brand-logo-pt{width:40%;height:40%}.hero-scene{aspect-ratio:2.03}}
+@keyframes twinkle{0%,100%{opacity:.55;transform:scale(.8) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(12deg)}}
+@keyframes celebrate{0%{opacity:0;transform:translateY(30px) scale(.5)}15%{opacity:1;transform:translateY(0) scale(1)}70%{opacity:1;transform:translateY(-18px) scale(1.08)}100%{opacity:0;transform:translateY(-60px) scale(1.2)}}
+@media(max-width:600px){.invite-page{padding:10px 7px 24px;background-attachment:scroll}.invite-shell{border-width:3px;border-radius:19px}.hero-scene{aspect-ratio:2.03}.brand-logo-pt{width:44%;height:43%}.birthday-title{padding:13px 8px}.birthday-title h1{font-size:clamp(50px,13vw,72px)}.invite-message{font-size:13px}.event-details{grid-template-columns:1fr 1fr;padding:0 8px 12px;gap:6px}.detail-card{min-height:67px;padding:7px;border-radius:17px;gap:7px}.venue-card{grid-column:1/-1}.detail-icon{flex-basis:33px;height:33px;font-size:19px}.detail-card small{font-size:11px}.detail-card strong{font-size:14px}.rsvp-card{width:calc(100% - 24px);margin:10px auto 14px;padding:19px 12px 14px;border-radius:27px}.rsvp-heading{margin:-30px 1% 9px;gap:7px;padding:6px}.rsvp-heading h2{font-size:22px}.rsvp-card form>label,.guest-label-row>label{font-size:12px}.field-hint{font-size:9px}.attendance-options{gap:4px}.attendance-option span{font-size:10px}.submit-button{font-size:19px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}

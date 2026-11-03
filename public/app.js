@@ -18,7 +18,7 @@
     input.name = "guests";
     input.maxLength = 100;
     input.required = true;
-    input.placeholder = guestList.children.length === 0 ? "Ex.: Ana, Pedro e Maria" : "Nome do acompanhante";
+    input.placeholder = guestList.children.length === 0 ? "Nome do responsável que irá à festa" : "Nome do acompanhante";
     input.autocomplete = "off";
     input.value = value;
     input.setAttribute("aria-label", "Nome da pessoa " + guestCounter);
@@ -37,7 +37,7 @@
   }
   function updateGuestInputs() {
     [...guestList.querySelectorAll("input")].forEach((input, index) => {
-      input.placeholder = index === 0 ? "Ex.: Ana, Pedro e Maria" : "Nome do acompanhante";
+      input.placeholder = index === 0 ? "Nome do responsável que irá à festa" : "Nome do acompanhante";
       input.required = document.querySelector('input[name="status"]:checked').value === "confirmed";
       input.setAttribute("aria-label", "Nome da pessoa " + (index + 1));
     });
@@ -66,10 +66,6 @@
       $("#event-time").textContent = config.time;
       $("#event-venue").textContent = config.venue;
       $("#event-address").textContent = config.address;
-      $("#live-venue").textContent = config.venue;
-      $("#live-address").textContent = config.address;
-      $("#live-date").textContent = config.date;
-      $("#live-time").textContent = config.time;
       if (config.mapUrl) {
         $("#map-link").href = config.mapUrl;
         $("#map-link").hidden = false;
@@ -90,9 +86,7 @@
     event.preventDefault();
     message.className = "form-message";
     const status = document.querySelector('input[name="status"]:checked').value;
-    const names = [...guestList.querySelectorAll("input")]
-      .flatMap(input => input.value.replace(/\s+e\s+/gi, ",").split(/[;,\n]/))
-      .map(name => name.trim()).filter(Boolean);
+    const names = [...guestList.querySelectorAll("input")].map(input => input.value.trim()).filter(Boolean);
     const uniqueNames = new Set(names.map(name => name.toLocaleLowerCase("pt-BR")));
     if (status === "confirmed" && names.length === 0) return showMessage("Adicione o nome de pelo menos uma pessoa.", "error");
     if (uniqueNames.size !== names.length) return showMessage("Há nomes repetidos. Confira a lista de acompanhantes.", "error");
