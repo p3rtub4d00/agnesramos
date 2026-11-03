@@ -10,7 +10,7 @@
   <script src="/app.js" defer></script>
 </head>
 <body class="invite-page">
-  <div class="sparkle-layer" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><span>★</span><span>♡</span><span>✦</span><span>✧</span><span>★</span></div>
+  <div class="sparkle-layer" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><span>★</span><span>♡</span><span>✦</span><span>✧</span><span>★</span><span>💛</span><span>★</span><span>💗</span><span>✦</span></div>
   <main class="invite-shell">
     <section class="poster-top">
       <div class="poster-brand" aria-label="Meninas Superpoderosas">
@@ -18,16 +18,16 @@
         <div class="mission-bubble">Você foi convocado<br>para uma missão<br><strong>muito especial!</strong><i>♥</i></div>
       </div>
       <div class="girls-scene">
-        <div class="ray ray-pink"></div><div class="ray ray-blue"></div><div class="ray ray-green"></div>
+        <div class="ray ray-pink"></div><div class="ray ray-blue"></div><div class="ray ray-green"></div><div class="hero-spark hero-spark-one">★</div><div class="hero-spark hero-spark-two">♥</div><div class="hero-spark hero-spark-three">★</div>
         <img class="powerpuff-art" src="/meninas-superpoderosas.svg" alt="Florzinha, Lindinha e Docinho voando juntas">
         <div class="cityline" aria-hidden="true"><span>▂ ▅ ▃ ▆ ▂ ▄ ▇ ▃ ▅ ▂</span></div>
       </div>
     </section>
 
     <section class="birthday-title reveal">
-      <div class="title-ribbon">ANIVERSÁRIO DA</div>
+      <div class="title-ribbon">Aniversário da</div>
       <h1 id="event-name">Agnes<span class="age-bubble">5</span><span class="title-heart">♥</span></h1>
-      <p class="invite-message">Venha comemorar comigo essa data tão especial!<br>Será uma festa cheia de diversão, brincadeiras e muita alegria!</p>
+      <p class="invite-message">Venha comemorar comigo essa data tão especial!<br>Será uma festa cheia de diversão, brincadeiras<br>e muita alegria!</p>
       <div class="title-swoosh"></div>
     </section>
 
@@ -38,13 +38,13 @@
     </section>
 
     <section class="rsvp-card reveal" id="rsvp">
-      <div class="rsvp-heading"><span class="mini-star">★</span><div><h2>Confirme sua presença</h2><p>Estamos esperando por você!</p></div><span class="mini-star">★</span></div>
+      <div class="rsvp-heading"><span class="mini-star">★</span><div><h2>Confirme sua presença</h2></div><span class="mini-star">★</span></div>
       <form id="rsvp-form">
-        <label for="responsible">♟ Nome do responsável: <span>*</span></label>
+        <label for="responsible">♟ Nome do responsável:</label>
         <input id="responsible" name="responsible" maxlength="100" autocomplete="name" placeholder="Ex.: João da Silva" required>
-        <label for="phone">WhatsApp para contato <small>(opcional)</small></label>
+        <label for="phone" class="optional-field">WhatsApp para contato <small>(opcional)</small></label>
         <input id="phone" name="phone" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="(69) 99999-9999">
-        <div class="guest-label-row"><label>♟ Quem vai à festa? <span>*</span></label><span class="field-hint">Informe o responsável e os acompanhantes</span></div>
+        <div class="guest-label-row"><label>♟ Quem vai à festa?</label><span class="field-hint">Informe o responsável e os acompanhantes</span></div>
         <div id="guest-list" class="guest-list"></div>
         <button type="button" class="add-guest" id="add-guest">＋ Adicionar outra pessoa</button>
         <label for="notes">Recadinho para a família <small>(opcional)</small></label>
