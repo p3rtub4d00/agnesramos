@@ -3,52 +3,55 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f52f91">
-  <meta name="description" content="Convite de aniversário das Meninas Superpoderosas">
+  <meta name="theme-color" content="#ff4f9a">
+  <meta name="description" content="Um convite superpoderoso para uma festa especial!">
   <title>Convite de aniversário</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body class="invite-page">
-  <div class="sparkle-layer" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><span>★</span><span>♡</span><span>✦</span><span>✧</span><span>★</span></div>
+  <div class="page-sparkles" aria-hidden="true"><i>✦</i><i>♡</i><i>✧</i><i>★</i><i>♡</i><i>✦</i></div>
   <main class="invite-shell">
-    <section class="hero-scene" aria-label="As Meninas Superpoderosas voando">
+    <section class="hero" aria-label="As Meninas Superpoderosas">
       <div class="hero-trails" aria-hidden="true"><i></i><i></i><i></i></div>
-      <img class="hero-art" src="/girls-scene.svg" alt="Florzinha, Lindinha e Docinho voando em um céu colorido">
-      <img class="brand-logo-pt" src="/powerpuff-logo-pt.svg" alt="As Meninas Superpoderosas">
+      <img class="hero-photo" src="/meninas-hero.png" alt="Florzinha, Lindinha e Docinho em uma cena colorida das Meninas Superpoderosas">
+      <div class="hero-bottom"><span>✦</span><b>Preparar, apontar... comemorar!</b><span>✦</span></div>
     </section>
-    <section class="birthday-title">
-      <div class="title-ribbon">Aniversário da</div>
-      <h1 id="event-name">Helena!</h1>
-      <p class="invite-message">Venha comemorar comigo essa data tão especial!<br>Será uma festa cheia de diversão, brincadeiras<br>e muita alegria!</p>
-    </section>
+    <header class="birthday-heading">
+      <p class="eyebrow"><span>★</span> VOCÊ ESTÁ CONVOCADO <span>★</span></p>
+      <p class="title-overline">Aniversário da</p>
+      <h1 id="event-name">Helena</h1>
+      <div class="age-pill"><span id="event-age">5</span> anos de pura fofura!</div>
+      <p class="invite-message">Venha comemorar comigo! Vai ter muita diversão,<br class="desktop-break"> brincadeiras e superpoderes.</p>
+    </header>
     <section class="event-details" aria-label="Informações da festa">
-      <article class="detail-card date-card"><span class="detail-icon">▦</span><div><small>Dia:</small><strong id="event-date">Data a definir</strong><em id="event-weekday"></em></div></article>
-      <article class="detail-card time-card"><span class="detail-icon">◷</span><div><small>Horário:</small><strong id="event-time">Horário a definir</strong></div></article>
-      <article class="detail-card venue-card"><span class="detail-icon">♥</span><div><small>Local:</small><strong id="event-venue">Local a definir</strong><em id="event-address">Endereço a definir</em><a id="map-link" href="#" target="_blank" rel="noopener" hidden>Ver localização ↗</a></div></article>
+      <article class="detail-card date-card"><span class="detail-icon" aria-hidden="true">▦</span><div><small>QUANDO</small><strong id="event-date">Data a definir</strong><em id="event-weekday"></em></div></article>
+      <article class="detail-card time-card"><span class="detail-icon" aria-hidden="true">◷</span><div><small>HORÁRIO</small><strong id="event-time">Horário a definir</strong></div></article>
+      <article class="detail-card venue-card"><span class="detail-icon" aria-hidden="true">⌖</span><div><small>ONDE</small><strong id="event-venue">Local a definir</strong><em id="event-address">Endereço a definir</em><a id="map-link" href="#" target="_blank" rel="noopener" hidden>Ver no mapa ↗</a></div></article>
     </section>
     <section class="rsvp-card" id="rsvp">
-      <div class="rsvp-heading"><span>★</span><h2>Confirme sua presença</h2><span>★</span></div>
+      <div class="rsvp-heading"><span aria-hidden="true">★</span><h2>Você vem para a festa?</h2><span aria-hidden="true">★</span></div>
+      <p class="rsvp-intro">Responda aqui para entrar na lista da missão.</p>
       <form id="rsvp-form">
-        <label for="responsible">Nome do responsável:</label>
+        <label for="responsible">Nome do responsável <b>*</b></label>
         <input id="responsible" name="responsible" maxlength="100" autocomplete="name" placeholder="Ex.: João da Silva" required>
-        <label for="phone">WhatsApp para contato <small>(opcional)</small></label>
+        <label for="phone">WhatsApp <small>(opcional)</small></label>
         <input id="phone" name="phone" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="(69) 99999-9999">
-        <div class="guest-label-row"><label>Quem vai à festa?</label><span class="field-hint">Inclua o responsável e acompanhantes</span></div>
+        <div class="guest-label-row"><label>Quem vai à festa? <b>*</b></label><span class="field-hint">Adicione cada pessoa</span></div>
         <div id="guest-list" class="guest-list"></div>
         <button type="button" class="add-guest" id="add-guest">＋ Adicionar pessoa</button>
-        <label for="notes">Recadinho para a família <small>(opcional)</small></label>
-        <textarea id="notes" name="notes" maxlength="300" rows="2" placeholder="Alguma informação importante?"></textarea>
+        <label for="notes">Recadinho <small>(opcional)</small></label>
+        <textarea id="notes" name="notes" maxlength="300" rows="2" placeholder="Deixe uma mensagem para a família"></textarea>
         <div class="attendance-options">
-          <label class="attendance-option"><input type="radio" name="status" value="confirmed" checked><span>Sim, estaremos presentes!</span></label>
-          <label class="attendance-option"><input type="radio" name="status" value="declined"><span>Não poderemos comparecer</span></label>
+          <label class="attendance-option"><input type="radio" name="status" value="confirmed" checked><span>💚 Sim, eu vou!</span></label>
+          <label class="attendance-option"><input type="radio" name="status" value="declined"><span>Não poderei ir</span></label>
         </div>
         <button class="submit-button" type="submit"><span>✓ Confirmar presença</span></button>
-        <p class="privacy-note">Seus dados serão usados apenas para organizar a festa e a lista de acesso.</p>
+        <p class="privacy-note">Seus dados serão usados apenas para organizar a festa.</p>
         <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
       </form>
     </section>
-    <footer class="invite-footer"><strong>Sua presença tornará minha festa<br>ainda mais especial!</strong></footer>
+    <footer class="invite-footer"><span>💗</span><strong>Mal podemos esperar para celebrar com você!</strong><span>💚</span></footer>
   </main>
 </body>
 </html>

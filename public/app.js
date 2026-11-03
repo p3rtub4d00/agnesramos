@@ -61,6 +61,7 @@
       const response = await fetch("/api/config");
       const config = await response.json();
       $("#event-name").textContent = config.eventName + "!";
+      $("#event-age").textContent = config.age;
       document.title = "Aniversário da " + config.eventName + " | Convite especial";
       $("#event-date").textContent = config.date;
       $("#event-time").textContent = config.time;
