@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#35a96b"><title>Portaria | Convite Agnes</title><link rel="stylesheet" href="/admin.css"><script src="/portaria.js" defer></script></head>
+<body class="gate-page">
+  <main class="admin-shell gate-shell">
+    <header class="admin-header"><a href="/" class="back-link">← Ver convite</a><div class="brand-mark gate-mark">✓</div><div><p class="kicker">CONTROLE DE ACESSO</p><h1>Lista da portaria</h1><p class="muted">Consulte cada nome e registre a entrada de convidados confirmados.</p></div></header>
+    <section id="gate-login" class="panel login-card"><div class="panel-icon">🛡️</div><h2>Acesso do segurança</h2><p class="muted">Use a senha fornecida pela família da aniversariante.</p><form id="gate-login-form"><label for="gate-password">Senha da portaria</label><input id="gate-password" type="password" autocomplete="current-password" required placeholder="Digite a senha"><button class="primary-btn gate-primary" type="submit">Abrir lista de acesso <span>→</span></button><div id="gate-login-message" class="notice" role="status"></div></form></section>
+    <section id="gate-dashboard" hidden><div class="gate-status"><span class="live-dot green-dot"></span>Lista de confirmados · consulta em tempo real <button id="gate-logout" class="text-btn">Sair</button></div><section class="panel gate-search-panel"><p class="kicker">PESQUISA DE CONVIDADO</p><h2>Quem está chegando?</h2><p class="muted">Pesquise pelo nome do convidado ou do responsável.</p><div class="search-line"><input id="gate-search" type="search" placeholder="Digite um nome..." autocomplete="off"><button id="gate-search-btn" class="gate-primary">Buscar</button></div><div id="gate-message" class="notice" role="status"></div><div id="gate-results" class="gate-results"></div></section><p class="gate-warning">⚠️ Registre a entrada individualmente. Se um nome não estiver na lista, encaminhe a pessoa à família responsável pela festa.</p></section>
+    <footer class="admin-footer">Acesso restrito à equipe da portaria · Não compartilhe esta senha</footer>
+  </main>
+</body></html>
