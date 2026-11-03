@@ -57,7 +57,8 @@
       badge.className = "status-badge " + item.status; badge.textContent = item.status === "confirmed" ? "Confirmado" : "Não irá"; statusCell.append(badge);
       const action = document.createElement("td");
       const toggle = document.createElement("button"); toggle.className = "small-action";
-      toggle.textContent = item.status === "confirmed" ? "Marcar como não irá" : "Marcar confirmado";
+      toggle.textContent = "Marcar como não irá";
+      if (item.status === "declined") { action.textContent = "Aguardando nova resposta"; tr.append(people, contact, quantity, statusCell, action); rows.append(tr); return; }
       toggle.addEventListener("click", async () => {
         if (!confirm("Deseja alterar o status desta confirmação?")) return;
         toggle.disabled = true;
