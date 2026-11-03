@@ -12,6 +12,37 @@
 <body class="invite-page">
   <div class="sparkle-layer" aria-hidden="true"><span>✦</span><span>♡</span><span>✧</span><span>★</span><span>♡</span><span>✦</span><span>✧</span><span>★</span><span>💛</span><span>★</span><span>💗</span><span>✦</span></div>
   <main class="invite-shell">
+    <img class="reference-poster" src="/convite-helena.png" alt="Convite de aniversário com as Meninas Superpoderosas, data, horário e local da festa">
+    <div class="poster-rsvp-overlay" aria-hidden="true">
+      <span class="poster-field-hint">Nome do responsável:</span><span class="poster-input-hint">Ex.: João da Silva</span>
+      <span class="poster-field-hint guests-hint">Quem vai à festa?</span><span class="poster-input-hint guests-input-hint">Ex.: Ana, Pedro e Maria</span>
+      <span class="poster-radio-hint yes-hint">Sim, estaremos presentes!</span><span class="poster-radio-hint no-hint">Não poderemos comparecer</span>
+      <span class="poster-button-hint">✓&nbsp; Confirmar Presença</span>
+    </div>
+    <section class="live-rsvp-card" id="rsvp" aria-label="Confirme sua presença">
+      <h1>Confirme sua presença</h1>
+      <form id="rsvp-form">
+        <label for="responsible">Nome do responsável</label>
+        <input id="responsible" name="responsible" maxlength="100" autocomplete="name" placeholder="Ex.: João da Silva" required>
+        <label for="phone" class="optional-field">WhatsApp para contato (opcional)</label>
+        <input id="phone" name="phone" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="(69) 99999-9999">
+        <div class="guest-label-row"><label>Quem vai à festa?</label></div>
+        <div id="guest-list" class="guest-list"></div>
+        <button type="button" class="add-guest" id="add-guest">＋ Adicionar outra pessoa</button>
+        <label for="notes">Recadinho para a família (opcional)</label>
+        <textarea id="notes" name="notes" maxlength="300" rows="2" placeholder="Alguma informação importante?"></textarea>
+        <div class="attendance-options">
+          <label class="attendance-option"><input type="radio" name="status" value="confirmed" checked><span>Sim, estaremos presentes!</span></label>
+          <label class="attendance-option"><input type="radio" name="status" value="declined"><span>Não poderemos comparecer</span></label>
+        </div>
+        <button class="submit-button" type="submit"><span>✓ Confirmar Presença</span></button>
+        <p class="privacy-note">Seus dados serão usados apenas para organizar a festa e a lista de acesso.</p>
+        <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+    <div class="poster-live-details" aria-label="Informações editáveis da festa"><strong id="live-venue">Salão de Festas Alegria Kids</strong><span id="live-address">Rua das Flores, 123 - PVH</span></div>
+    <div class="poster-live-date"><strong id="live-date">15/11/2026</strong><span id="live-time">às 16h</span></div>
+    <div class="original-layout" aria-hidden="true">
     <section class="poster-top">
       <div class="poster-brand" aria-label="Meninas Superpoderosas">
         <div class="brand-mark"><span>THE</span><strong>POWER<br>PUFF</strong><b>GIRLS!</b></div>
@@ -59,6 +90,7 @@
       </form>
     </section>
     <footer class="invite-footer"><strong>Sua presença tornará minha festa<br>ainda mais especial!</strong><div>♥</div><small>Uma festa cheia de amor e superpoderes!</small></footer>
+    </div>
   </main>
 </body>
 </html>
