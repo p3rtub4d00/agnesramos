@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: agnesramos-convite
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PORTARIA_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: EVENT_NAME
+        value: Agnes
+      - key: EVENT_AGE
+        value: "5"
+      - key: EVENT_DATE
+        value: Data a definir
+      - key: EVENT_TIME
+        value: Horário a definir
+      - key: EVENT_ADDRESS
+        value: Local a definir
