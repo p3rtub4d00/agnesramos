@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 390" role="img" aria-labelledby="title desc">
+<title id="title">As três heroínas</title><desc id="desc">Três pequenas heroínas de vestido rosa, azul e verde voando juntas em um céu colorido.</desc>
+<defs>
+ <linearGradient id="sky" x2="1" y2="1"><stop stop-color="#ffb1d8"/><stop offset=".5" stop-color="#bcecff"/><stop offset="1" stop-color="#d6f6a9"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="#8b3e79" flood-opacity=".22"/></filter>
+</defs>
+<path d="M0 195Q220 20 450 150T900 135V390H0Z" fill="url(#sky)" opacity=".7"/>
+<g fill="#fff" opacity=".8"><path d="M65 90l10 22 23 2-18 15 5 23-20-13-20 13 6-23-18-15 23-2z"/><path d="M820 45l9 19 21 2-16 14 5 21-19-11-18 11 5-21-16-14 21-2z"/><path d="M455 22l7 15 17 2-13 11 4 17-15-9-15 9 4-17-13-11 17-2z"/></g>
+<!-- Lindinha -->
+<g transform="translate(35 95) rotate(-9 130 130)" filter="url(#shadow)">
+ <path d="M95 235Q28 285 8 326Q80 305 125 278" fill="#48b9f5" stroke="#33243c" stroke-width="8" stroke-linejoin="round"/>
+ <path d="M170 235Q235 280 270 322Q205 314 160 278" fill="#48b9f5" stroke="#33243c" stroke-width="8" stroke-linejoin="round"/>
+ <path d="M80 205Q55 250 83 300L180 300Q207 250 180 205Z" fill="#48b9f5" stroke="#33243c" stroke-width="9"/>
+ <path d="M75 220H185L174 251H86Z" fill="#fff"/>
+ <path d="M63 104Q8 70 26 25Q55 48 77 54Q90 -5 145 10Q205 -2 220 58Q260 75 225 133L210 188H65Z" fill="#ffcf59" stroke="#33243c" stroke-width="10"/>
+ <path d="M63 115Q44 73 16 88Q2 130 43 157" fill="#ffcf59" stroke="#33243c" stroke-width="9"/>
+ <ellipse cx="140" cy="145" rx="104" ry="91" fill="#ffe4c9" stroke="#33243c" stroke-width="9"/>
+ <ellipse cx="100" cy="145" rx="33" ry="46" fill="#fff" stroke="#33243c" stroke-width="6"/><ellipse cx="181" cy="145" rx="33" ry="46" fill="#fff" stroke="#33243c" stroke-width="6"/>
+ <ellipse cx="106" cy="151" rx="19" ry="31" fill="#159bd7"/><ellipse cx="175" cy="151" rx="19" ry="31" fill="#159bd7"/>
+ <ellipse cx="109" cy="155" rx="10" ry="19" fill="#171323"/><ellipse cx="172" cy="155" rx="10" ry="19" fill="#171323"/>
+ <circle cx="113" cy="137" r="8" fill="#fff"/><circle cx="176" cy="137" r="8" fill="#fff"/>
+ <path d="M127 192Q143 210 159 191" fill="none" stroke="#a83e60" stroke-width="7" stroke-linecap="round"/>
+ <path d="M66 72Q34 15 83 3Q114 7 117 42M185 65Q225 20 237 53Q246 90 213 101" fill="#ffcf59" stroke="#33243c" stroke-width="9"/>
+</g>
+<!-- Florzinha -->
+<g transform="translate(310 12)" filter="url(#shadow)">
+ <path d="M90 248Q40 300 18 340Q92 321 130 283" fill="#ff4f9a" stroke="#33243c" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M205 248Q255 300 280 340Q205 322 165 283" fill="#ff4f9a" stroke="#33243c" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M85 218Q60 263 88 312H207Q235 263 207 218Z" fill="#ff4f9a" stroke="#33243c" stroke-width="9"/>
+ <path d="M80 235H212L199 265H94Z" fill="#fff"/>
+ <path d="M70 116Q40 60 78 24Q112 -6 145 28Q181 -5 217 28Q248 70 220 123L210 171H74Z" fill="#e96d22" stroke="#33243c" stroke-width="10"/>
+ <path d="M72 65Q55 -5 116 0Q160 3 161 50" fill="#e96d22" stroke="#33243c" stroke-width="9"/>
+ <ellipse cx="145" cy="151" rx="105" ry="93" fill="#ffe4c9" stroke="#33243c" stroke-width="9"/>
+ <ellipse cx="105" cy="151" rx="34" ry="47" fill="#fff" stroke="#33243c" stroke-width="6"/><ellipse cx="187" cy="151" rx="34" ry="47" fill="#fff" stroke="#33243c" stroke-width="6"/>
+ <ellipse cx="111" cy="157" rx="20" ry="32" fill="#ed3b8a"/><ellipse cx="181" cy="157" rx="20" ry="32" fill="#ed3b8a"/>
+ <ellipse cx="113" cy="160" rx="10" ry="20" fill="#171323"/><ellipse cx="179" cy="160" rx="10" ry="20" fill="#171323"/>
+ <circle cx="118" cy="141" r="8" fill="#fff"/><circle cx="185" cy="141" r="8" fill="#fff"/>
+ <path d="M132 198Q149 218 166 197" fill="none" stroke="#a83e60" stroke-width="7" stroke-linecap="round"/>
+ <path d="M72 88Q44 22 92 11Q124 13 130 56" fill="#e96d22" stroke="#33243c" stroke-width="9"/>
+ <path d="M119 20Q153 -13 190 17Q218 40 202 77Q172 52 119 55Z" fill="#e96d22" stroke="#33243c" stroke-width="9"/>
+ <path d="M126 6Q144 -38 177 -5Q197 12 179 37Q153 15 126 6Z" fill="#f33e85" stroke="#33243c" stroke-width="8"/>
+</g>
+<!-- Docinho -->
+<g transform="translate(625 90) rotate(8 120 130)" filter="url(#shadow)">
+ <path d="M80 236Q26 283 7 326Q79 310 123 278" fill="#70d65b" stroke="#33243c" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M180 236Q238 281 267 324Q193 311 151 277" fill="#70d65b" stroke="#33243c" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M70 205Q45 250 74 300H184Q213 250 184 205Z" fill="#70d65b" stroke="#33243c" stroke-width="9"/>
+ <path d="M68 222H188L176 253H80Z" fill="#fff"/>
+ <path d="M58 109Q38 45 87 21Q112 5 140 34Q190 -2 222 39Q250 76 218 141L201 181H66Z" fill="#17151c" stroke="#33243c" stroke-width="10"/>
+ <ellipse cx="138" cy="148" rx="104" ry="91" fill="#ffe4c9" stroke="#33243c" stroke-width="9"/>
+ <ellipse cx="98" cy="148" rx="34" ry="46" fill="#fff" stroke="#33243c" stroke-width="6"/><ellipse cx="179" cy="148" rx="34" ry="46" fill="#fff" stroke="#33243c" stroke-width="6"/>
+ <ellipse cx="103" cy="154" rx="20" ry="32" fill="#70d65b"/><ellipse cx="174" cy="154" rx="20" ry="32" fill="#70d65b"/>
+ <ellipse cx="106" cy="157" rx="10" ry="20" fill="#171323"/><ellipse cx="171" cy="157" rx="10" ry="20" fill="#171323"/>
+ <circle cx="111" cy="138" r="8" fill="#fff"/><circle cx="178" cy="138" r="8" fill="#fff"/>
+ <path d="M124 194Q141 212 158 192" fill="none" stroke="#a83e60" stroke-width="7" stroke-linecap="round"/>
+ <path d="M55 91Q28 42 68 12Q102 -5 126 35Q85 43 55 91Z" fill="#17151c" stroke="#33243c" stroke-width="9"/>
+ <path d="M187 51Q223 0 251 39Q263 78 218 101" fill="#17151c" stroke="#33243c" stroke-width="9"/>
+</g>
+</svg>
