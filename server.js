@@ -218,16 +218,6 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
 });
 app.delete("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
-  try {
-    const result = await Rsvp.deleteMany({});
-    res.json({ ok: true, deletedCount: result.deletedCount || 0 });
-  } catch (err) {
-    console.error("Erro ao zerar confirmações:", err.message);
-    res.status(500).json({ error: "Não foi possível zerar a lista de convidados." });
-  }
-});
-app.delete("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
-  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   if (req.body.confirmation !== "ZERAR") return res.status(400).json({ error: "Confirmação inválida." });
   try {
     const records = await Rsvp.find({});
