@@ -2,6 +2,7 @@
   const $ = s => document.querySelector(s);
   let allItems = [];
   let totals = {};
+  let activeTicket = null;
   const loginCard = $("#login-card");
   const dashboard = $("#dashboard");
   function notice(el, text, error = false) {
@@ -70,6 +71,17 @@
       const statusCell = document.createElement("td"); const badge = document.createElement("span");
       badge.className = "status-badge " + item.status; badge.textContent = item.status === "confirmed" ? "Confirmado" : "Não irá"; statusCell.append(badge);
       const action = document.createElement("td");
+      const ticketButton = document.createElement("button");
+      ticketButton.className = "small-action ticket-action";
+      ticketButton.type = "button";
+      ticketButton.textContent = "Ver / enviar QR";
+      ticketButton.addEventListener("click", async () => {
+        ticketButton.disabled = true;
+        try { await openTicket(item); }
+        catch (err) { notice($("#list-message"), err.message, true); }
+        finally { ticketButton.disabled = false; }
+      });
+      action.append(ticketButton);
       const toggle = document.createElement("button"); toggle.className = "small-action";
       toggle.textContent = "Marcar como não irá";
       if (item.status === "declined") { action.textContent = "Aguardando nova resposta"; tr.append(people, contact, quantity, statusCell, action); rows.append(tr); return; }
@@ -83,6 +95,58 @@
       action.append(toggle); tr.append(people, contact, quantity, statusCell, action); rows.append(tr);
     });
   }
+  function ticketCanvas() { return $("#admin-ticket-qr").querySelector("canvas"); }
+  async function openTicket(item) {
+    const data = await api("/api/admin/rsvps/" + encodeURIComponent(item.id) + "/ticket");
+    activeTicket = data;
+    const target = $("#admin-ticket-qr");
+    target.replaceChildren();
+    $("#ticket-modal-responsible").textContent = data.responsible;
+    $("#ticket-modal-names").textContent = (data.names || []).join(" · ");
+    $("#ticket-modal-status").textContent = data.used ? "Este comprovante já foi utilizado na portaria." : "Comprovante válido · apresente este QR Code na entrada.";
+    notice($("#ticket-modal-message"), "");
+    if (!window.QRCode) throw new Error("O gerador de QR Code não carregou. Atualize a página e tente novamente.");
+    new QRCode(target, { text: data.ticketToken, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+    $("#ticket-modal").hidden = false;
+  }
+  function downloadTicket() {
+    const canvas = ticketCanvas();
+    if (!canvas || !activeTicket) throw new Error("O QR Code ainda não está pronto.");
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "comprovante-" + (activeTicket.responsible || "convidado").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").toLowerCase() + ".png";
+    link.click();
+  }
+  $("#ticket-modal-close").addEventListener("click", () => { $("#ticket-modal").hidden = true; });
+  $("#ticket-modal").addEventListener("click", e => { if (e.target === $("#ticket-modal")) $("#ticket-modal").hidden = true; });
+  $("#ticket-download-btn").addEventListener("click", () => {
+    try { downloadTicket(); notice($("#ticket-modal-message"), "QR Code baixado. Você já pode anexar a imagem no WhatsApp."); }
+    catch (err) { notice($("#ticket-modal-message"), err.message, true); }
+  });
+  $("#ticket-share-btn").addEventListener("click", async () => {
+    const button = $("#ticket-share-btn");
+    button.disabled = true;
+    try {
+      const canvas = ticketCanvas();
+      if (!canvas || !activeTicket) throw new Error("O QR Code ainda não está pronto.");
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      if (!blob) throw new Error("Não foi possível preparar a imagem do comprovante.");
+      const file = new File([blob], "comprovante-agnes.png", { type: "image/png" });
+      const shareData = { files: [file], title: "Comprovante de entrada", text: "Comprovante de entrada da família " + activeTicket.responsible + " · Aniversário da Agnes." };
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        await navigator.share(shareData);
+        notice($("#ticket-modal-message"), "Compartilhamento aberto.");
+      } else {
+        downloadTicket();
+        const phone = String(activeTicket.phone || "").replace(/\\D/g, "");
+        const message = "Olá! Segue o comprovante QR Code da confirmação de " + activeTicket.responsible + " para apresentar na portaria. Anexe a imagem baixada.";
+        window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(message), "_blank", "noopener,noreferrer");
+        notice($("#ticket-modal-message"), "A imagem foi baixada. Anexe o arquivo PNG no WhatsApp que acabou de abrir.");
+      }
+    } catch (err) {
+      if (err.name !== "AbortError") notice($("#ticket-modal-message"), err.message || "Não foi possível compartilhar o comprovante.", true);
+    } finally { button.disabled = false; }
+  });
   async function loadSettings() {
     notice($("#settings-message"), "Carregando informações do local...");
     try {
