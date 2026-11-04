@@ -30,7 +30,7 @@ const RsvpSchema = new mongoose.Schema({
   responsibleCheckedIn: { type: Boolean, default: false },
   responsibleCheckedInAt: { type: Date, default: null },
   phone: { type: String, trim: true, maxlength: 30, default: "" },
-  guests: { type: [GuestSchema], validate: v => v.length > 0 && v.length <= 20 },
+  guests: { type: [GuestSchema], validate: v => v.length <= 20 },
   status: { type: String, enum: ["confirmed", "declined"], required: true },
   notes: { type: String, trim: true, maxlength: 300, default: "" },
   createdAt: { type: Date, default: Date.now },
