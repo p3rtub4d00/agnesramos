@@ -123,6 +123,29 @@
   $("#search-input").addEventListener("input", render);
   $("#status-filter").addEventListener("change", render);
   $("#refresh-btn").addEventListener("click", loadItems);
+  $("#clear-all-btn").addEventListener("click", async () => {
+    if (!allItems.length) {
+      notice($("#list-message"), "A lista já está vazia.");
+      return;
+    }
+    const confirmation = window.prompt("ATENÇÃO: isso apagará TODAS as confirmações, convidados e registros de entrada. As informações da festa (nome, data, horário e local) serão mantidas. Para confirmar, digite ZERAR:");
+    if (confirmation !== "ZERAR") {
+      if (confirmation !== null) notice($("#list-message"), "Operação cancelada. Nada foi apagado.");
+      return;
+    }
+    const button = $("#clear-all-btn");
+    button.disabled = true;
+    notice($("#list-message"), "Apagando todas as confirmações...");
+    try {
+      const result = await api("/api/admin/rsvps", { method: "DELETE", body: JSON.stringify({ confirmation: "ZERAR" }) });
+      await loadItems();
+      notice($("#list-message"), result.deletedCount + " confirmação(ões) apagada(s). A lista está zerada.");
+    } catch (err) {
+      notice($("#list-message"), err.message, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
   $("#logout-btn").addEventListener("click", async () => { await fetch("/api/logout", { method: "POST" }); showLogin(); });
   $("#print-btn").addEventListener("click", () => window.print());
   $("#export-btn").addEventListener("click", () => {
