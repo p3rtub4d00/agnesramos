@@ -46,7 +46,9 @@ const EventSettingsSchema = new mongoose.Schema({
   eventName: { type: String, trim: true, maxlength: 80, default: "" },
   venue: { type: String, trim: true, maxlength: 120, default: "" },
   address: { type: String, trim: true, maxlength: 240, default: "" },
-  mapUrl: { type: String, trim: true, maxlength: 500, default: "" }
+  mapUrl: { type: String, trim: true, maxlength: 500, default: "" },
+  date: { type: String, trim: true, maxlength: 20, default: "" },
+  time: { type: String, trim: true, maxlength: 80, default: "" }
 }, { timestamps: true });
 const EventSettings = mongoose.model("EventSettings", EventSettingsSchema);
 
@@ -106,8 +108,8 @@ app.get("/api/config", async (req, res) => {
   res.json({
     eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes",
     age: process.env.EVENT_AGE || "5",
-    date: process.env.EVENT_DATE || "Data a definir",
-    time: process.env.EVENT_TIME || "Horário a definir",
+    date: settings?.date || process.env.EVENT_DATE || "Data a definir",
+    time: settings?.time || process.env.EVENT_TIME || "Horário a definir",
     venue: settings?.venue || process.env.EVENT_VENUE || "Local a definir",
     address: settings?.address || process.env.EVENT_ADDRESS || "Endereço a definir",
     mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "",
@@ -147,7 +149,7 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const settings = await EventSettings.findOne({ key: "main" }).lean();
-    res.json({ eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "" });
+    res.json({ eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "", date: settings?.date || process.env.EVENT_DATE || "", time: settings?.time || process.env.EVENT_TIME || "" });
   } catch (err) {
     console.error("Erro ao carregar configurações:", err.message);
     res.status(500).json({ error: "Não foi possível carregar os dados do evento." });
@@ -159,11 +161,13 @@ app.put("/api/admin/settings", requireRole("admin"), async (req, res) => {
   const eventName = String(req.body.eventName || "").trim();
   const address = String(req.body.address || "").trim();
   const mapUrl = String(req.body.mapUrl || "").trim();
+  const date = String(req.body.date || "").trim();
+  const time = String(req.body.time || "").trim();
   if (eventName.length < 2 || eventName.length > 80) return res.status(400).json({ error: "Informe o nome da aniversariante (2 a 80 caracteres)." });
-  if (venue.length > 120 || address.length > 240 || mapUrl.length > 500) return res.status(400).json({ error: "Confira os limites: local até 120, endereço até 240 e link até 500 caracteres." });
+  if (venue.length > 120 || address.length > 240 || mapUrl.length > 500 || date.length > 20 || time.length > 80) return res.status(400).json({ error: "Confira os limites dos campos de local, endereço, data e horário." });
   if (mapUrl && !/^https:\/\//i.test(mapUrl)) return res.status(400).json({ error: "O link do mapa deve começar com https://" });
   try {
-    await EventSettings.findOneAndUpdate({ key: "main" }, { $set: { eventName, venue, address, mapUrl } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
+    await EventSettings.findOneAndUpdate({ key: "main" }, { $set: { eventName, venue, address, mapUrl, date, time } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
     res.json({ ok: true });
   } catch (err) {
     console.error("Erro ao salvar configurações:", err.message);
@@ -195,7 +199,7 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
         id: "responsible", name: d.responsible, isResponsible: true,
         checkedIn: !!d.responsibleCheckedIn, checkedInAt: d.responsibleCheckedInAt || null
       });
-      return { id: String(d._id), responsible: d.responsible, phone: d.phone || "", status: d.status, notes: d.notes || "", createdAt: d.createdAt, guests };
+      return { id: String(d._id), responsible: d.responsible, responsibleExcluded: !!d.responsibleExcluded, phone: d.phone || "", status: d.status, notes: d.notes || "", createdAt: d.createdAt, guests };
     });
     const confirmedItems = items.filter(i => i.status === "confirmed");
     res.json({
