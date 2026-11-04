@@ -49,7 +49,21 @@
       const people = document.createElement("td"); people.className = "people-cell";
       const name = document.createElement("strong"); name.textContent = item.responsible; people.append(name);
       const guestNames = document.createElement("div"); guestNames.className = "guest-names";
-      guestNames.textContent = item.status === "confirmed" ? (item.guests || []).map(g => g.name + (g.checkedIn ? " ✓" : "")).join(", ") : "Sem presença confirmada";
+      if (item.status === "confirmed") {
+        (item.guests || []).forEach(g => {
+          const line = document.createElement("div"); line.className = "guest-line";
+          const label = document.createElement("span"); label.textContent = (g.isResponsible ? "Responsável: " : "") + g.name + (g.checkedIn ? " ✓" : "");
+          const remove = document.createElement("button"); remove.className = "small-action danger-action"; remove.type = "button"; remove.textContent = "Excluir";
+          remove.addEventListener("click", async () => {
+            const message = g.isResponsible ? "Excluir o responsável também excluirá toda esta confirmação e seus acompanhantes. Continuar?" : "Excluir " + g.name + " da lista de convidados?";
+            if (!confirm(message)) return;
+            remove.disabled = true;
+            try { await api("/api/admin/rsvps/" + encodeURIComponent(item.id) + "/guests/" + encodeURIComponent(g.id), { method: "DELETE" }); await loadItems(); }
+            catch (err) { notice($("#list-message"), err.message, true); remove.disabled = false; }
+          });
+          line.append(label, remove); guestNames.append(line);
+        });
+      } else guestNames.textContent = "Sem presença confirmada";
       people.append(guestNames);
       const contact = document.createElement("td"); contact.textContent = item.phone || "—";
       const quantity = document.createElement("td"); quantity.textContent = item.status === "confirmed" ? String((item.guests || []).length) : "—";
