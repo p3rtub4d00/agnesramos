@@ -91,4 +91,41 @@
   $("#gate-search").addEventListener("keydown", e => { if (e.key === "Enter") search(); });
   $("#gate-search").addEventListener("input", () => { if ($("#gate-search").value.trim().length === 0) search(); });
   $("#gate-logout").addEventListener("click", async () => { await stopScanner(); await fetch("/api/logout", { method: "POST" }); dashboard.hidden = true; login.hidden = false; });
+
+  async function refreshPasskeyAvailability() {
+    try { const response = await fetch("/api/webauthn/available?role=portaria"); const data = await response.json(); $("#gate-passkey-login-btn").hidden = !data.available; }
+    catch { $("#gate-passkey-login-btn").hidden = true; }
+  }
+  $("#gate-register-passkey-btn").addEventListener("click", async () => {
+    const button = $("#gate-register-passkey-btn");
+    if (!window.SimpleWebAuthnBrowser) { $("#gate-login-message").textContent = "O recurso de biometria não carregou. Atualize a página."; return; }
+    button.disabled = true; button.textContent = "Preparando cadastro...";
+    try {
+      const setup = await api("/api/webauthn/register/options", { method: "POST", body: JSON.stringify({}) });
+      const response = await SimpleWebAuthnBrowser.startRegistration({ optionsJSON: setup.options });
+      await api("/api/webauthn/register/verify", { method: "POST", body: JSON.stringify({ challengeId: setup.challengeId, response, deviceName: navigator.userAgent.slice(0, 80) }) });
+      $("#gate-message").textContent = "Biometria cadastrada neste dispositivo. Nos próximos acessos, você poderá usar este recurso.";
+      await refreshPasskeyAvailability();
+    } catch (err) { $("#gate-message").textContent = err.message || "Não foi possível cadastrar a biometria."; }
+    finally { button.disabled = false; button.textContent = "⌁ Cadastrar biometria neste dispositivo"; }
+  });
+  $("#gate-passkey-login-btn").addEventListener("click", async () => {
+    const button = $("#gate-passkey-login-btn"); button.disabled = true; button.textContent = "Aguardando biometria...";
+    try {
+      const setup = await api("/api/webauthn/auth/options", { method: "POST", body: JSON.stringify({ role: "portaria" }) });
+      const response = await SimpleWebAuthnBrowser.startAuthentication({ optionsJSON: setup.options });
+      await api("/api/webauthn/auth/verify", { method: "POST", body: JSON.stringify({ role: "portaria", challengeId: setup.challengeId, response }) });
+      login.hidden = true; dashboard.hidden = false; await search();
+    } catch (err) { $("#gate-login-message").textContent = err.message || "Não foi possível entrar com biometria."; $("#gate-login-message").className = "notice error"; }
+    finally { button.disabled = false; button.textContent = "⌁ Entrar com biometria"; }
+  });
+  async function restoreGateSession() {
+    try {
+      const response = await fetch("/api/session"); const data = await response.json();
+      if (response.ok && data.authenticated && data.role === "portaria") { login.hidden = true; dashboard.hidden = false; await search(); }
+      else { login.hidden = false; dashboard.hidden = true; await refreshPasskeyAvailability(); }
+    } catch { login.hidden = false; dashboard.hidden = true; await refreshPasskeyAvailability(); }
+  }
+
+  restoreGateSession();
 })();
