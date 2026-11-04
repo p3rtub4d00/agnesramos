@@ -5,11 +5,12 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const crypto = require("crypto");
 const path = require("path");
+const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require("@simplewebauthn/server");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const COOKIE_NAME = "agnes_access";
-const TOKEN_TTL = 8 * 60 * 60 * 1000;
+const TOKEN_TTL = 30 * 24 * 60 * 60 * 1000;
 
 app.disable("x-powered-by");
 app.set("trust proxy", 1);
@@ -62,6 +63,25 @@ const InvitationLinkSchema = new mongoose.Schema({
 }, { timestamps: true });
 const InvitationLink = mongoose.model("InvitationLink", InvitationLinkSchema);
 
+const PasskeyCredentialSchema = new mongoose.Schema({
+  role: { type: String, enum: ["admin", "portaria"], required: true, index: true },
+  credentialId: { type: String, required: true, unique: true },
+  publicKey: { type: String, required: true },
+  counter: { type: Number, default: 0 },
+  transports: { type: [String], default: [] },
+  deviceName: { type: String, default: "" }
+}, { timestamps: true });
+const PasskeyCredential = mongoose.model("PasskeyCredential", PasskeyCredentialSchema);
+
+const WebAuthnChallengeSchema = new mongoose.Schema({
+  challengeId: { type: String, required: true, unique: true },
+  challenge: { type: String, required: true },
+  role: { type: String, enum: ["admin", "portaria"], required: true },
+  purpose: { type: String, enum: ["register", "authenticate"], required: true },
+  expiresAt: { type: Date, required: true, index: { expires: 0 } }
+});
+const WebAuthnChallenge = mongoose.model("WebAuthnChallenge", WebAuthnChallengeSchema);
+
 function dbReady() {
   return mongoose.connection.readyState === 1;
 }
@@ -110,6 +130,129 @@ function setAccessCookie(res, role) {
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, message: { error: "Muitas tentativas. Aguarde alguns minutos e tente novamente." } });
 
 app.get("/api/health", (req, res) => res.json({ ok: true, database: dbReady() ? "connected" : "disconnected" }));
+
+app.get("/api/session", (req, res) => {
+  const token = readToken(req);
+  if (!token || !["admin", "portaria"].includes(token.role)) return res.status(401).json({ authenticated: false });
+  res.json({ authenticated: true, role: token.role, expiresAt: token.exp });
+});
+
+function webAuthnSettings(req) {
+  const configuredOrigin = process.env.WEBAUTHN_ORIGIN || process.env.PUBLIC_URL;
+  const origin = configuredOrigin || (req.protocol + "://" + req.get("host"));
+  const parsed = new URL(origin);
+  return { expectedOrigin: parsed.origin, expectedRPID: process.env.WEBAUTHN_RP_ID || parsed.hostname, rpID: process.env.WEBAUTHN_RP_ID || parsed.hostname, origin: parsed.origin };
+}
+async function saveWebAuthnChallenge(role, purpose, challenge) {
+  const challengeId = crypto.randomBytes(18).toString("hex");
+  await WebAuthnChallenge.create({ challengeId, challenge, role, purpose, expiresAt: new Date(Date.now() + 5 * 60 * 1000) });
+  return challengeId;
+}
+async function takeWebAuthnChallenge(challengeId, role, purpose) {
+  return WebAuthnChallenge.findOneAndDelete({ challengeId, role, purpose, expiresAt: { $gt: new Date() } });
+}
+app.get("/api/webauthn/available", async (req, res) => {
+  const role = String(req.query.role || "");
+  if (!["admin", "portaria"].includes(role)) return res.status(400).json({ available: false });
+  try { res.json({ available: await PasskeyCredential.exists({ role }) ? true : false }); }
+  catch { res.status(503).json({ available: false, error: "Não foi possível consultar a biometria." }); }
+});
+app.post("/api/webauthn/register/options", requireRole("admin"), async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  try {
+    const role = req.accessRole;
+    const credentials = await PasskeyCredential.find({ role }).lean();
+    const cfg = webAuthnSettings(req);
+    const options = await generateRegistrationOptions({
+      rpName: "Convite Agnes",
+      rpID: cfg.rpID,
+      userName: role === "admin" ? "Responsável pela festa" : "Equipe da portaria",
+      userDisplayName: role === "admin" ? "Painel administrativo" : "Portaria",
+      userID: Buffer.from("agnes-" + role),
+      attestationType: "none",
+      authenticatorSelection: { residentKey: "preferred", userVerification: "required" },
+      excludeCredentials: credentials.map(c => ({ id: c.credentialId, transports: c.transports }))
+    });
+    const challengeId = await saveWebAuthnChallenge(role, "register", options.challenge);
+    res.json({ challengeId, options });
+  } catch (err) {
+    console.error("Erro ao preparar cadastro de biometria:", err.message);
+    res.status(500).json({ error: "Não foi possível preparar o cadastro de biometria neste dispositivo." });
+  }
+});
+app.post("/api/webauthn/register/verify", requireRole("admin"), async (req, res) => {
+  try {
+    const role = req.accessRole;
+    const challenge = await takeWebAuthnChallenge(String(req.body.challengeId || ""), role, "register");
+    if (!challenge) return res.status(410).json({ error: "A solicitação expirou. Tente cadastrar a biometria novamente." });
+    const cfg = webAuthnSettings(req);
+    const verification = await verifyRegistrationResponse({
+      response: req.body.response,
+      expectedChallenge: challenge.challenge,
+      expectedOrigin: cfg.expectedOrigin,
+      expectedRPID: cfg.expectedRPID,
+      requireUserVerification: true
+    });
+    if (!verification.verified || !verification.registrationInfo) return res.status(400).json({ error: "Não foi possível validar a biometria." });
+    const credential = verification.registrationInfo.credential;
+    await PasskeyCredential.findOneAndUpdate(
+      { credentialId: credential.id },
+      { $set: { role, credentialId: credential.id, publicKey: Buffer.from(credential.publicKey).toString("base64url"), counter: credential.counter, transports: credential.transports || [], deviceName: String(req.body.deviceName || "").slice(0, 80) } },
+      { upsert: true, new: true, runValidators: true }
+    );
+    res.json({ ok: true, message: "Biometria cadastrada neste dispositivo." });
+  } catch (err) {
+    console.error("Erro ao validar cadastro de biometria:", err.message);
+    res.status(400).json({ error: "O cadastro biométrico não foi concluído. Verifique se o dispositivo oferece biometria ou PIN seguro." });
+  }
+});
+app.post("/api/webauthn/auth/options", loginLimiter, async (req, res) => {
+  const role = String(req.body.role || "");
+  if (!["admin", "portaria"].includes(role)) return res.status(400).json({ error: "Tipo de acesso inválido." });
+  try {
+    const credentials = await PasskeyCredential.find({ role }).lean();
+    if (!credentials.length) return res.status(404).json({ error: "Ainda não há biometria cadastrada para este acesso." });
+    const cfg = webAuthnSettings(req);
+    const options = await generateAuthenticationOptions({
+      rpID: cfg.rpID,
+      allowCredentials: credentials.map(c => ({ id: c.credentialId, transports: c.transports })),
+      userVerification: "required"
+    });
+    const challengeId = await saveWebAuthnChallenge(role, "authenticate", options.challenge);
+    res.json({ challengeId, options });
+  } catch (err) {
+    console.error("Erro ao preparar autenticação biométrica:", err.message);
+    res.status(500).json({ error: "Não foi possível iniciar o acesso biométrico." });
+  }
+});
+app.post("/api/webauthn/auth/verify", loginLimiter, async (req, res) => {
+  const role = String(req.body.role || "");
+  if (!["admin", "portaria"].includes(role)) return res.status(400).json({ error: "Tipo de acesso inválido." });
+  try {
+    const challenge = await takeWebAuthnChallenge(String(req.body.challengeId || ""), role, "authenticate");
+    if (!challenge) return res.status(410).json({ error: "A solicitação expirou. Tente novamente." });
+    const credentialId = String(req.body.response?.id || "");
+    const credential = await PasskeyCredential.findOne({ role, credentialId });
+    if (!credential) return res.status(404).json({ error: "Biometria não cadastrada para este dispositivo." });
+    const cfg = webAuthnSettings(req);
+    const verification = await verifyAuthenticationResponse({
+      response: req.body.response,
+      expectedChallenge: challenge.challenge,
+      expectedOrigin: cfg.expectedOrigin,
+      expectedRPID: cfg.expectedRPID,
+      credential: { id: credential.credentialId, publicKey: Buffer.from(credential.publicKey, "base64url"), counter: credential.counter, transports: credential.transports },
+      requireUserVerification: true
+    });
+    if (!verification.verified) return res.status(401).json({ error: "A validação biométrica não foi concluída." });
+    credential.counter = verification.authenticationInfo.newCounter;
+    await credential.save();
+    setAccessCookie(res, role);
+    res.json({ ok: true, role });
+  } catch (err) {
+    console.error("Erro na autenticação biométrica:", err.message);
+    res.status(401).json({ error: "Não foi possível confirmar sua biometria. Use a senha para entrar." });
+  }
+});
 app.get("/api/config", async (req, res) => {
   let settings = null;
   if (dbReady()) {
