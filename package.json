@@ -18,6 +18,6 @@
     "helmet": "^8.0.0",
     "mongoose": "^8.9.5",
     "@simplewebauthn/server": "^13.3.3",
-    "@simplewebauthn/browser": "^13.3.3"
+    "@simplewebauthn/browser": "^13.3.0"
   }
 }
