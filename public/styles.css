@@ -36,6 +36,7 @@
 .invite-message{margin:18px auto 0;color:#674d79;font-family:'Baloo 2',sans-serif;font-size:clamp(16px,2.3vw,20px);font-weight:700;line-height:1.4}
 .comic-divider{display:flex;align-items:center;justify-content:center;gap:10px;margin:19px auto 0;color:var(--pink)}.comic-divider i{width:55px;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:9px}.comic-divider span{font-size:13px}
 .event-section{margin:0 auto 30px;padding:0 10px;max-width:960px}
+.event-continue-wrap{text-align:center;margin:22px auto 0}.event-continue-wrap .jump-button{margin-top:0}
 .section-heading{display:flex;align-items:center;justify-content:space-between;margin:0 4px 14px}
 .section-index{color:#b04486;font-size:9px;font-weight:1000;letter-spacing:1.8px}
 .section-heading h2{margin:3px 0 0;font-family:'Baloo 2',sans-serif;font-size:27px;font-weight:900;line-height:1.1}
