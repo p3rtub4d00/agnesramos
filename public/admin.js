@@ -193,7 +193,9 @@
   $("#register-passkey-btn").addEventListener("click", async () => {
     const button = $("#register-passkey-btn");
     if (!window.isSecureContext || !window.PublicKeyCredential || !navigator.credentials) { notice($("#passkey-message"), "Este navegador ou endereço não oferece suporte à biometria. Acesse pelo link HTTPS e use um aparelho compatível.", true); return; }
-    if (!window.SimpleWebAuthnBrowser || typeof SimpleWebAuthnBrowser.startRegistration !== "function") { notice($("#passkey-message"), "O módulo de biometria não carregou. Recarregue a página; se continuar, verifique o acesso ao serviço unpkg.", true); return; }
+    if (!window.SimpleWebAuthnBrowser || typeof SimpleWebAuthnBrowser.startRegistration !== "function") { notice($("#passkey-message"), "O módulo de biometria não carregou. Recarregue a página e tente novamente.", true); return; }
+    if (typeof SimpleWebAuthnBrowser.browserSupportsWebAuthn === "function" && !SimpleWebAuthnBrowser.browserSupportsWebAuthn()) { notice($("#passkey-message"), "Este navegador não oferece suporte a Passkeys. Tente pelo Chrome ou Safari atualizado.", true); return; }
+    if (typeof SimpleWebAuthnBrowser.platformAuthenticatorIsAvailable === "function" && !(await SimpleWebAuthnBrowser.platformAuthenticatorIsAvailable())) { notice($("#passkey-message"), "Este aparelho não informou biometria ou PIN seguro integrado. Tente em um celular ou computador com Face ID, impressão digital ou Windows Hello.", true); return; }
     button.disabled = true; button.textContent = "Preparando cadastro...";
     try {
       const setup = await api("/api/webauthn/register/options", { method: "POST", body: JSON.stringify({}) });
