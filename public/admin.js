@@ -55,7 +55,7 @@
           const label = document.createElement("span"); label.textContent = (g.isResponsible ? "Responsável: " : "") + g.name + (g.checkedIn ? " ✓" : "");
           const remove = document.createElement("button"); remove.className = "small-action danger-action"; remove.type = "button"; remove.textContent = "Excluir";
           remove.addEventListener("click", async () => {
-            const message = g.isResponsible ? "Excluir o responsável também excluirá toda esta confirmação e seus acompanhantes. Continuar?" : "Excluir " + g.name + " da lista de convidados?";
+            const message = "Excluir " + (g.isResponsible ? "o responsável " : "") + g.name + " da lista de convidados?";
             if (!confirm(message)) return;
             remove.disabled = true;
             try { await api("/api/admin/rsvps/" + encodeURIComponent(item.id) + "/guests/" + encodeURIComponent(g.id), { method: "DELETE" }); await loadItems(); }
