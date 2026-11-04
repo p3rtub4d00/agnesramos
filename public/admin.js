@@ -158,5 +158,24 @@
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
     const a = document.createElement("a"); a.href = url; a.download = "lista-convidados-agnes.csv"; a.click(); URL.revokeObjectURL(url);
   });
+  const settingsDetails = document.querySelector(".settings-details");
+  if (window.matchMedia("(max-width: 750px)").matches && settingsDetails) settingsDetails.open = false;
+  $("#generate-invite-btn").addEventListener("click", async () => {
+    const button = $("#generate-invite-btn"); button.disabled = true;
+    notice($("#invite-link-message"), "Gerando link seguro...");
+    try {
+      const data = await api("/api/admin/invitation-links", { method: "POST", body: JSON.stringify({}) });
+      $("#generated-invite-url").value = data.url;
+      $("#invite-link-result").hidden = false;
+      $("#invite-link-expiry").textContent = "Válido até " + new Date(data.expiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) + " · uso único: será invalidado após a primeira resposta.";
+      notice($("#invite-link-message"), "Link criado. Envie somente à pessoa convidada.");
+    } catch (err) { notice($("#invite-link-message"), err.message, true); }
+    finally { button.disabled = false; }
+  });
+  $("#copy-invite-btn").addEventListener("click", async () => {
+    const value = $("#generated-invite-url").value;
+    try { await navigator.clipboard.writeText(value); notice($("#invite-link-message"), "Link copiado. Já pode enviar pelo WhatsApp."); }
+    catch { $("#generated-invite-url").select(); notice($("#invite-link-message"), "Selecione e copie o link manualmente.", true); }
+  });
   // A sessão é validada ao carregar a lista. O formulário de login aparece por padrão.
 })();
