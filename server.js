@@ -100,7 +100,7 @@ app.get("/api/config", async (req, res) => {
     catch (err) { console.error("Erro ao carregar configurações do evento:", err.message); }
   }
   res.json({
-    eventName: settings?.eventName || process.env.EVENT_NAME || "Helena",
+    eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes",
     age: process.env.EVENT_AGE || "5",
     date: process.env.EVENT_DATE || "Data a definir",
     time: process.env.EVENT_TIME || "Horário a definir",
@@ -142,7 +142,7 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const settings = await EventSettings.findOne({ key: "main" }).lean();
-    res.json({ eventName: settings?.eventName || process.env.EVENT_NAME || "Helena", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "" });
+    res.json({ eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "" });
   } catch (err) {
     console.error("Erro ao carregar configurações:", err.message);
     res.status(500).json({ error: "Não foi possível carregar os dados do evento." });
