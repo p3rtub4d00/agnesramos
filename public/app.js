@@ -67,8 +67,9 @@
       const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
       $("#event-date").textContent = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : dateValue;
       $("#event-time").textContent = config.time || "Horário a definir";
-      $("#event-venue").textContent = config.venue;
-      $("#event-address").textContent = config.address;
+      $("#event-venue").textContent = config.venue || "Local a definir";
+      $("#event-address").textContent = config.address || "Endereço a definir";
+      $("#map-link").hidden = !config.mapUrl;
       if (config.mapUrl) {
         $("#map-link").href = config.mapUrl;
         $("#map-link").hidden = false;
