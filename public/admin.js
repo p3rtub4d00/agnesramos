@@ -177,5 +177,41 @@
     try { await navigator.clipboard.writeText(value); notice($("#invite-link-message"), "Link copiado. Já pode enviar pelo WhatsApp."); }
     catch { $("#generated-invite-url").select(); notice($("#invite-link-message"), "Selecione e copie o link manualmente.", true); }
   });
-  // A sessão é validada ao carregar a lista. O formulário de login aparece por padrão.
+
+  async function refreshPasskeyAvailability() {
+    try { const response = await fetch("/api/webauthn/available?role=admin"); const data = await response.json(); $("#passkey-login-btn").hidden = !data.available; }
+    catch { $("#passkey-login-btn").hidden = true; }
+  }
+  $("#register-passkey-btn").addEventListener("click", async () => {
+    const button = $("#register-passkey-btn");
+    if (!window.SimpleWebAuthnBrowser) { notice($("#settings-message"), "O recurso de biometria não carregou. Atualize a página.", true); return; }
+    button.disabled = true; button.textContent = "Preparando cadastro...";
+    try {
+      const setup = await api("/api/webauthn/register/options", { method: "POST", body: JSON.stringify({}) });
+      const response = await SimpleWebAuthnBrowser.startRegistration({ optionsJSON: setup.options });
+      await api("/api/webauthn/register/verify", { method: "POST", body: JSON.stringify({ challengeId: setup.challengeId, response, deviceName: navigator.userAgent.slice(0, 80) }) });
+      notice($("#settings-message"), "Biometria cadastrada! Nos próximos acessos, você poderá entrar usando este dispositivo.");
+      await refreshPasskeyAvailability();
+    } catch (err) { notice($("#settings-message"), err.message || "Não foi possível cadastrar a biometria.", true); }
+    finally { button.disabled = false; button.textContent = "⌁ Cadastrar biometria neste dispositivo"; }
+  });
+  $("#passkey-login-btn").addEventListener("click", async () => {
+    const button = $("#passkey-login-btn"); button.disabled = true; button.textContent = "Aguardando biometria...";
+    try {
+      const setup = await api("/api/webauthn/auth/options", { method: "POST", body: JSON.stringify({ role: "admin" }) });
+      const response = await SimpleWebAuthnBrowser.startAuthentication({ optionsJSON: setup.options });
+      await api("/api/webauthn/auth/verify", { method: "POST", body: JSON.stringify({ role: "admin", challengeId: setup.challengeId, response }) });
+      showDashboard(); await Promise.all([loadItems(), loadSettings()]);
+    } catch (err) { notice($("#login-message"), err.message || "Não foi possível entrar com biometria.", true); }
+    finally { button.disabled = false; button.textContent = "⌁ Entrar com biometria"; }
+  });
+  async function restoreAdminSession() {
+    try {
+      const response = await fetch("/api/session"); const data = await response.json();
+      if (response.ok && data.authenticated && data.role === "admin") { showDashboard(); await Promise.all([loadItems(), loadSettings()]); }
+      else { showLogin(); await refreshPasskeyAvailability(); }
+    } catch { showLogin(); await refreshPasskeyAvailability(); }
+  }
+
+  restoreAdminSession();
 })();
