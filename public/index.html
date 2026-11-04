@@ -42,6 +42,7 @@
       <article class="detail-card time-card"><span class="detail-icon">◷</span><div><small>HORÁRIO</small><strong id="event-time">Horário a definir</strong></div></article>
       <article class="detail-card venue-card"><span class="detail-icon">⌖</span><div><small>ONDE</small><strong id="event-venue">Local a definir</strong><em id="event-address">Endereço a definir</em><a id="map-link" href="#" target="_blank" rel="noopener" hidden>Ver localização ↗</a></div></article>
     </div>
+    <div class="event-continue-wrap"><button class="jump-button next-step" id="continue-to-rsvp" type="button">Confirmar presença <span>→</span></button></div>
   </section>
   <section class="rsvp-card reveal stage-panel" id="rsvp" hidden>
     <div class="rsvp-topline"><span class="section-index">02 / CONFIRMAÇÃO</span><span class="rsvp-stamp">SUA PRESENÇA<br>É IMPORTANTE!</span></div>
@@ -100,6 +101,9 @@
  });
  document.getElementById('continue-to-form').addEventListener('click', () => {
    birthday.hidden = true;
+   revealStage(event);
+ });
+ document.getElementById('continue-to-rsvp').addEventListener('click', () => {
    event.hidden = true;
    footer.hidden = true;
    revealStage(rsvp);
