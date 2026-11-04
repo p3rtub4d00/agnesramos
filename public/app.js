@@ -4,7 +4,7 @@
   const form = $("#rsvp-form");
   const message = $("#form-message");
   let guestCounter = 0;
-  const invitationToken = /^\\/convite\\/([a-f0-9]{64})$/i.exec(window.location.pathname)?.[1] || "";
+  const invitationToken = window.location.pathname.split("/")[2] || "";
 
   function addGuest(value = "") {
     if (guestList.children.length >= 20) {
