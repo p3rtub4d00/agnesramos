@@ -20,11 +20,15 @@ app.use(express.static(path.join(__dirname, "public"), { extensions: ["html"] })
 const GuestSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 100 },
   checkedIn: { type: Boolean, default: false },
-  checkedInAt: { type: Date, default: null }
+  checkedInAt: { type: Date, default: null },
+  isResponsible: { type: Boolean, default: false }
 }, { _id: true });
 
 const RsvpSchema = new mongoose.Schema({
   responsible: { type: String, required: true, trim: true, maxlength: 100 },
+  responsibleExcluded: { type: Boolean, default: false },
+  responsibleCheckedIn: { type: Boolean, default: false },
+  responsibleCheckedInAt: { type: Date, default: null },
   phone: { type: String, trim: true, maxlength: 30, default: "" },
   guests: { type: [GuestSchema], validate: v => v.length > 0 && v.length <= 20 },
   status: { type: String, enum: ["confirmed", "declined"], required: true },
@@ -122,9 +126,10 @@ app.post("/api/rsvp", async (req, res) => {
   if (responsible.length < 2 || responsible.length > 100) return res.status(400).json({ error: "Informe o nome do responsável (2 a 100 caracteres)." });
   if (phone.length > 30 || notes.length > 300) return res.status(400).json({ error: "Confira os campos informados." });
   if (status === "confirmed" && guests.length === 0) return res.status(400).json({ error: "Informe pelo menos uma pessoa que irá à festa." });
-  if (new Set(guests.map(n => n.toLocaleLowerCase("pt-BR"))).size !== guests.length) return res.status(400).json({ error: "Há nomes repetidos na lista de acompanhantes." });
+  const allNames = [responsible, ...guests].map(n => n.toLocaleLowerCase("pt-BR"));
+  if (new Set(allNames).size !== allNames.length) return res.status(400).json({ error: "O responsável ou algum acompanhante foi informado mais de uma vez." });
   try {
-    const doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? guests.map(name => ({ name })) : [], notes });
+    const doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? [{ name: responsible, isResponsible: true }, ...guests.map(name => ({ name, isResponsible: false }))] : [], notes });
     res.status(201).json({ ok: true, message: status === "confirmed" ? "Presença registrada! Esperamos vocês nessa missão especial!" : "Resposta registrada. Obrigado por avisar!", id: String(doc._id) });
   } catch (err) {
     console.error("Erro ao salvar RSVP:", err.message);
@@ -180,18 +185,26 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const docs = await Rsvp.find().sort({ createdAt: -1 }).lean();
-    const confirmed = docs.filter(d => d.status === "confirmed");
+    const items = docs.map(d => {
+      const guests = (d.guests || []).map(g => ({
+        id: String(g._id), name: g.name, isResponsible: !!g.isResponsible || String(g.name).trim().toLocaleLowerCase("pt-BR") === String(d.responsible).trim().toLocaleLowerCase("pt-BR"),
+        checkedIn: !!g.checkedIn, checkedInAt: g.checkedInAt
+      }));
+      const hasResponsible = guests.some(g => g.isResponsible);
+      if (d.status === "confirmed" && !hasResponsible && !d.responsibleExcluded) guests.unshift({
+        id: "responsible", name: d.responsible, isResponsible: true,
+        checkedIn: !!d.responsibleCheckedIn, checkedInAt: d.responsibleCheckedInAt || null
+      });
+      return { id: String(d._id), responsible: d.responsible, phone: d.phone || "", status: d.status, notes: d.notes || "", createdAt: d.createdAt, guests };
+    });
+    const confirmedItems = items.filter(i => i.status === "confirmed");
     res.json({
-      items: docs.map(d => ({
-        id: String(d._id), responsible: d.responsible, phone: d.phone || "",
-        status: d.status, notes: d.notes || "", createdAt: d.createdAt,
-        guests: (d.guests || []).map(g => ({ id: String(g._id), name: g.name, checkedIn: !!g.checkedIn, checkedInAt: g.checkedInAt }))
-      })),
+      items,
       totals: {
-        families: confirmed.length,
-        people: confirmed.reduce((sum, d) => sum + (d.guests || []).length, 0),
+        families: confirmedItems.length,
+        people: confirmedItems.reduce((sum, item) => sum + item.guests.length, 0),
         pending: docs.filter(d => d.status === "declined").length,
-        checkedIn: confirmed.reduce((sum, d) => sum + (d.guests || []).filter(g => g.checkedIn).length, 0)
+        checkedIn: confirmedItems.reduce((sum, item) => sum + item.guests.filter(g => g.checkedIn).length, 0)
       }
     });
   } catch (err) {
@@ -205,12 +218,21 @@ app.delete("/api/admin/rsvps/:id/guests/:guestId", requireRole("admin"), async (
     const doc = await Rsvp.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: "Confirmação não encontrada." });
     if (req.params.guestId === "responsible") {
-      await doc.deleteOne();
-      return res.json({ ok: true, familyDeleted: true });
+      const responsibleGuest = doc.guests.find(g => g.isResponsible || String(g.name).trim().toLocaleLowerCase("pt-BR") === String(doc.responsible).trim().toLocaleLowerCase("pt-BR"));
+      if (responsibleGuest) responsibleGuest.deleteOne();
+      doc.responsibleExcluded = true;
+      doc.responsibleCheckedIn = false;
+      doc.responsibleCheckedInAt = null;
+    } else {
+      const guest = doc.guests.id(req.params.guestId);
+      if (!guest) return res.status(404).json({ error: "Convidado não encontrado." });
+      if (guest.isResponsible) {
+        guest.deleteOne();
+        doc.responsibleExcluded = true;
+        doc.responsibleCheckedIn = false;
+        doc.responsibleCheckedInAt = null;
+      } else guest.deleteOne();
     }
-    const guest = doc.guests.id(req.params.guestId);
-    if (!guest) return res.status(404).json({ error: "Convidado não encontrado." });
-    guest.deleteOne();
     doc.updatedAt = new Date();
     await doc.save();
     res.json({ ok: true });
@@ -241,8 +263,17 @@ app.get("/api/portaria/guests", requireRole("portaria"), async (req, res) => {
     const normalized = q.toLocaleLowerCase("pt-BR");
     const results = [];
     for (const d of docs) {
-      const matches = (d.guests || []).filter(g => !q || g.name.toLocaleLowerCase("pt-BR").includes(normalized) || d.responsible.toLocaleLowerCase("pt-BR").includes(normalized));
-      for (const g of matches) results.push({ id: String(d._id), guestId: String(g._id), name: g.name, responsible: d.responsible, total: (d.guests || []).length, checkedIn: !!g.checkedIn, checkedInAt: g.checkedInAt });
+      const guests = (d.guests || []).map(g => ({
+        guestId: String(g._id), name: g.name,
+        checkedIn: !!g.checkedIn, checkedInAt: g.checkedInAt,
+        isResponsible: !!g.isResponsible || String(g.name).trim().toLocaleLowerCase("pt-BR") === String(d.responsible).trim().toLocaleLowerCase("pt-BR")
+      }));
+      if (!guests.some(g => g.isResponsible) && !d.responsibleExcluded) guests.unshift({
+        guestId: "responsible", name: d.responsible, checkedIn: !!d.responsibleCheckedIn,
+        checkedInAt: d.responsibleCheckedInAt || null, isResponsible: true
+      });
+      const matches = guests.filter(g => !q || g.name.toLocaleLowerCase("pt-BR").includes(normalized));
+      for (const g of matches) results.push({ id: String(d._id), guestId: g.guestId, name: g.name, responsible: d.responsible, total: guests.length, checkedIn: g.checkedIn, checkedInAt: g.checkedInAt });
     }
     res.json({ items: results.slice(0, 100) });
   } catch (err) {
@@ -255,6 +286,13 @@ app.post("/api/portaria/checkin", requireRole("portaria"), async (req, res) => {
   try {
     const doc = await Rsvp.findById(req.body.id);
     if (!doc || doc.status !== "confirmed") return res.status(404).json({ error: "Convidado não encontrado na lista de confirmados." });
+    if (req.body.guestId === "responsible") {
+      if (doc.responsibleCheckedIn) return res.status(409).json({ error: "Esta entrada já foi registrada." });
+      doc.responsibleCheckedIn = true;
+      doc.responsibleCheckedInAt = new Date();
+      await doc.save();
+      return res.json({ ok: true, message: "Entrada registrada para " + doc.responsible + "." });
+    }
     const guest = doc.guests.id(req.body.guestId);
     if (!guest) return res.status(404).json({ error: "Nome não encontrado nesta confirmação." });
     if (guest.checkedIn) return res.status(409).json({ error: "Esta entrada já foi registrada." });
