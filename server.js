@@ -5,7 +5,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const crypto = require("crypto");
 const path = require("path");
-const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require("@simplewebauthn/server");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -169,7 +169,8 @@ app.post("/api/webauthn/register/options", requireAnyAccessRole, async (req, res
     const role = req.accessRole;
     const credentials = await PasskeyCredential.find({ role }).lean();
     const cfg = webAuthnSettings(req);
-    const options = await generateRegistrationOptions({
+    const webauthn = await import("@simplewebauthn/server");
+    const options = await webauthn.generateRegistrationOptions({
       rpName: "Convite Agnes",
       rpID: cfg.rpID,
       userName: role === "admin" ? "Responsável pela festa" : "Equipe da portaria",
@@ -192,7 +193,8 @@ app.post("/api/webauthn/register/verify", requireAnyAccessRole, async (req, res)
     const challenge = await takeWebAuthnChallenge(String(req.body.challengeId || ""), role, "register");
     if (!challenge) return res.status(410).json({ error: "A solicitação expirou. Tente cadastrar a biometria novamente." });
     const cfg = webAuthnSettings(req);
-    const verification = await verifyRegistrationResponse({
+    const webauthn = await import("@simplewebauthn/server");
+    const verification = await webauthn.verifyRegistrationResponse({
       response: req.body.response,
       expectedChallenge: challenge.challenge,
       expectedOrigin: cfg.expectedOrigin,
@@ -219,7 +221,8 @@ app.post("/api/webauthn/auth/options", loginLimiter, async (req, res) => {
     const credentials = await PasskeyCredential.find({ role }).lean();
     if (!credentials.length) return res.status(404).json({ error: "Ainda não há biometria cadastrada para este acesso." });
     const cfg = webAuthnSettings(req);
-    const options = await generateAuthenticationOptions({
+    const webauthn = await import("@simplewebauthn/server");
+    const options = await webauthn.generateAuthenticationOptions({
       rpID: cfg.rpID,
       allowCredentials: credentials.map(c => ({ id: c.credentialId, transports: c.transports })),
       userVerification: "required"
@@ -241,7 +244,8 @@ app.post("/api/webauthn/auth/verify", loginLimiter, async (req, res) => {
     const credential = await PasskeyCredential.findOne({ role, credentialId });
     if (!credential) return res.status(404).json({ error: "Biometria não cadastrada para este dispositivo." });
     const cfg = webAuthnSettings(req);
-    const verification = await verifyAuthenticationResponse({
+    const webauthn = await import("@simplewebauthn/server");
+    const verification = await webauthn.verifyAuthenticationResponse({
       response: req.body.response,
       expectedChallenge: challenge.challenge,
       expectedOrigin: cfg.expectedOrigin,
