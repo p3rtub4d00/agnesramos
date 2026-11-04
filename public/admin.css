@@ -5,3 +5,4 @@
 
 .guest-line{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;max-width:330px}.guest-line>span{overflow-wrap:anywhere}.danger-action{border-color:#f2c7d2;color:#b93458;background:#fff6f8;padding:4px 7px}.danger-action:hover{background:#ffe8ee}
 @media print{.guest-line .danger-action{display:none!important}}
+\n.clear-all-btn{border-color:#e9a7b7;background:#fff0f3;color:#a92e50;padding:9px 12px;font-size:11px}.clear-all-btn:hover{background:#ffe1e8}\n
