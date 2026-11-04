@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f42e91"><meta name="description" content="Um convite superpoderoso para uma missão de aniversário!">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="/app.js" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -47,6 +47,7 @@
   <section class="rsvp-card reveal stage-panel" id="rsvp" hidden>
     <div class="rsvp-topline"><span class="section-index">02 / CONFIRMAÇÃO</span><span class="rsvp-stamp">SUA PRESENÇA<br>É IMPORTANTE!</span></div>
     <div class="rsvp-heading"><span class="heading-star">★</span><div><h2>Você vem para a festa?</h2><p>Confirme sua presença e entre para a lista da missão.</p></div></div>
+    <div id="invite-access-message" class="form-message show error" hidden role="status" aria-live="polite"></div>
     <form id="rsvp-form">
       <div class="form-grid">
         <div class="field-group"><label for="responsible">Nome do responsável <b>*</b></label><input id="responsible" name="responsible" maxlength="100" autocomplete="name" placeholder="Ex.: João da Silva" required></div>
@@ -64,6 +65,13 @@
       <p class="privacy-note">🔒 Seus dados serão usados apenas para organizar a festa.</p>
       <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
     </form>
+    <section id="ticket-receipt" class="ticket-receipt" hidden>
+      <div class="ticket-heading"><span>✦</span><h2>Seu comprovante de entrada</h2><p>Apresente este QR Code na portaria. Ele registra a entrada de todas as pessoas desta confirmação.</p></div>
+      <div id="ticket-qr" class="ticket-qr"></div>
+      <div id="ticket-guest-names" class="ticket-guest-names"></div>
+      <p class="ticket-security">🔒 Código individual e de uso único.</p>
+      <button id="save-ticket-btn" class="jump-button" type="button">Salvar comprovante <span>↓</span></button>
+    </section>
   </section>
   <footer class="invite-footer stage-panel" id="footer-stage" hidden><div class="footer-hearts" aria-hidden="true">♥ ✦ ♥</div><strong>Uma festa fica ainda mais incrível<br>quando você está nela!</strong><p>Obrigada por fazer parte dessa aventura.</p><div class="footer-city" aria-hidden="true">▂ ▅ ▃ ▇ ▂ ▆ ▃ ▅ ▂ ▇ ▄</div></footer>
 </main>
