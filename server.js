@@ -199,6 +199,26 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
     res.status(500).json({ error: "Não foi possível carregar a lista." });
   }
 });
+app.delete("/api/admin/rsvps/:id/guests/:guestId", requireRole("admin"), async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  try {
+    const doc = await Rsvp.findById(req.params.id);
+    if (!doc) return res.status(404).json({ error: "Confirmação não encontrada." });
+    if (req.params.guestId === "responsible") {
+      await doc.deleteOne();
+      return res.json({ ok: true, familyDeleted: true });
+    }
+    const guest = doc.guests.id(req.params.guestId);
+    if (!guest) return res.status(404).json({ error: "Convidado não encontrado." });
+    guest.deleteOne();
+    doc.updatedAt = new Date();
+    await doc.save();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Erro ao excluir convidado:", err.message);
+    res.status(400).json({ error: "Não foi possível excluir este convidado." });
+  }
+});
 app.patch("/api/admin/rsvps/:id", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   const status = req.body.status;
