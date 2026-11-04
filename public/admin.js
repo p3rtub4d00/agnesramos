@@ -9,7 +9,7 @@
     el.className = "notice " + (text ? (error ? "error" : "success") : "");
   }
   async function api(url, options = {}) {
-    const response = await fetch(url, { ...options, headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...(options.headers || {}) } });
+    const response = await fetch(url, { credentials: "same-origin", ...options, headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...(options.headers || {}) } });
     const data = await response.json().catch(() => ({}));
     if (response.status === 401) { showLogin(); throw new Error(data.error || "Faça login novamente."); }
     if (!response.ok) throw new Error(data.error || "Não foi possível concluir a operação.");
@@ -167,6 +167,7 @@
       const data = await api("/api/admin/invitation-links", { method: "POST", body: JSON.stringify({}) });
       $("#generated-invite-url").value = data.url;
       $("#invite-link-result").hidden = false;
+      $("#share-whatsapp-btn").hidden = false;
       $("#invite-link-expiry").textContent = "Válido até " + new Date(data.expiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) + " · uso único: será invalidado após a primeira resposta.";
       notice($("#invite-link-message"), "Link criado. Envie somente à pessoa convidada.");
     } catch (err) { notice($("#invite-link-message"), err.message, true); }
@@ -178,21 +179,29 @@
     catch { $("#generated-invite-url").select(); notice($("#invite-link-message"), "Selecione e copie o link manualmente.", true); }
   });
 
+  $("#share-whatsapp-btn").addEventListener("click", () => {
+    const link = $("#generated-invite-url").value.trim();
+    if (!link) { notice($("#invite-link-message"), "Gere um link antes de compartilhar.", true); return; }
+    const message = "Olá! Você recebeu um convite especial para o aniversário da Agnes! 🎉\n\nConfirme sua presença pelo link pessoal abaixo:\n" + link + "\n\nAtenção: este link é válido por 30 minutos e só pode ser utilizado uma vez.";
+    window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank", "noopener,noreferrer");
+  });
+
   async function refreshPasskeyAvailability() {
     try { const response = await fetch("/api/webauthn/available?role=admin"); const data = await response.json(); $("#passkey-login-btn").hidden = !data.available; }
     catch { $("#passkey-login-btn").hidden = true; }
   }
   $("#register-passkey-btn").addEventListener("click", async () => {
     const button = $("#register-passkey-btn");
-    if (!window.SimpleWebAuthnBrowser) { notice($("#settings-message"), "O recurso de biometria não carregou. Atualize a página.", true); return; }
+    if (!window.isSecureContext || !window.PublicKeyCredential || !navigator.credentials) { notice($("#passkey-message"), "Este navegador ou endereço não oferece suporte à biometria. Acesse pelo link HTTPS e use um aparelho compatível.", true); return; }
+    if (!window.SimpleWebAuthnBrowser || typeof SimpleWebAuthnBrowser.startRegistration !== "function") { notice($("#passkey-message"), "O módulo de biometria não carregou. Recarregue a página; se continuar, verifique o acesso ao serviço unpkg.", true); return; }
     button.disabled = true; button.textContent = "Preparando cadastro...";
     try {
       const setup = await api("/api/webauthn/register/options", { method: "POST", body: JSON.stringify({}) });
       const response = await SimpleWebAuthnBrowser.startRegistration({ optionsJSON: setup.options });
       await api("/api/webauthn/register/verify", { method: "POST", body: JSON.stringify({ challengeId: setup.challengeId, response, deviceName: navigator.userAgent.slice(0, 80) }) });
-      notice($("#settings-message"), "Biometria cadastrada! Nos próximos acessos, você poderá entrar usando este dispositivo.");
+      notice($("#passkey-message"), "Biometria cadastrada com sucesso! Nos próximos acessos, você poderá entrar usando este dispositivo.");
       await refreshPasskeyAvailability();
-    } catch (err) { notice($("#settings-message"), err.message || "Não foi possível cadastrar a biometria.", true); }
+    } catch (err) { console.error("Falha no cadastro da Passkey:", err); notice($("#passkey-message"), err.message || "Não foi possível cadastrar a biometria. Confira as permissões e tente novamente.", true); }
     finally { button.disabled = false; button.textContent = "⌁ Cadastrar biometria neste dispositivo"; }
   });
   $("#passkey-login-btn").addEventListener("click", async () => {
