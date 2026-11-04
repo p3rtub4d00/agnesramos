@@ -16,3 +16,19 @@
 .passkey-btn{width:100%;margin-top:10px;padding:12px;border-color:#e8c9dd;color:#a13c79;font-size:12px}.passkey-btn[hidden]{display:none!important}#register-passkey-btn,#gate-register-passkey-btn{white-space:normal}
 
 .passkey-panel{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin:0 0 18px}.passkey-panel h2{font-family:"Baloo 2",sans-serif;font-size:20px;margin:0 0 3px}.passkey-panel .muted{margin:0;font-size:12px}.passkey-panel .notice{grid-column:1/-1;margin:0}.passkey-register-btn{white-space:normal}.whatsapp-share-btn{border-color:#c6e8d2;color:#187b45}.whatsapp-share-btn[hidden]{display:none!important}@media(max-width:650px){.passkey-panel{grid-template-columns:1fr}.passkey-panel .notice{grid-column:1}.invite-link-row .secondary-btn{width:100%}}
+
+.ticket-action{border-color:#c9e6f5;color:#28769d;background:#f5fbff;margin-bottom:5px}
+.ticket-modal{position:fixed;inset:0;z-index:1000;background:rgba(42,25,47,.58);display:grid;place-items:center;padding:18px;overflow:auto}
+.ticket-modal-card{position:relative;width:min(100%,420px);background:#fff;border-radius:22px;padding:26px 22px 22px;text-align:center;box-shadow:0 24px 70px rgba(20,10,25,.25)}
+.ticket-modal-card h2{font-family:'Baloo 2',sans-serif;font-size:25px;margin:0 0 4px}
+.ticket-modal-responsible{font-weight:900;color:#5b4561;margin:0 0 14px}
+.ticket-modal-close{position:absolute;right:13px;top:9px;border:0;background:#fff1f7;color:#a43b77;border-radius:50%;width:34px;height:34px;font-size:24px;line-height:1}
+.admin-ticket-qr{display:grid;place-items:center;width:270px;max-width:100%;min-height:270px;margin:0 auto 12px;padding:14px;border:1px solid #f0deeb;border-radius:16px;background:#fff}
+.admin-ticket-qr canvas,.admin-ticket-qr img{max-width:100%;height:auto}
+.ticket-modal-names{font-size:11px;line-height:1.6;color:#806f85;margin:0 0 8px}
+.ticket-modal-status{font-size:11px;color:#26874d;font-weight:900;margin:0 0 12px}
+.ticket-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ticket-modal-actions .primary-btn{width:auto;margin:0;display:block;text-align:center}
+.ticket-modal-message{margin-top:10px}
+@media(max-width:430px){.ticket-modal-card{padding:24px 15px 17px}.ticket-modal-actions{grid-template-columns:1fr}.ticket-modal-actions button{width:100%}}
+@media print{.ticket-modal{display:none!important}.ticket-action{display:none!important}}
