@@ -87,3 +87,36 @@ input:focus,textarea:focus{border-color:#65c3ed;background:#fff;box-shadow:0 0 0
 @media(max-width:760px){.invite-page{padding:12px 9px 30px}.hero-panel{grid-template-columns:1fr;min-height:0;border-radius:23px}.hero-copy{padding:27px 22px 10px}.hero-copy h1{font-size:clamp(52px,12vw,75px)}.hero-subtitle{max-width:520px;margin:14px 0;font-size:13px}.jump-button{margin-top:15px}.hero-art-wrap{min-height:clamp(235px,60vw,340px);margin-top:-4px}.hero-photo{max-height:340px;width:100%}.art-halo{width:66%}.ring-one{width:72%}.ring-two{width:54%}.hero-bottom{font-size:10px}.birthday-heading{padding:39px 8px 29px}.event-section{padding:0 2px}.event-details{grid-template-columns:1fr;gap:9px}.detail-card{min-height:83px;padding:13px 15px}.detail-icon{flex-basis:39px;width:39px;height:39px}.detail-card strong{font-size:16px}.rsvp-card{padding:25px 18px 27px;border-radius:21px}.section-heading h2{font-size:24px}}
 @media(max-width:480px){.topbar{margin-bottom:10px}.topbar-pill{padding:8px 10px;font-size:8px;letter-spacing:1px}.logo-star{width:32px;height:32px}.mini-logo b{font-size:17px}.hero-copy{padding:23px 17px 8px}.eyebrow{font-size:8px;letter-spacing:1.3px}.hero-copy h1{font-size:clamp(47px,13vw,62px)}.hero-subtitle{font-size:12px}.hero-tags span{font-size:8px;padding:6px 8px}.hero-art-wrap{min-height:225px}.art-sticker{width:42px;height:42px;font-size:12px;border-radius:13px}.sticker-two{width:35px;height:35px;font-size:22px}.sticker-three{width:48px;height:36px}.hero-bottom{gap:8px;padding:9px 5px;font-size:9px;letter-spacing:.4px}.birthday-heading h2{font-size:clamp(65px,18vw,84px);letter-spacing:-3px}.title-overline{font-size:11px}.age-pill{font-size:12px}.invite-message{font-size:15px}.desktop-break{display:none}.section-heading h2{font-size:22px}.form-grid{grid-template-columns:1fr;gap:13px}.guest-label-row{align-items:start;flex-direction:column;gap:4px}.field-hint{text-align:left}.attendance-options{grid-template-columns:1fr}.attendance-option{padding:12px}.rsvp-heading h2{font-size:26px}.rsvp-heading p{font-size:11px}.rsvp-stamp{font-size:7px}.submit-button{font-size:17px}.invite-footer{padding:23px 12px 10px}.footer-city{font-size:19px;letter-spacing:5px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}.reveal{opacity:1;transform:none}}
+
+/* Convite em etapas: primeiro a missão, depois o nome e por fim a confirmação */
+.jump-button{font-family:'Nunito',sans-serif;cursor:pointer}
+.hero-panel{transition:opacity .26s ease,transform .26s ease}
+.hero-panel.stage-exit{opacity:0;transform:translateY(-12px) scale(.985)}
+.stage-panel[hidden]{display:none!important}
+.birthday-heading.stage-panel{position:relative;min-height:68vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;margin:0 auto;padding:55px 18px 45px;border:2px solid #fff;border-radius:26px;background:radial-gradient(circle at 15% 15%,#ffe0f0,transparent 30%),radial-gradient(circle at 85% 70%,#dff5ff,transparent 35%),linear-gradient(135deg,#fff8fc,#f7f3ff 55%,#f4ffed);box-shadow:0 20px 55px #9d4e841a}
+.birthday-heading.stage-panel:before,.birthday-heading.stage-panel:after{content:"✦  ✧  ★  ♡  ✦  ★  ✧";position:absolute;left:-10%;right:-10%;color:#f65aab;opacity:.25;font-size:25px;letter-spacing:18px;white-space:nowrap;pointer-events:none;animation:decorDrift 12s linear infinite}
+.birthday-heading.stage-panel:before{top:12%}.birthday-heading.stage-panel:after{bottom:12%;color:#39b6ed;animation-direction:reverse}
+.birthday-heading.stage-panel h2{font-size:clamp(72px,13vw,125px);animation:namePop .9s cubic-bezier(.18,.89,.32,1.28) both}
+.birthday-heading.stage-panel .title-overline{animation:fadeUp .7s .1s both}
+.birthday-heading.stage-panel .age-pill{animation:fadeUp .7s .25s both}
+.birthday-heading.stage-panel .invite-message{animation:fadeUp .7s .4s both}
+.birthday-heading.stage-panel .comic-divider{animation:fadeUp .7s .55s both}
+.next-step{margin-top:23px;position:relative;z-index:2;animation:fadeUp .7s .7s both}
+.stage-enter{animation:stageIn .65s cubic-bezier(.2,.8,.2,1) both}
+.fireworks-layer{position:fixed;inset:0;z-index:40;overflow:hidden;pointer-events:none}
+.fireworks-layer span{position:absolute;left:var(--x,50%);top:var(--y,50%);font-size:clamp(24px,5vw,48px);color:var(--pink);text-shadow:0 0 12px #fff,0 0 22px currentColor;animation:fireworkBurst 2.3s ease-out forwards}
+.fireworks-layer span:nth-child(1){--x:15%;--y:25%;color:#f52e91;--dx:65px;--dy:-90px}
+.fireworks-layer span:nth-child(2){--x:82%;--y:22%;color:#39b6ed;--dx:-70px;--dy:-75px}
+.fireworks-layer span:nth-child(3){--x:75%;--y:70%;color:#68ce4e;--dx:55px;--dy:-60px}
+.fireworks-layer span:nth-child(4){--x:20%;--y:74%;color:#ffbd35;--dx:-55px;--dy:-70px}
+.fireworks-layer span:nth-child(5){--x:50%;--y:18%;color:#f52e91;--dx:20px;--dy:75px}
+.fireworks-layer span:nth-child(6){--x:88%;--y:48%;color:#39b6ed;--dx:-80px;--dy:10px}
+.fireworks-layer span:nth-child(7){--x:10%;--y:48%;color:#68ce4e;--dx:75px;--dy:15px}
+.fireworks-layer span:nth-child(8){--x:52%;--y:83%;color:#f52e91;--dx:0px;--dy:-85px}
+@keyframes stageIn{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes namePop{0%{opacity:0;transform:scale(.55) rotate(-5deg)}65%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fireworkBurst{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}15%{opacity:1}75%{opacity:.9;transform:translate(var(--dx),var(--dy)) scale(1.4) rotate(100deg)}100%{opacity:0;transform:translate(calc(var(--dx)*1.3),calc(var(--dy)*1.3)) scale(.4) rotate(160deg)}}
+@keyframes decorDrift{from{transform:translateX(0)}to{transform:translateX(80px)}}
+@media(max-width:600px){.birthday-heading.stage-panel{min-height:72vh;padding:45px 10px;border-radius:20px}.birthday-heading.stage-panel h2{font-size:clamp(60px,16vw,86px)}.birthday-heading.stage-panel .invite-message{font-size:15px}.next-step{margin-top:20px}}
+@media(prefers-reduced-motion:reduce){.stage-enter,.birthday-heading.stage-panel h2,.birthday-heading.stage-panel .title-overline,.birthday-heading.stage-panel .age-pill,.birthday-heading.stage-panel .invite-message,.birthday-heading.stage-panel .comic-divider,.next-step{animation:none!important}.hero-panel{transition:none}}
