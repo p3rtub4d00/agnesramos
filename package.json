@@ -17,6 +17,6 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "mongoose": "^8.9.5",
-    "@simplewebauthn/server": "^13.2.2"
+    "@simplewebauthn/server": "^13.3.3"
   }
 }
