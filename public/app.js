@@ -63,8 +63,10 @@
       $("#event-name").textContent = config.eventName + "!";
       $("#event-age").textContent = config.age;
       document.title = "Aniversário da " + config.eventName + " | Convite especial";
-      $("#event-date").textContent = config.date;
-      $("#event-time").textContent = config.time;
+      const dateValue = String(config.date || "Data a definir");
+      const parsedDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
+      $("#event-date").textContent = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : dateValue;
+      $("#event-time").textContent = config.time || "Horário a definir";
       $("#event-venue").textContent = config.venue;
       $("#event-address").textContent = config.address;
       if (config.mapUrl) {
