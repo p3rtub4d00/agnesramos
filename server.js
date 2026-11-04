@@ -413,6 +413,17 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
     res.status(500).json({ error: "Não foi possível carregar a lista." });
   }
 });
+app.get("/api/admin/rsvps/:id/ticket", requireRole("admin"), async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  try {
+    const doc = await Rsvp.findById(req.params.id).lean();
+    if (!doc || doc.status !== "confirmed" || !doc.ticketTokenHash) return res.status(404).json({ error: "Comprovante não encontrado para esta confirmação." });
+    res.json({ ticketToken: doc.ticketTokenHash, responsible: doc.responsible, phone: doc.phone || "", names: (doc.guests || []).map(g => g.name), used: !!doc.ticketUsedAt });
+  } catch (err) {
+    console.error("Erro ao recuperar comprovante:", err.message);
+    res.status(400).json({ error: "Não foi possível recuperar este comprovante." });
+  }
+});
 app.delete("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   if (req.body.confirmation !== "ZERAR") return res.status(400).json({ error: "Confirmação inválida." });
@@ -523,9 +534,10 @@ app.post("/api/portaria/checkin-ticket", requireRole("portaria"), async (req, re
   if (!/^[a-f0-9]{64}$/i.test(ticketToken)) return res.status(400).json({ error: "QR Code inválido." });
   try {
     const now = new Date();
-    const doc = await Rsvp.findOneAndUpdate({ ticketTokenHash: hashToken(ticketToken), ticketUsedAt: null, status: "confirmed" }, { $set: { ticketUsedAt: now, responsibleCheckedIn: true, responsibleCheckedInAt: now, "guests.$[].checkedIn": true, "guests.$[].checkedInAt": now } }, { new: true });
+    const ticketQuery = { $or: [{ ticketTokenHash: hashToken(ticketToken) }, { ticketTokenHash: ticketToken }], ticketUsedAt: null, status: "confirmed" };
+    const doc = await Rsvp.findOneAndUpdate(ticketQuery, { $set: { ticketUsedAt: now, responsibleCheckedIn: true, responsibleCheckedInAt: now, "guests.$[].checkedIn": true, "guests.$[].checkedInAt": now } }, { new: true });
     if (!doc) {
-      const existing = await Rsvp.findOne({ ticketTokenHash: hashToken(ticketToken) }).lean();
+      const existing = await Rsvp.findOne({ $or: [{ ticketTokenHash: hashToken(ticketToken) }, { ticketTokenHash: ticketToken }] }).lean();
       if (existing?.ticketUsedAt) return res.status(409).json({ error: "Este comprovante já foi utilizado. A entrada desta família já foi registrada." });
       return res.status(404).json({ error: "Comprovante não encontrado ou confirmação inválida." });
     }
