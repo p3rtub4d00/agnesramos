@@ -91,7 +91,7 @@
       $("#event-venue-input").value = data.venue || "";
       $("#event-address-input").value = data.address || "";
       $("#event-map-input").value = data.mapUrl || "";
-      $("#event-date-input").value = /^\\d{4}-\\d{2}-\\d{2}$/.test(data.date || "") ? data.date : "";
+      $("#event-date-input").value = /^\d{4}-\d{2}-\d{2}$/.test(data.date || "") ? data.date : "";
       $("#event-time-input").value = data.time || "";
       notice($("#settings-message"), "");
     } catch (err) { notice($("#settings-message"), err.message, true); }
