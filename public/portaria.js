@@ -2,6 +2,8 @@
   const $ = s => document.querySelector(s);
   const login = $("#gate-login");
   const dashboard = $("#gate-dashboard");
+  let qrScanner = null;
+  let scanning = false;
   function notice(text, error = false) {
     const el = $("#gate-message"); el.textContent = text; el.className = "notice " + (text ? (error ? "error" : "success") : "");
   }
@@ -50,8 +52,43 @@
       notice(err.message, true);
     }
   }
+  async function processTicket(ticketToken) {
+    const resultBox = $("#qr-scan-result");
+    resultBox.textContent = "Validando comprovante..."; resultBox.className = "qr-scan-result";
+    try {
+      const result = await api("/api/portaria/checkin-ticket", { method: "POST", body: JSON.stringify({ ticketToken }) });
+      resultBox.textContent = result.message + " Pessoas: " + (result.names || []).join(", ");
+      resultBox.className = "qr-scan-result success";
+      await search();
+    } catch (err) {
+      resultBox.textContent = err.message;
+      resultBox.className = "qr-scan-result error";
+    }
+  }
+  async function stopScanner() {
+    if (qrScanner && scanning) { try { await qrScanner.stop(); } catch {} scanning = false; }
+    $("#qr-reader").hidden = true; $("#stop-qr-scan").hidden = true; $("#start-qr-scan").hidden = false;
+  }
+  $("#start-qr-scan").addEventListener("click", async () => {
+    if (!window.Html5Qrcode) { $("#qr-scan-result").textContent = "Leitor de QR Code indisponível. Atualize a página."; return; }
+    try {
+      $("#qr-reader").hidden = false; $("#start-qr-scan").hidden = true; $("#stop-qr-scan").hidden = false;
+      qrScanner = new Html5Qrcode("qr-reader");
+      await qrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 230, height: 230 } }, async decodedText => {
+        await stopScanner();
+        await processTicket(decodedText.trim());
+      });
+      scanning = true;
+      $("#qr-scan-result").textContent = "Aponte a câmera para o QR Code do comprovante.";
+    } catch (err) {
+      $("#qr-scan-result").textContent = "Não foi possível abrir a câmera. Verifique a permissão do navegador e tente novamente.";
+      $("#qr-scan-result").className = "qr-scan-result error";
+      await stopScanner();
+    }
+  });
+  $("#stop-qr-scan").addEventListener("click", stopScanner);
   $("#gate-search-btn").addEventListener("click", search);
   $("#gate-search").addEventListener("keydown", e => { if (e.key === "Enter") search(); });
   $("#gate-search").addEventListener("input", () => { if ($("#gate-search").value.trim().length === 0) search(); });
-  $("#gate-logout").addEventListener("click", async () => { await fetch("/api/logout", { method: "POST" }); dashboard.hidden = true; login.hidden = false; });
+  $("#gate-logout").addEventListener("click", async () => { await stopScanner(); await fetch("/api/logout", { method: "POST" }); dashboard.hidden = true; login.hidden = false; });
 })();
