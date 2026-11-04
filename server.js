@@ -118,6 +118,12 @@ function requireRole(role) {
     next();
   };
 }
+function requireAnyAccessRole(req, res, next) {
+  const token = readToken(req);
+  if (!token || !["admin", "portaria"].includes(token.role)) return res.status(401).json({ error: "Acesso não autorizado. Entre novamente." });
+  req.accessRole = token.role;
+  next();
+}
 function setAccessCookie(res, role) {
   res.cookie(COOKIE_NAME, createToken(role), {
     httpOnly: true,
@@ -157,7 +163,7 @@ app.get("/api/webauthn/available", async (req, res) => {
   try { res.json({ available: await PasskeyCredential.exists({ role }) ? true : false }); }
   catch { res.status(503).json({ available: false, error: "Não foi possível consultar a biometria." }); }
 });
-app.post("/api/webauthn/register/options", requireRole("admin"), async (req, res) => {
+app.post("/api/webauthn/register/options", requireAnyAccessRole, async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const role = req.accessRole;
@@ -180,7 +186,7 @@ app.post("/api/webauthn/register/options", requireRole("admin"), async (req, res
     res.status(500).json({ error: "Não foi possível preparar o cadastro de biometria neste dispositivo." });
   }
 });
-app.post("/api/webauthn/register/verify", requireRole("admin"), async (req, res) => {
+app.post("/api/webauthn/register/verify", requireAnyAccessRole, async (req, res) => {
   try {
     const role = req.accessRole;
     const challenge = await takeWebAuthnChallenge(String(req.body.challengeId || ""), role, "register");
