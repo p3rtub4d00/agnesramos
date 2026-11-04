@@ -47,7 +47,7 @@
     filtered.forEach(item => {
       const tr = document.createElement("tr");
       const people = document.createElement("td"); people.className = "people-cell";
-      const name = document.createElement("strong"); name.textContent = item.responsible; people.append(name);
+      if (!item.responsibleExcluded) { const name = document.createElement("strong"); name.textContent = item.responsible; people.append(name); }
       const guestNames = document.createElement("div"); guestNames.className = "guest-names";
       if (item.status === "confirmed") {
         (item.guests || []).forEach(g => {
@@ -91,6 +91,8 @@
       $("#event-venue-input").value = data.venue || "";
       $("#event-address-input").value = data.address || "";
       $("#event-map-input").value = data.mapUrl || "";
+      $("#event-date-input").value = /^\\d{4}-\\d{2}-\\d{2}$/.test(data.date || "") ? data.date : "";
+      $("#event-time-input").value = data.time || "";
       notice($("#settings-message"), "");
     } catch (err) { notice($("#settings-message"), err.message, true); }
   }
@@ -100,7 +102,7 @@
     button.disabled = true;
     notice($("#settings-message"), "Salvando...");
     try {
-      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ eventName: $("#event-name-input").value, venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value }) });
+      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ eventName: $("#event-name-input").value, venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value, date: $("#event-date-input").value, time: $("#event-time-input").value }) });
       notice($("#settings-message"), "Nome, local e endereço salvos. O convite público já está atualizado.");
     } catch (err) { notice($("#settings-message"), err.message, true); }
     finally { button.disabled = false; }
