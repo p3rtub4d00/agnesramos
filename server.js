@@ -33,6 +33,8 @@ const RsvpSchema = new mongoose.Schema({
   guests: { type: [GuestSchema], validate: v => v.length <= 20 },
   status: { type: String, enum: ["confirmed", "declined"], required: true },
   notes: { type: String, trim: true, maxlength: 300, default: "" },
+  ticketTokenHash: { type: String, default: "", index: true },
+  ticketUsedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
@@ -52,6 +54,14 @@ const EventSettingsSchema = new mongoose.Schema({
 }, { timestamps: true });
 const EventSettings = mongoose.model("EventSettings", EventSettingsSchema);
 
+const InvitationLinkSchema = new mongoose.Schema({
+  tokenHash: { type: String, required: true, unique: true },
+  expiresAt: { type: Date, required: true, index: { expires: 0 } },
+  usedAt: { type: Date, default: null },
+  usedByRsvpId: { type: mongoose.Schema.Types.ObjectId, default: null }
+}, { timestamps: true });
+const InvitationLink = mongoose.model("InvitationLink", InvitationLinkSchema);
+
 function dbReady() {
   return mongoose.connection.readyState === 1;
 }
@@ -60,6 +70,7 @@ function safeEqual(a, b) {
   const right = Buffer.from(String(b || ""));
   return left.length === right.length && left.length > 0 && crypto.timingSafeEqual(left, right);
 }
+function hashToken(value) { return crypto.createHash("sha256").update(String(value)).digest("hex"); }
 function sign(value) {
   return crypto.createHmac("sha256", process.env.SESSION_SECRET || "development-only-change-me").update(value).digest("hex");
 }
@@ -119,6 +130,8 @@ app.get("/api/config", async (req, res) => {
 
 app.post("/api/rsvp", async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "As confirmações ainda não estão disponíveis. Tente novamente mais tarde." });
+  const inviteToken = String(req.body.inviteToken || "");
+  if (!/^[a-f0-9]{64}$/i.test(inviteToken)) return res.status(403).json({ error: "Use o link pessoal enviado pela família para confirmar presença." });
   const responsible = String(req.body.responsible || "").trim();
   const phone = String(req.body.phone || "").trim();
   const status = req.body.status === "declined" ? "declined" : "confirmed";
@@ -130,10 +143,19 @@ app.post("/api/rsvp", async (req, res) => {
   if (status === "confirmed" && guests.length === 0) return res.status(400).json({ error: "Informe pelo menos uma pessoa que irá à festa." });
   const allNames = [responsible, ...guests].map(n => n.toLocaleLowerCase("pt-BR"));
   if (new Set(allNames).size !== allNames.length) return res.status(400).json({ error: "O responsável ou algum acompanhante foi informado mais de uma vez." });
+  let claimedLink = null;
+  let doc = null;
   try {
-    const doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? [{ name: responsible, isResponsible: true }, ...guests.map(name => ({ name, isResponsible: false }))] : [], notes });
-    res.status(201).json({ ok: true, message: status === "confirmed" ? "Presença registrada! Esperamos vocês nessa missão especial!" : "Resposta registrada. Obrigado por avisar!", id: String(doc._id) });
+    claimedLink = await InvitationLink.findOneAndUpdate({ tokenHash: hashToken(inviteToken), usedAt: null, expiresAt: { $gt: new Date() } }, { $set: { usedAt: new Date() } }, { new: true });
+    if (!claimedLink) return res.status(410).json({ error: "Este link já foi utilizado ou expirou. Peça um novo convite à família." });
+    const ticketToken = status === "confirmed" ? crypto.randomBytes(32).toString("hex") : "";
+    doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? [{ name: responsible, isResponsible: true }, ...guests.map(name => ({ name, isResponsible: false }))] : [], notes, ticketTokenHash: ticketToken ? hashToken(ticketToken) : "" });
+    claimedLink.usedByRsvpId = doc._id;
+    await claimedLink.save();
+    res.status(201).json({ ok: true, message: status === "confirmed" ? "Presença registrada! Salve o comprovante com QR Code para apresentar na portaria." : "Resposta registrada. Obrigado por avisar!", id: String(doc._id), ticketToken: ticketToken || null, guests: status === "confirmed" ? [responsible, ...guests] : [] });
   } catch (err) {
+    if (doc) await Rsvp.deleteOne({ _id: doc._id }).catch(() => {});
+    if (claimedLink) await InvitationLink.updateOne({ _id: claimedLink._id, usedAt: { $ne: null } }, { $set: { usedAt: null, usedByRsvpId: null } }).catch(() => {});
     console.error("Erro ao salvar RSVP:", err.message);
     res.status(500).json({ error: "Não foi possível salvar sua resposta agora. Tente novamente." });
   }
@@ -144,6 +166,27 @@ app.post("/api/admin/login", loginLimiter, (req, res) => {
   if (!safeEqual(req.body.password, process.env.ADMIN_PASSWORD)) return res.status(401).json({ error: "Senha incorreta." });
   setAccessCookie(res, "admin");
   res.json({ ok: true });
+});
+app.post("/api/admin/invitation-links", requireRole("admin"), async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  try {
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    await InvitationLink.create({ tokenHash: hashToken(token), expiresAt });
+    const origin = process.env.PUBLIC_URL || (req.protocol + "://" + req.get("host"));
+    res.status(201).json({ url: origin.replace(/\\/$/, "") + "/convite/" + token, expiresAt });
+  } catch (err) {
+    console.error("Erro ao gerar link de convite:", err.message);
+    res.status(500).json({ error: "Não foi possível gerar o link agora." });
+  }
+});
+app.get("/api/invitation/:token", async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ valid: false, error: "Convites temporariamente indisponíveis." });
+  const token = String(req.params.token || "");
+  if (!/^[a-f0-9]{64}$/i.test(token)) return res.status(404).json({ valid: false, error: "Este link de convite é inválido." });
+  const link = await InvitationLink.findOne({ tokenHash: hashToken(token), usedAt: null, expiresAt: { $gt: new Date() } }).lean();
+  if (!link) return res.status(410).json({ valid: false, error: "Este link já foi utilizado ou expirou. Peça um novo convite à família." });
+  res.json({ valid: true, expiresAt: link.expiresAt });
 });
 app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
@@ -222,6 +265,7 @@ app.delete("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
   try {
     const records = await Rsvp.find({});
     for (const record of records) await record.deleteOne();
+    await InvitationLink.deleteMany({});
     res.json({ ok: true, deletedCount: records.length });
   } catch (err) {
     console.error("Erro ao zerar confirmações:", err.message);
@@ -319,8 +363,28 @@ app.post("/api/portaria/checkin", requireRole("portaria"), async (req, res) => {
   } catch { res.status(400).json({ error: "Não foi possível registrar a entrada." }); }
 });
 
+app.post("/api/portaria/checkin-ticket", requireRole("portaria"), async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  const ticketToken = String(req.body.ticketToken || "");
+  if (!/^[a-f0-9]{64}$/i.test(ticketToken)) return res.status(400).json({ error: "QR Code inválido." });
+  try {
+    const now = new Date();
+    const doc = await Rsvp.findOneAndUpdate({ ticketTokenHash: hashToken(ticketToken), ticketUsedAt: null, status: "confirmed" }, { $set: { ticketUsedAt: now, responsibleCheckedIn: true, responsibleCheckedInAt: now, "guests.$[].checkedIn": true, "guests.$[].checkedInAt": now } }, { new: true });
+    if (!doc) {
+      const existing = await Rsvp.findOne({ ticketTokenHash: hashToken(ticketToken) }).lean();
+      if (existing?.ticketUsedAt) return res.status(409).json({ error: "Este comprovante já foi utilizado. A entrada desta família já foi registrada." });
+      return res.status(404).json({ error: "Comprovante não encontrado ou confirmação inválida." });
+    }
+    const names = (doc.guests || []).map(g => g.name);
+    res.json({ ok: true, responsible: doc.responsible, names, total: names.length, message: "Entrada liberada! " + doc.responsible + " · " + names.length + " pessoa(s) registrada(s)." });
+  } catch (err) {
+    console.error("Erro ao validar QR Code:", err.message);
+    res.status(500).json({ error: "Não foi possível validar este comprovante." });
+  }
+});
 app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "admin.html")));
 app.get("/portaria", (req, res) => res.sendFile(path.join(__dirname, "public", "portaria.html")));
+app.get("/convite/:token", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return res.status(404).json({ error: "Rota não encontrada." });
   res.sendFile(path.join(__dirname, "public", "index.html"), err => { if (err) next(err); });
