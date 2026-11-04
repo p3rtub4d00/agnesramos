@@ -82,6 +82,11 @@
         }
       }
     } catch (error) {
+      if (invitationToken) {
+        form.hidden = true;
+        $("#invite-access-message").hidden = false;
+        $("#invite-access-message").textContent = error.message || "Este link já foi utilizado ou expirou. Peça um novo convite à família.";
+      }
       console.warn("Não foi possível carregar os dados da festa.", error);
     }
   }
