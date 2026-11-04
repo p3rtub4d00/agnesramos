@@ -4,6 +4,7 @@
   const form = $("#rsvp-form");
   const message = $("#form-message");
   let guestCounter = 0;
+  const invitationToken = /^\\/convite\\/([a-f0-9]{64})$/i.exec(window.location.pathname)?.[1] || "";
 
   function addGuest(value = "") {
     if (guestList.children.length >= 20) {
@@ -58,22 +59,28 @@
 
   async function loadConfig() {
     try {
+      if (!invitationToken) {
+        form.hidden = true;
+        $("#invite-access-message").hidden = false;
+        $("#invite-access-message").textContent = "Este é um convite pessoal. Peça à família o seu link individual para confirmar presença.";
+      } else {
+        const inviteResponse = await fetch("/api/invitation/" + encodeURIComponent(invitationToken));
+        const inviteData = await inviteResponse.json();
+        if (!inviteResponse.ok || !inviteData.valid) throw new Error(inviteData.error || "Link de convite inválido.");
+      }
       const response = await fetch("/api/config");
       const config = await response.json();
       $("#event-name").textContent = config.eventName + "!";
       $("#event-age").textContent = config.age;
       document.title = "Aniversário da " + config.eventName + " | Convite especial";
       const dateValue = String(config.date || "Data a definir");
-      const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
+      const parsedDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
       $("#event-date").textContent = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : dateValue;
       $("#event-time").textContent = config.time || "Horário a definir";
       $("#event-venue").textContent = config.venue || "Local a definir";
       $("#event-address").textContent = config.address || "Endereço a definir";
       $("#map-link").hidden = !config.mapUrl;
-      if (config.mapUrl) {
-        $("#map-link").href = config.mapUrl;
-        $("#map-link").hidden = false;
-      }
+      if (config.mapUrl) $("#map-link").href = config.mapUrl;
       if (config.deadline) {
         const deadline = new Date(config.deadline + "T23:59:59");
         if (!Number.isNaN(deadline.getTime()) && Date.now() > deadline.getTime()) {
@@ -82,12 +89,9 @@
         }
       }
     } catch (error) {
-      if (invitationToken) {
-        form.hidden = true;
-        $("#invite-access-message").hidden = false;
-        $("#invite-access-message").textContent = error.message || "Este link já foi utilizado ou expirou. Peça um novo convite à família.";
-      }
-      console.warn("Não foi possível carregar os dados da festa.", error);
+      form.hidden = true;
+      $("#invite-access-message").hidden = false;
+      $("#invite-access-message").textContent = error.message || "Este link já foi utilizado ou expirou. Peça um novo convite à família.";
     }
   }
 
@@ -103,10 +107,12 @@
     button.disabled = true;
     button.querySelector("span").textContent = "Enviando sua resposta...";
     try {
+      if (!invitationToken) throw new Error("Abra o link pessoal enviado pela família para confirmar presença.");
       const response = await fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          inviteToken: invitationToken,
           responsible: $("#responsible").value.trim(),
           phone: $("#phone").value.trim(),
           guests: names,
@@ -119,7 +125,21 @@
       form.reset();
       guestList.replaceChildren();
       addGuest();
-      showMessage(data.message, "success");
+      if (status === "confirmed" && data.ticketToken) {
+        form.hidden = true;
+        $("#ticket-receipt").hidden = false;
+        const qrTarget = $("#ticket-qr"); qrTarget.replaceChildren();
+        if (window.QRCode) new QRCode(qrTarget, { text: data.ticketToken, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+        else { $("#invite-access-message").hidden = false; $("#invite-access-message").textContent = "Não foi possível gerar o QR Code neste aparelho. Entre em contato com a família."; }
+        const namesBox = $("#ticket-guest-names"); namesBox.replaceChildren();
+        const title = document.createElement("strong"); title.textContent = "Pessoas confirmadas"; namesBox.append(title);
+        (data.guests || []).forEach(name => { const line = document.createElement("span"); line.textContent = "✓ " + name; namesBox.append(line); });
+        $("#ticket-receipt").scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        form.hidden = true;
+        $("#invite-access-message").hidden = false;
+        $("#invite-access-message").textContent = data.message;
+      }
       if (status === "confirmed") {
         const confetti = document.createElement("div");
         confetti.className = "celebration-overlay";
@@ -135,6 +155,13 @@
       button.querySelector("span").textContent = "Confirmar minha resposta";
       updateGuestInputs();
     }
+  });
+  $("#save-ticket-btn").addEventListener("click", () => {
+    const canvas = $("#ticket-qr canvas");
+    const image = $("#ticket-qr img");
+    const source = canvas ? canvas.toDataURL("image/png") : image?.src;
+    if (!source) return;
+    const link = document.createElement("a"); link.href = source; link.download = "comprovante-agnes-qr.png"; link.click();
   });
   loadConfig();
 })();
