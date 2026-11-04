@@ -174,7 +174,7 @@ app.post("/api/admin/invitation-links", requireRole("admin"), async (req, res) =
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
     await InvitationLink.create({ tokenHash: hashToken(token), expiresAt });
     const origin = process.env.PUBLIC_URL || (req.protocol + "://" + req.get("host"));
-    res.status(201).json({ url: origin.replace(/\\/$/, "") + "/convite/" + token, expiresAt });
+    res.status(201).json({ url: (origin.endsWith("/") ? origin.slice(0, -1) : origin) + "/convite/" + token, expiresAt });
   } catch (err) {
     console.error("Erro ao gerar link de convite:", err.message);
     res.status(500).json({ error: "Não foi possível gerar o link agora." });
