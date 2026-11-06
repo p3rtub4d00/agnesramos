@@ -300,7 +300,7 @@ app.post("/api/rsvp", async (req, res) => {
   let claimedLink = null;
   let doc = null;
   try {
-    claimedLink = await InvitationLink.findOneAndUpdate({ tokenHash: hashToken(inviteToken), usedAt: null, expiresAt: { $gt: new Date() } }, { $set: { usedAt: new Date() } }, { new: true });
+    claimedLink = await InvitationLink.findOneAndUpdate({ tokenHash: hashToken(inviteToken), usedAt: null }, { $set: { usedAt: new Date() } }, { new: true });
     if (!claimedLink) return res.status(410).json({ error: "Este link já foi utilizado ou expirou. Peça um novo convite à família." });
     const ticketToken = status === "confirmed" ? crypto.randomBytes(32).toString("hex") : "";
     doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? [{ name: responsible, isResponsible: true }, ...guests.map(name => ({ name, isResponsible: false }))] : [], notes, ticketTokenHash: ticketToken ? hashToken(ticketToken) : "" });
