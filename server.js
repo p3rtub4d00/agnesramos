@@ -58,7 +58,7 @@ const EventSettings = mongoose.model("EventSettings", EventSettingsSchema);
 
 const InvitationLinkSchema = new mongoose.Schema({
   tokenHash: { type: String, required: true, unique: true },
-  expiresAt: { type: Date, required: true, index: { expires: 0 } },
+  expiresAt: { type: Date, default: null },
   usedAt: { type: Date, default: null },
   usedByRsvpId: { type: mongoose.Schema.Types.ObjectId, default: null }
 }, { timestamps: true });
@@ -325,10 +325,9 @@ app.post("/api/admin/invitation-links", requireRole("admin"), async (req, res) =
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-    await InvitationLink.create({ tokenHash: hashToken(token), expiresAt });
+    await InvitationLink.create({ tokenHash: hashToken(token), usedAt: null });
     const origin = process.env.PUBLIC_URL || (req.protocol + "://" + req.get("host"));
-    res.status(201).json({ url: (origin.endsWith("/") ? origin.slice(0, -1) : origin) + "/convite/" + token, expiresAt });
+    res.status(201).json({ url: (origin.endsWith("/") ? origin.slice(0, -1) : origin) + "/convite/" + token });
   } catch (err) {
     console.error("Erro ao gerar link de convite:", err.message);
     res.status(500).json({ error: "Não foi possível gerar o link agora." });
@@ -338,9 +337,9 @@ app.get("/api/invitation/:token", async (req, res) => {
   if (!dbReady()) return res.status(503).json({ valid: false, error: "Convites temporariamente indisponíveis." });
   const token = String(req.params.token || "");
   if (!/^[a-f0-9]{64}$/i.test(token)) return res.status(404).json({ valid: false, error: "Este link de convite é inválido." });
-  const link = await InvitationLink.findOne({ tokenHash: hashToken(token), usedAt: null, expiresAt: { $gt: new Date() } }).lean();
-  if (!link) return res.status(410).json({ valid: false, error: "Este link já foi utilizado ou expirou. Peça um novo convite à família." });
-  res.json({ valid: true, expiresAt: link.expiresAt });
+  const link = await InvitationLink.findOne({ tokenHash: hashToken(token), usedAt: null }).lean();
+  if (!link) return res.status(410).json({ valid: false, error: "Este link já foi utilizado. Peça um novo convite à família." });
+  res.json({ valid: true });
 });
 app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
@@ -558,6 +557,14 @@ app.get("*", (req, res, next) => {
 
 app.listen(PORT, () => console.log("Convite Agnes iniciado na porta " + PORT));
 if (process.env.MONGODB_URI) {
+  mongoose.connection.once("connected", async () => {
+    try {
+      await InvitationLink.collection.dropIndex("expiresAt_1");
+      console.log("Índice de expiração dos links removido.");
+    } catch (err) {
+      if (!/index not found|ns does not exist/i.test(err.message || "")) console.warn("Aviso ao remover índice de expiração:", err.message);
+    }
+  });
   mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 })
     .then(() => console.log("MongoDB conectado"))
     .catch(err => console.error("Não foi possível conectar ao MongoDB:", err.message));
