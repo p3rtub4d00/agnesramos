@@ -232,7 +232,7 @@
       $("#generated-invite-url").value = data.url;
       $("#invite-link-result").hidden = false;
       $("#share-whatsapp-btn").hidden = false;
-      $("#invite-link-expiry").textContent = "Válido até " + new Date(data.expiresAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) + " · uso único: será invalidado após a primeira resposta.";
+      $("#invite-link-expiry").textContent = "Uso único · será invalidado assim que o cadastro for finalizado.";
       notice($("#invite-link-message"), "Link criado. Envie somente à pessoa convidada.");
     } catch (err) { notice($("#invite-link-message"), err.message, true); }
     finally { button.disabled = false; }
@@ -246,7 +246,7 @@
   $("#share-whatsapp-btn").addEventListener("click", () => {
     const link = $("#generated-invite-url").value.trim();
     if (!link) { notice($("#invite-link-message"), "Gere um link antes de compartilhar.", true); return; }
-    const message = "Olá! Você recebeu um convite especial para o aniversário da Agnes! 🎉\n\nConfirme sua presença pelo link pessoal abaixo:\n" + link + "\n\nAtenção: este link é válido por 30 minutos e só pode ser utilizado uma vez.";
+    const message = "Olá! Você recebeu um convite especial para o aniversário da Agnes! 🎉\n\nConfirme sua presença pelo link pessoal abaixo:\n" + link + "\n\nAtenção: este link é pessoal e só pode ser utilizado uma vez. Após finalizar o cadastro, ele deixa de funcionar.";
     window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank", "noopener,noreferrer");
   });
 
