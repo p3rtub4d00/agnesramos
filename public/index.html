@@ -10,30 +10,18 @@
 <div class="floating-decor" aria-hidden="true"><span>✦</span><span>♡</span><span>★</span><span>✧</span><span>♥</span><span>✦</span><span>★</span><span>♡</span></div>
 <main class="invite-shell">
   <header class="topbar"><a class="mini-logo" href="/" aria-label="Convite de aniversário"><span class="logo-star">✦</span><span>MISSÃO<br><b>FESTA!</b></span></a><div class="topbar-pill"><span class="pulse-dot"></span> CONVITE OFICIAL <span>★</span></div></header>
-  <section class="hero-panel">
-    <div class="hero-copy">
-      <p class="eyebrow"><span>✦</span> ATENÇÃO, SUPER-HERÓIS! <span>✦</span></p>
-      <h1>Você foi<br><em>convocado!</em></h1>
-      <p class="hero-subtitle">Uma missão muito especial está prestes a começar. Prepare seus superpoderes para um dia cheio de alegria!</p>
-      <div class="hero-tags"><span>♡ Amizade</span><span>✦ Diversão</span><span>★ Aventura</span></div>
-      <button class="jump-button" id="accept-mission" type="button">Aceitar a missão <span>↘</span></button>
+  <section class="video-intro-stage" id="video-intro-stage" aria-label="Abertura do convite">
+    <div class="video-frame">
+      <video id="invite-video" class="invite-video" playsinline autoplay preload="auto" poster="/assets/convite-poster.jpg">
+        <source src="/assets/convite-agnes.mp4" type="video/mp4">
+        Seu navegador não conseguiu reproduzir o vídeo.
+      </video>
+      <button class="video-sound-button" id="video-sound-button" type="button" hidden>🔊 Ativar som</button>
     </div>
-    <div class="hero-art-wrap mission-visual" aria-hidden="true">
-      <div class="art-halo"></div><div class="art-ring ring-one"></div><div class="art-ring ring-two"></div>
-      <div class="mission-orbit orbit-star">★</div><div class="mission-orbit orbit-heart">♥</div>
-      <div class="mission-emblem"><span class="emblem-crown">✦</span><span class="emblem-main">MISSÃO<br><b>AGNES</b></span><span class="emblem-age">5 ANOS!</span></div>
-      <div class="mission-burst burst-one">✦</div><div class="mission-burst burst-two">★</div><div class="mission-burst burst-three">♡</div>
-      <div class="mission-note note-top">SUPER<br>DIVERTIDO!</div><div class="mission-note note-bottom">NÍVEL 5<br><b>DESBLOQUEADO</b></div>
+    <div class="video-end-actions" id="video-end-actions" hidden>
+      <p>✨ Agora vamos para os detalhes da festa!</p>
+      <button class="jump-button next-step" id="continue-to-location" type="button">Ver local da festa <span>→</span></button>
     </div>
-    <div class="hero-bottom"><span>✦</span><b>Preparar, apontar... comemorar!</b><span>✦</span></div>
-  </section>
-  <section class="birthday-heading reveal stage-panel" id="birthday-stage" hidden>
-    <div class="heading-kicker"><span>✦</span> A PRÓXIMA MISSÃO É... <span>✦</span></div>
-    <p class="title-overline">O aniversário da nossa heroína</p>
-    <h2 id="event-name">Agnes<span class="name-sparkle">✦</span></h2>
-    <div class="age-pill"><span id="event-age">5</span><span>anos de pura fofura e superpoderes!</span></div>
-    <p class="invite-message">Venha comemorar comigo! Vai ter muita diversão,<br class="desktop-break"> brincadeiras, amigos e momentos inesquecíveis.</p>
-    <div class="comic-divider"><span>♥</span><i></i><span>★</span><i></i><span>♥</span></div><button class="jump-button next-step" id="continue-to-form" type="button">Próximo <span>→</span></button>
   </section>
   <section class="event-section reveal stage-panel" id="event-stage" hidden aria-label="Informações da festa">
     <div class="section-heading"><div><span class="section-index">01 / DETALHES</span><h2>Onde a magia acontece</h2></div><span class="heading-icon">✧</span></div>
@@ -111,11 +99,63 @@
    birthday.hidden = true;
    revealStage(event);
  });
- document.getElementById('continue-to-rsvp').addEventListener('click', () => {
-   event.hidden = true;
-   footer.hidden = true;
-   revealStage(rsvp);
- });
+ document.getElementById('continu<script>
+(() => {
+  const video = document.getElementById('invite-video');
+  const videoStage = document.getElementById('video-intro-stage');
+  const videoActions = document.getElementById('video-end-actions');
+  const soundButton = document.getElementById('video-sound-button');
+  const event = document.getElementById('event-stage');
+  const rsvp = document.getElementById('rsvp');
+  const footer = document.getElementById('footer-stage');
+
+  function revealStage(section) {
+    section.hidden = false;
+    section.classList.remove('is-visible');
+    requestAnimationFrame(() => {
+      section.classList.add('is-visible','stage-enter');
+      window.setTimeout(() => section.classList.remove('stage-enter'), 1000);
+    });
+    section.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function showLocation() {
+    videoStage.hidden = true;
+    revealStage(event);
+  }
+
+  video.addEventListener('ended', () => {
+    videoActions.hidden = false;
+    videoStage.classList.add('video-finished');
+  });
+
+  video.addEventListener('error', () => {
+    videoActions.hidden = false;
+    videoActions.querySelector('p').textContent = 'O vídeo não pôde ser carregado. Você pode continuar para os detalhes da festa.';
+  });
+
+  soundButton.addEventListener('click', () => {
+    video.muted = false;
+    video.play().catch(() => {});
+    soundButton.hidden = true;
+  });
+
+  video.addEventListener('play', () => {
+    if (!video.muted) soundButton.hidden = true;
+  });
+
+  video.play().catch(() => {
+    video.muted = true;
+    soundButton.hidden = false;
+    video.play().catch(() => {});
+  });
+
+  document.getElementById('continue-to-location').addEventListener('click', showLocation);
+
+  document.getElementById('continue-to-rsvp').addEventListener('click', () => {
+    event.hidden = true;
+    footer.hidden = true;
+    revealStage(rsvp);
+  });
 })();
 </script>
-</body></html>
