@@ -37,6 +37,8 @@ const RsvpSchema = new mongoose.Schema({
   notes: { type: String, trim: true, maxlength: 300, default: "" },
   ticketTokenHash: { type: String, default: "", index: true },
   ticketUsedAt: { type: Date, default: null },
+  ticketSentAt: { type: Date, default: null },
+  ticketSendCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
@@ -424,7 +426,7 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
         id: "responsible", name: d.responsible, isResponsible: true,
         checkedIn: !!d.responsibleCheckedIn, checkedInAt: d.responsibleCheckedInAt || null
       });
-      return { id: String(d._id), responsible: d.responsible, responsibleExcluded: !!d.responsibleExcluded, phone: d.phone || "", status: d.status, notes: d.notes || "", createdAt: d.createdAt, guests };
+      return { id: String(d._id), responsible: d.responsible, responsibleExcluded: !!d.responsibleExcluded, phone: d.phone || "", status: d.status, notes: d.notes || "", createdAt: d.createdAt, ticketSentAt: d.ticketSentAt || null, ticketSendCount: d.ticketSendCount || 0, guests };
     });
     const confirmedItems = items.filter(i => i.status === "confirmed");
     res.json({
@@ -446,10 +448,25 @@ app.get("/api/admin/rsvps/:id/ticket", requireRole("admin"), async (req, res) =>
   try {
     const doc = await Rsvp.findById(req.params.id).lean();
     if (!doc || doc.status !== "confirmed" || !doc.ticketTokenHash) return res.status(404).json({ error: "Comprovante não encontrado para esta confirmação." });
-    res.json({ ticketToken: doc.ticketTokenHash, responsible: doc.responsible, phone: doc.phone || "", names: (doc.guests || []).map(g => g.name), used: !!doc.ticketUsedAt });
+    const settings = await EventSettings.findOne({ key: "main" }).lean();
+    res.json({ ticketToken: doc.ticketTokenHash, responsible: doc.responsible, phone: doc.phone || "", names: (doc.guests || []).map(g => g.name), used: !!doc.ticketUsedAt, sentAt: doc.ticketSentAt || null, sendCount: doc.ticketSendCount || 0, event: { eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes", date: settings?.date || process.env.EVENT_DATE || "", time: settings?.time || process.env.EVENT_TIME || "", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "" } });
   } catch (err) {
     console.error("Erro ao recuperar comprovante:", err.message);
     res.status(400).json({ error: "Não foi possível recuperar este comprovante." });
+  }
+});
+app.post("/api/admin/rsvps/:id/ticket-sent", requireRole("admin"), async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  try {
+    const doc = await Rsvp.findOneAndUpdate(
+      { _id: req.params.id, status: "confirmed", ticketTokenHash: { $ne: "" } },
+      { $set: { ticketSentAt: new Date() }, $inc: { ticketSendCount: 1 } }, { new: true }
+    );
+    if (!doc) return res.status(404).json({ error: "Confirmação ou comprovante não encontrado." });
+    res.json({ ok: true, sentAt: doc.ticketSentAt, sendCount: doc.ticketSendCount });
+  } catch (err) {
+    console.error("Erro ao registrar envio do comprovante:", err.message);
+    res.status(400).json({ error: "Não foi possível registrar o envio." });
   }
 });
 app.delete("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
