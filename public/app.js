@@ -217,9 +217,29 @@
       (eventConfig.mapUrl ? "\nComo chegar: " + eventConfig.mapUrl : "") + "\nApresente o QR Code na portaria.";
   }
   async function buildTicketPdf() {
-    const qr = $("#ticket-qr canvas");
-    if (!qr) throw new Error("O QR Code ainda não está pronto.");
-    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("O gerador de PDF não carregou. Verifique sua conexão e tente novamente.");
+    const qrContainer = $("#ticket-qr");
+    const qrCanvas = qrContainer && qrContainer.querySelector("canvas");
+    const qrImage = qrContainer && qrContainer.querySelector("img");
+    if (!qrCanvas && !qrImage) throw new Error("O QR Code ainda não está pronto. Aguarde alguns segundos e tente novamente.");
+    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("O gerador de PDF não carregou. Atualize a página e tente novamente.");
+
+    let qrData;
+    try {
+      if (qrCanvas && qrCanvas.width > 0 && qrCanvas.height > 0) {
+        qrData = qrCanvas.toDataURL("image/png");
+      } else if (qrImage) {
+        if (!qrImage.complete || !qrImage.naturalWidth) {
+          await new Promise((resolve, reject) => {
+            qrImage.addEventListener("load", resolve, { once: true });
+            qrImage.addEventListener("error", () => reject(new Error("Não foi possível carregar a imagem do QR Code.")), { once: true });
+          });
+        }
+        qrData = qrImage.src;
+      }
+      if (!qrData || !qrData.startsWith("data:image/")) throw new Error("Imagem do QR Code inválida.");
+    } catch (error) {
+      throw new Error(error.message || "Não foi possível preparar o QR Code para o PDF.");
+    }
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -230,7 +250,6 @@
     const pale = [255, 241, 249];
     const softPink = [255, 220, 238];
     const name = eventConfig.eventName || "Agnes";
-    const qrData = qr.toDataURL("image/png");
     const date = $("#ticket-event-date").textContent || "A confirmar";
     const time = $("#ticket-event-time").textContent || "A confirmar";
     const venue = $("#ticket-event-venue").textContent || "A confirmar";
@@ -329,13 +348,19 @@
   }
 
   function downloadTicketPdf(blob) {
-    if (!blob) throw new Error("Nao foi possivel gerar o PDF.");
-    const url = URL.createObjectURL(blob);
+    if (!(blob instanceof Blob) || blob.size === 0) throw new Error("O PDF foi gerado vazio. Tente novamente.");
+    const pdfBlob = blob.type === "application/pdf" ? blob : new Blob([blob], { type: "application/pdf" });
+    const url = URL.createObjectURL(pdfBlob);
     const link = document.createElement("a");
     link.href = url;
     link.download = "comprovante-agnes.pdf";
+    link.style.display = "none";
+    document.body.appendChild(link);
     link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+    link.remove();
+    // Mantém a URL viva por mais tempo para aparelhos que iniciam o download
+    // de forma assíncrona; em navegadores móveis o PDF pode abrir em nova aba.
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
   $("#save-ticket-btn").addEventListener("click", async () => {
