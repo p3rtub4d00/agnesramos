@@ -62,7 +62,8 @@ const InvitationLinkSchema = new mongoose.Schema({
   tokenHash: { type: String, required: true, unique: true },
   expiresAt: { type: Date, default: null },
   usedAt: { type: Date, default: null },
-  usedByRsvpId: { type: mongoose.Schema.Types.ObjectId, default: null }
+  usedByRsvpId: { type: mongoose.Schema.Types.ObjectId, default: null },
+  videoWatchedAt: { type: Date, default: null }
 }, { timestamps: true });
 const InvitationLink = mongoose.model("InvitationLink", InvitationLinkSchema);
 
@@ -361,7 +362,24 @@ app.get("/api/invitation/:token", async (req, res) => {
   if (!/^[a-f0-9]{64}$/i.test(token)) return res.status(404).json({ valid: false, error: "Este link de convite é inválido." });
   const link = await InvitationLink.findOne({ tokenHash: hashToken(token), usedAt: null }).lean();
   if (!link) return res.status(410).json({ valid: false, error: "Este link já foi utilizado. Peça um novo convite à família." });
-  res.json({ valid: true });
+  res.json({ valid: true, videoWatched: !!link.videoWatchedAt });
+});
+app.post("/api/invitation/:token/watched", async (req, res) => {
+  if (!dbReady()) return res.status(503).json({ ok: false, error: "Convites temporariamente indisponíveis." });
+  const token = String(req.params.token || "");
+  if (!/^[a-f0-9]{64}$/i.test(token)) return res.status(404).json({ ok: false, error: "Este link de convite é inválido." });
+  try {
+    const link = await InvitationLink.findOneAndUpdate(
+      { tokenHash: hashToken(token), usedAt: null },
+      { $set: { videoWatchedAt: new Date() } },
+      { new: true }
+    );
+    if (!link) return res.status(410).json({ ok: false, error: "Este link já foi utilizado." });
+    res.json({ ok: true, videoWatched: true });
+  } catch (err) {
+    console.error("Erro ao registrar vídeo assistido:", err.message);
+    res.status(500).json({ ok: false, error: "Não foi possível registrar o vídeo assistido." });
+  }
 });
 app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!(await waitForDb())) return res.status(503).json({ error: "Banco de dados desconectado. Aguarde alguns segundos e tente novamente." });
