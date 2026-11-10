@@ -17,6 +17,7 @@ app.set("trust proxy", 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: "20kb" }));
 app.use("/vendor/simplewebauthn", express.static(path.join(__dirname, "node_modules/@simplewebauthn/browser/dist/bundle"), { maxAge: "1d" }));
+app.use("/vendor/jspdf", express.static(path.join(__dirname, "node_modules/jspdf/dist"), { maxAge: "7d" }));
 app.use(express.static(path.join(__dirname, "public"), { extensions: ["html"] }));
 
 const GuestSchema = new mongoose.Schema({
