@@ -16,7 +16,6 @@
         <source src="/assets/convite-agnes.mp4" type="video/mp4">
         Seu navegador não conseguiu reproduzir o vídeo.
       </video>
-      <button class="video-sound-button" id="video-sound-button" type="button">🔊 Toque para ativar o som</button>
     </div>
     <div class="video-end-actions" id="video-end-actions" hidden>
       <p>✨ Agora vamos para os detalhes da festa!</p>
@@ -68,7 +67,6 @@
   const video = document.getElementById('invite-video');
   const videoStage = document.getElementById('video-intro-stage');
   const videoActions = document.getElementById('video-end-actions');
-  const soundButton = document.getElementById('video-sound-button');
   const event = document.getElementById('event-stage');
   const rsvp = document.getElementById('rsvp');
   const footer = document.getElementById('footer-stage');
@@ -90,13 +88,12 @@
     video.muted = false;
     try {
       await video.play();
-      soundButton.hidden = true;
+      video.dataset.audioMode = 'with-sound';
     } catch (error) {
       // Chrome/iOS e outros navegadores podem bloquear autoplay com áudio.
-      // Nesse caso, iniciamos imediatamente sem som e deixamos um único botão
-      // para o visitante liberar o áudio com um toque.
+      // O primeiro toque, clique ou tecla do visitante liberará o áudio.
       video.muted = true;
-      soundButton.hidden = false;
+      video.dataset.audioMode = 'waiting-for-interaction';
       try { await video.play(); } catch (_) {}
     }
   }
@@ -118,18 +115,18 @@
         'O vídeo não pôde ser carregado. Você pode continuar para os detalhes da festa.';
     });
 
-    soundButton.addEventListener('click', async () => {
+    const enableAudioOnFirstInteraction = async () => {
+      if (video.dataset.audioMode !== 'waiting-for-interaction') return;
       video.muted = false;
       try {
         await video.play();
-        soundButton.hidden = true;
+        video.dataset.audioMode = 'with-sound';
       } catch (_) {
         video.muted = true;
       }
-    });
-
-    video.addEventListener('volumechange', () => {
-      if (!video.muted) soundButton.hidden = true;
+    };
+    ['pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
+      document.addEventListener(eventName, enableAudioOnFirstInteraction, { once: true, passive: true });
     });
 
     // Tenta iniciar imediatamente e novamente quando a página terminar de carregar.
