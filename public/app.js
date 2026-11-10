@@ -44,7 +44,13 @@
     });
     $("#add-guest").hidden = guestList.children.length >= 20;
   }
+  function setTextIfPresent(selector, value) {
+    const element = $(selector);
+    if (element) element.textContent = value == null ? "" : String(value);
+  }
+
   function showMessage(text, type) {
+    if (!message) return;
     message.textContent = text;
     message.className = "form-message show " + type;
     message.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -87,17 +93,24 @@
       }
       const response = await fetchWithRetry("/api/config");
       const config = await response.json();
-      $("#event-name").textContent = config.eventName + "!";
-      $("#event-age").textContent = config.age;
+      if (!response.ok) throw new Error(config.error || "Não foi possível carregar as informações da festa.");
+      // O layout atual começa pelo vídeo e não contém mais os antigos elementos
+      // event-name/event-age. Atualize-os somente se existirem para não interromper
+      // a leitura dos dados de local, data e horário.
+      setTextIfPresent("#event-name", (config.eventName || "Agnes") + "!");
+      setTextIfPresent("#event-age", config.age || "5");
       document.title = "Aniversário da " + config.eventName + " | Convite especial";
       const dateValue = String(config.date || "Data a definir");
       const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
-      $("#event-date").textContent = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : dateValue;
-      $("#event-time").textContent = config.time || "Horário a definir";
-      $("#event-venue").textContent = config.venue || "Local a definir";
-      $("#event-address").textContent = config.address || "Endereço a definir";
-      $("#map-link").hidden = !config.mapUrl;
-      if (config.mapUrl) $("#map-link").href = config.mapUrl;
+      setTextIfPresent("#event-date", parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : dateValue);
+      setTextIfPresent("#event-time", config.time || "Horário a definir");
+      setTextIfPresent("#event-venue", config.venue || "Local a definir");
+      setTextIfPresent("#event-address", config.address || "Endereço a definir");
+      const mapLink = $("#map-link");
+      if (mapLink) {
+        mapLink.hidden = !config.mapUrl;
+        if (config.mapUrl) mapLink.href = config.mapUrl;
+      }
       if (config.deadline) {
         const deadline = new Date(config.deadline + "T23:59:59");
         if (!Number.isNaN(deadline.getTime()) && Date.now() > deadline.getTime()) {
@@ -106,9 +119,12 @@
         }
       }
     } catch (error) {
-      form.hidden = true;
-      $("#invite-access-message").hidden = false;
-      $("#invite-access-message").textContent = error.message || "Este link já foi utilizado ou expirou. Peça um novo convite à família.";
+      if (form) form.hidden = true;
+      const accessMessage = $("#invite-access-message");
+      if (accessMessage) {
+        accessMessage.hidden = false;
+        accessMessage.textContent = error.message || "Este link já foi utilizado ou expirou. Peça um novo convite à família.";
+      }
     }
   }
 
