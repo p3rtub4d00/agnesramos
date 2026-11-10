@@ -92,7 +92,16 @@
         const inviteData = await inviteResponse.json();
         if (!inviteResponse.ok || !inviteData.valid) throw new Error(inviteData.error || "Link de convite inválido.");
         const skipButton = $("#skip-watched-video");
-        if (skipButton) skipButton.hidden = !inviteData.videoWatched;
+        if (skipButton) {
+          skipButton.hidden = !inviteData.videoWatched;
+          if (inviteData.videoWatched) {
+            const video = $("#invite-video");
+            const videoActions = $("#video-end-actions");
+            if (video) video.pause();
+            if (videoActions) videoActions.hidden = false;
+            $("#video-intro-stage")?.classList.add("video-finished");
+          }
+        }
       }
       const response = await fetchWithRetry("/api/config");
       const config = await response.json();
