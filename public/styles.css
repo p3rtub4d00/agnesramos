@@ -250,3 +250,9 @@ input:focus,textarea:focus{border-color:#65c3ed;background:#fff;box-shadow:0 0 0
 .ticket-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.ticket-actions .jump-button{margin:0}
 #ticket-share-message{min-height:1.2em;text-align:center}
 @media(max-width:520px){.ticket-actions{flex-direction:column}.ticket-actions .jump-button{width:100%}.ticket-event-details{padding:15px}}
+
+.video-skip-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;padding:12px 20px;border:1px solid rgba(255,255,255,.9);border-radius:999px;background:rgba(255,255,255,.94);color:#c52d79;font-weight:800;font-size:clamp(13px,2vw,16px);box-shadow:0 6px 22px rgba(99,25,67,.18);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+.video-skip-button:hover{transform:translateY(-2px);box-shadow:0 9px 26px rgba(99,25,67,.25)}
+.video-skip-button:focus-visible{outline:3px solid #f6a6ce;outline-offset:3px}
+.video-skip-button[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.video-skip-button{transition:none}}
