@@ -65,42 +65,6 @@
 </main>
 <script>
 (() => {
- const first = document.querySelector('.hero-panel');
- const birthday = document.getElementById('birthday-stage');
- const event = document.getElementById('event-stage');
- const rsvp = document.getElementById('rsvp');
- const footer = document.getElementById('footer-stage');
- function fireworks() {
-   const layer = document.createElement('div');
-   layer.className = 'fireworks-layer';
-   layer.setAttribute('aria-hidden','true');
-   layer.innerHTML = '<span>✦</span><span>✧</span><span>★</span><span>✦</span><span>♡</span><span>✧</span><span>★</span><span>✦</span>';
-   document.body.append(layer);
-   window.setTimeout(() => layer.remove(), 2600);
- }
- function revealStage(section) {
-   section.hidden = false;
-   section.classList.remove('is-visible');
-   requestAnimationFrame(() => {
-     section.classList.add('is-visible','stage-enter');
-     window.setTimeout(() => section.classList.remove('stage-enter'), 1000);
-   });
-   section.scrollIntoView({behavior:'smooth',block:'start'});
- }
- document.getElementById('accept-mission').addEventListener('click', () => {
-   first.classList.add('stage-exit');
-   window.setTimeout(() => {
-     first.hidden = true;
-     revealStage(birthday);
-     fireworks();
-   }, 260);
- });
- document.getElementById('continue-to-form').addEventListener('click', () => {
-   birthday.hidden = true;
-   revealStage(event);
- });
- document.getElementById('continu<script>
-(() => {
   const video = document.getElementById('invite-video');
   const videoStage = document.getElementById('video-intro-stage');
   const videoActions = document.getElementById('video-end-actions');
@@ -113,10 +77,23 @@
     section.hidden = false;
     section.classList.remove('is-visible');
     requestAnimationFrame(() => {
-      section.classList.add('is-visible','stage-enter');
+      section.classList.add('is-visible', 'stage-enter');
       window.setTimeout(() => section.classList.remove('stage-enter'), 1000);
     });
-    section.scrollIntoView({behavior:'smooth',block:'start'});
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function startVideo() {
+    if (!video) return;
+    video.muted = true;
+    video.autoplay = true;
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        // Alguns navegadores bloqueiam autoplay mesmo sem som.
+        // O vídeo continua disponível pelo controle nativo.
+      });
+    }
   }
 
   function showLocation() {
@@ -124,31 +101,32 @@
     revealStage(event);
   }
 
-  video.addEventListener('ended', () => {
-    videoActions.hidden = false;
-    videoStage.classList.add('video-finished');
-  });
+  if (video) {
+    video.addEventListener('ended', () => {
+      videoActions.hidden = false;
+      videoStage.classList.add('video-finished');
+    });
 
-  video.addEventListener('error', () => {
-    videoActions.hidden = false;
-    videoActions.querySelector('p').textContent = 'O vídeo não pôde ser carregado. Você pode continuar para os detalhes da festa.';
-  });
+    video.addEventListener('error', () => {
+      videoActions.hidden = false;
+      videoActions.querySelector('p').textContent =
+        'O vídeo não pôde ser carregado. Você pode continuar para os detalhes da festa.';
+    });
 
-  soundButton.addEventListener('click', () => {
-    video.muted = false;
-    video.play().catch(() => {});
-    soundButton.hidden = true;
-  });
+    soundButton.addEventListener('click', () => {
+      video.muted = false;
+      video.play().catch(() => {});
+      soundButton.hidden = true;
+    });
 
-  video.addEventListener('play', () => {
-    if (!video.muted) soundButton.hidden = true;
-  });
+    video.addEventListener('volumechange', () => {
+      if (!video.muted) soundButton.hidden = true;
+    });
 
-  video.play().catch(() => {
-    video.muted = true;
-    soundButton.hidden = false;
-    video.play().catch(() => {});
-  });
+    // Tenta iniciar imediatamente e novamente quando a página terminar de carregar.
+    startVideo();
+    window.addEventListener('load', startVideo, { once: true });
+  }
 
   document.getElementById('continue-to-location').addEventListener('click', showLocation);
 
@@ -159,3 +137,5 @@
   });
 })();
 </script>
+</body>
+</html>
