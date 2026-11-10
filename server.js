@@ -86,6 +86,19 @@ const WebAuthnChallenge = mongoose.model("WebAuthnChallenge", WebAuthnChallengeS
 function dbReady() {
   return mongoose.connection.readyState === 1;
 }
+function waitForDb(timeoutMs = 15000) {
+  if (dbReady()) return Promise.resolve(true);
+  return new Promise(resolve => {
+    const finish = () => {
+      clearTimeout(timer);
+      mongoose.connection.off("connected", onConnected);
+      resolve(dbReady());
+    };
+    const onConnected = () => finish();
+    const timer = setTimeout(finish, timeoutMs);
+    mongoose.connection.once("connected", onConnected);
+  });
+}
 function safeEqual(a, b) {
   const left = Buffer.from(String(a || ""));
   const right = Buffer.from(String(b || ""));
@@ -265,10 +278,17 @@ app.post("/api/webauthn/auth/verify", loginLimiter, async (req, res) => {
   }
 });
 app.get("/api/config", async (req, res) => {
+  // Aguarda o MongoDB conectar antes de responder com os dados do evento.
+  // Evita exibir valores padrão quando o banco ainda está acordando.
+  if (!(await waitForDb())) {
+    return res.status(503).json({ error: "As informações da festa estão carregando. Atualize a página em alguns segundos." });
+  }
   let settings = null;
-  if (dbReady()) {
-    try { settings = await EventSettings.findOne({ key: "main" }).lean(); }
-    catch (err) { console.error("Erro ao carregar configurações do evento:", err.message); }
+  try {
+    settings = await EventSettings.findOne({ key: "main" }).lean();
+  } catch (err) {
+    console.error("Erro ao carregar configurações do evento:", err.message);
+    return res.status(503).json({ error: "Não foi possível carregar as informações salvas da festa." });
   }
   res.json({
     eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes",
@@ -342,7 +362,7 @@ app.get("/api/invitation/:token", async (req, res) => {
   res.json({ valid: true });
 });
 app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
-  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  if (!(await waitForDb())) return res.status(503).json({ error: "Banco de dados desconectado. Aguarde alguns segundos e tente novamente." });
   try {
     const settings = await EventSettings.findOne({ key: "main" }).lean();
     res.json({
@@ -361,7 +381,7 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   }
 });
 app.put("/api/admin/settings", requireRole("admin"), async (req, res) => {
-  if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
+  if (!(await waitForDb())) return res.status(503).json({ error: "Banco de dados desconectado. Aguarde alguns segundos e tente novamente." });
   const venue = String(req.body.venue || "").trim();
   const eventName = String(req.body.eventName || "").trim();
   const address = String(req.body.address || "").trim();
