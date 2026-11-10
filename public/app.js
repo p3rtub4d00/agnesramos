@@ -19,7 +19,7 @@
     input.name = "guests";
     input.maxLength = 100;
     input.required = true;
-    input.placeholder = guestList.children.length === 0 ? "Nome do responsável que irá à festa" : "Nome do acompanhante";
+    input.placeholder = "Nome do acompanhante";
     input.autocomplete = "off";
     input.value = value;
     input.setAttribute("aria-label", "Nome da pessoa " + guestCounter);
@@ -38,7 +38,7 @@
   }
   function updateGuestInputs() {
     [...guestList.querySelectorAll("input")].forEach((input, index) => {
-      input.placeholder = index === 0 ? "Nome do responsável que irá à festa" : "Nome do acompanhante";
+      input.placeholder = "Nome do acompanhante";
       input.required = document.querySelector('input[name="status"]:checked').value === "confirmed";
       input.setAttribute("aria-label", "Nome da pessoa " + (index + 1));
     });
@@ -55,7 +55,24 @@
     guestList.querySelectorAll("input").forEach(input => input.required = confirmed);
     $("#add-guest").disabled = !confirmed;
   }));
-  addGuest();
+  // O responsável já é contado automaticamente como convidado no servidor.
+  // A lista começa vazia e recebe apenas acompanhantes opcionais.
+
+  async function fetchWithRetry(url, attempts = 8) {
+    let lastError;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        const response = await fetch(url, { cache: "no-store" });
+        if (response.status !== 503 || attempt === attempts - 1) return response;
+        lastError = new Error("O banco de dados ainda está iniciando.");
+      } catch (error) {
+        lastError = error;
+        if (attempt === attempts - 1) throw error;
+      }
+      await new Promise(resolve => window.setTimeout(resolve, 1250));
+    }
+    throw lastError || new Error("Não foi possível carregar os dados.");
+  }
 
   async function loadConfig() {
     try {
@@ -64,17 +81,17 @@
         $("#invite-access-message").hidden = false;
         $("#invite-access-message").textContent = "Este é um convite pessoal. Peça à família o seu link individual para confirmar presença.";
       } else {
-        const inviteResponse = await fetch("/api/invitation/" + encodeURIComponent(invitationToken));
+        const inviteResponse = await fetchWithRetry("/api/invitation/" + encodeURIComponent(invitationToken));
         const inviteData = await inviteResponse.json();
         if (!inviteResponse.ok || !inviteData.valid) throw new Error(inviteData.error || "Link de convite inválido.");
       }
-      const response = await fetch("/api/config");
+      const response = await fetchWithRetry("/api/config");
       const config = await response.json();
       $("#event-name").textContent = config.eventName + "!";
       $("#event-age").textContent = config.age;
       document.title = "Aniversário da " + config.eventName + " | Convite especial";
       const dateValue = String(config.date || "Data a definir");
-      const parsedDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
+      const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(dateValue) ? new Date(dateValue + "T12:00:00") : null;
       $("#event-date").textContent = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : dateValue;
       $("#event-time").textContent = config.time || "Horário a definir";
       $("#event-venue").textContent = config.venue || "Local a definir";
@@ -101,7 +118,6 @@
     const status = document.querySelector('input[name="status"]:checked').value;
     const names = [...guestList.querySelectorAll("input")].map(input => input.value.trim()).filter(Boolean);
     const uniqueNames = new Set(names.map(name => name.toLocaleLowerCase("pt-BR")));
-    if (status === "confirmed" && names.length === 0) return showMessage("Adicione o nome de pelo menos uma pessoa.", "error");
     if (uniqueNames.size !== names.length) return showMessage("Há nomes repetidos. Confira a lista de acompanhantes.", "error");
     const button = form.querySelector(".submit-button");
     button.disabled = true;
@@ -124,7 +140,6 @@
       if (!response.ok) throw new Error(data.error || "Não foi possível enviar sua resposta.");
       form.reset();
       guestList.replaceChildren();
-      addGuest();
       if (status === "confirmed" && data.ticketToken) {
         form.hidden = true;
         $("#ticket-receipt").hidden = false;
