@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f42e91"><meta name="description" content="Um convite superpoderoso para uma missão de aniversário!">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js?v=20261110-complete-ticket" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js?v=20261110-video-progress" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -19,6 +19,7 @@
       <div class="video-end-actions" id="video-end-actions" hidden>
         <p>✨ Agora vamos para os detalhes da festa!</p>
         <button class="jump-button next-step" id="continue-to-location" type="button">Ver local da festa <span>→</span></button>
+        <button class="video-skip-button" id="skip-watched-video" type="button" hidden>Já assisti ao convite · Pular vídeo <span>→</span></button>
       </div>
     </div>
   </section>
@@ -115,9 +116,16 @@
   }
 
   if (video) {
-    video.addEventListener('ended', () => {
+    video.addEventListener('ended', async () => {
       videoActions.hidden = false;
       videoStage.classList.add('video-finished');
+      const token = window.location.pathname.split('/')[2] || '';
+      if (token) {
+        try {
+          const response = await fetch('/api/invitation/' + encodeURIComponent(token) + '/watched', { method: 'POST' });
+          if (response.ok) document.getElementById('skip-watched-video').hidden = false;
+        } catch (_) { /* Sem confirmação do servidor, a opção de pular permanece oculta. */ }
+      }
     });
 
     video.addEventListener('error', () => {
@@ -148,6 +156,7 @@
   }
 
   document.getElementById('continue-to-location').addEventListener('click', showLocation);
+  document.getElementById('skip-watched-video').addEventListener('click', showLocation);
 
   // Voltar entre as etapas sem reiniciar o vídeo nem apagar o formulário.
   document.getElementById('back-to-invitation').addEventListener('click', () => {
