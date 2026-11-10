@@ -16,7 +16,7 @@
         <source src="/assets/convite-agnes.mp4" type="video/mp4">
         Seu navegador não conseguiu reproduzir o vídeo.
       </video>
-      <button class="video-sound-button" id="video-sound-button" type="button" hidden>🔊 Ativar som</button>
+      <button class="video-sound-button" id="video-sound-button" type="button">🔊 Toque para ativar o som</button>
     </div>
     <div class="video-end-actions" id="video-end-actions" hidden>
       <p>✨ Agora vamos para os detalhes da festa!</p>
@@ -83,16 +83,21 @@
     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function startVideo() {
+  async function startVideo() {
     if (!video) return;
-    video.muted = true;
     video.autoplay = true;
-    const playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(() => {
-        // Alguns navegadores bloqueiam autoplay mesmo sem som.
-        // O vídeo continua disponível pelo controle nativo.
-      });
+    // Primeiro tentamos exatamente o comportamento desejado: autoplay com áudio.
+    video.muted = false;
+    try {
+      await video.play();
+      soundButton.hidden = true;
+    } catch (error) {
+      // Chrome/iOS e outros navegadores podem bloquear autoplay com áudio.
+      // Nesse caso, iniciamos imediatamente sem som e deixamos um único botão
+      // para o visitante liberar o áudio com um toque.
+      video.muted = true;
+      soundButton.hidden = false;
+      try { await video.play(); } catch (_) {}
     }
   }
 
@@ -113,10 +118,14 @@
         'O vídeo não pôde ser carregado. Você pode continuar para os detalhes da festa.';
     });
 
-    soundButton.addEventListener('click', () => {
+    soundButton.addEventListener('click', async () => {
       video.muted = false;
-      video.play().catch(() => {});
-      soundButton.hidden = true;
+      try {
+        await video.play();
+        soundButton.hidden = true;
+      } catch (_) {
+        video.muted = true;
+      }
     });
 
     video.addEventListener('volumechange', () => {
