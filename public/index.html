@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f42e91"><meta name="description" content="Um convite superpoderoso para uma missão de aniversário!">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js?v=20261110-fix-null" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js?v=20261110-back-navigation" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -24,6 +24,7 @@
   </section>
   <section class="event-section reveal stage-panel" id="event-stage" hidden aria-label="Informações da festa">
     <div class="section-heading"><div><span class="section-index">01 / DETALHES</span><h2>Onde a magia acontece</h2></div><span class="heading-icon">✧</span></div>
+    <button class="stage-back-button" id="back-to-invitation" type="button">← Voltar ao convite</button>
     <div class="event-details">
       <article class="detail-card date-card"><span class="detail-icon">▦</span><div><small>QUANDO</small><strong id="event-date">Data a definir</strong><em id="event-weekday"></em></div></article>
       <article class="detail-card time-card"><span class="detail-icon">◷</span><div><small>HORÁRIO</small><strong id="event-time">Horário a definir</strong></div></article>
@@ -33,6 +34,7 @@
   </section>
   <section class="rsvp-card reveal stage-panel" id="rsvp" hidden>
     <div class="rsvp-topline"><span class="section-index">02 / CONFIRMAÇÃO</span><span class="rsvp-stamp">SUA PRESENÇA<br>É IMPORTANTE!</span></div>
+    <button class="stage-back-button" id="back-to-location" type="button">← Voltar ao local da festa</button>
     <div class="rsvp-heading"><span class="heading-star">★</span><div><h2>Você vem para a festa?</h2><p>Confirme sua presença e entre para a lista da missão.</p></div></div>
     <div id="invite-access-message" class="form-message show error" hidden role="status" aria-live="polite"></div>
     <form id="rsvp-form">
@@ -137,6 +139,20 @@
   }
 
   document.getElementById('continue-to-location').addEventListener('click', showLocation);
+
+  // Voltar entre as etapas sem reiniciar o vídeo nem apagar o formulário.
+  document.getElementById('back-to-invitation').addEventListener('click', () => {
+    event.hidden = true;
+    videoStage.hidden = false;
+    videoStage.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById('back-to-location').addEventListener('click', () => {
+    rsvp.hidden = true;
+    event.hidden = false;
+    event.classList.add('is-visible');
+    event.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 
   document.getElementById('continue-to-rsvp').addEventListener('click', () => {
     event.hidden = true;
