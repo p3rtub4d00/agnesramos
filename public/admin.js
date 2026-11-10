@@ -146,10 +146,11 @@
   $("#ticket-share-btn").addEventListener("click",async()=>{
     const button=$("#ticket-share-btn");button.disabled=true;
     try{
+      if(activeTicket.sentAt&&!confirm("Este comprovante já foi marcado como enviado. Deseja registrar um novo envio mesmo assim?"))return;
       const blob=await buildAdminTicketBlob();const file=new File([blob],"comprovante-agnes.png",{type:"image/png"});const d=ticketDetailsText();const e=activeTicket.event||{};
-      const msg="Comprovante de entrada — Aniversário da "+(e.eventName||"Agnes")+"\\nResponsável: "+activeTicket.responsible+"\\nData: "+d.date+"\\nHorário: "+d.time+"\\nLocal: "+d.venue+"\\nEndereço: "+d.address+(e.mapUrl?"\\nComo chegar: "+e.mapUrl:"")+"\\nApresente o QR Code na portaria.";
+      const msg="Comprovante de entrada — Aniversário da "+(e.eventName||"Agnes")+"\nResponsável: "+activeTicket.responsible+"\nData: "+d.date+"\nHorário: "+d.time+"\nLocal: "+d.venue+"\nEndereço: "+d.address+(e.mapUrl?"\nComo chegar: "+e.mapUrl:"")+"\nApresente o QR Code na portaria.";
       if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Comprovante de entrada",text:msg});await recordTicketSent();}
-      else{downloadTicket(blob);const phone=String(activeTicket.phone||"").replace(/\\D/g,"");if(phone)window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg+"\\nAnexe a imagem baixada."),"_blank","noopener,noreferrer");notice($("#ticket-modal-message"),"Imagem completa baixada. Depois de enviar pelo WhatsApp, toque em Marcar como enviado.");}
+      else{downloadTicket(blob);const phone=String(activeTicket.phone||"").replace(/\D/g,"");if(phone)window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg+"\nAnexe a imagem baixada."),"_blank","noopener,noreferrer");notice($("#ticket-modal-message"),"Imagem completa baixada. Depois de enviar pelo WhatsApp, toque em Marcar como enviado.");}
     }catch(err){if(err.name!=="AbortError")notice($("#ticket-modal-message"),err.message||"Não foi possível compartilhar.",true);}
     finally{button.disabled=false;}
   });
