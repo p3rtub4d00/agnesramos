@@ -345,7 +345,16 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
   if (!dbReady()) return res.status(503).json({ error: "Banco de dados desconectado." });
   try {
     const settings = await EventSettings.findOne({ key: "main" }).lean();
-    res.json({ eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes", venue: settings?.venue || process.env.EVENT_VENUE || "", address: settings?.address || process.env.EVENT_ADDRESS || "", mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "", date: settings?.date || process.env.EVENT_DATE || "", time: settings?.time || process.env.EVENT_TIME || "" });
+    res.json({
+      eventName: settings?.eventName || process.env.EVENT_NAME || "Agnes",
+      venue: settings?.venue || process.env.EVENT_VENUE || "",
+      address: settings?.address || process.env.EVENT_ADDRESS || "",
+      mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "",
+      date: settings?.date || process.env.EVENT_DATE || "",
+      time: settings?.time || process.env.EVENT_TIME || "",
+      databaseConnected: dbReady(),
+      settingsStored: !!settings
+    });
   } catch (err) {
     console.error("Erro ao carregar configurações:", err.message);
     res.status(500).json({ error: "Não foi possível carregar os dados do evento." });
