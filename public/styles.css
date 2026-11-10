@@ -243,3 +243,10 @@ input:focus,textarea:focus{border-color:#65c3ed;background:#fff;box-shadow:0 0 0
 #rsvp .stage-back-button{margin:0 0 18px}
 @media(max-width:700px){.stage-back-button{min-height:40px;padding:9px 14px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){.stage-back-button{transition:none}}
+
+.ticket-event-details{width:min(100%,520px);margin:22px auto;padding:18px 20px;background:#fff4fa;border:1px solid #f4c3da;border-radius:18px;text-align:left;color:#49323e}
+.ticket-event-details h3{margin:0 0 12px;color:#d92f83;font-size:1.05rem}.ticket-event-details p{margin:7px 0;line-height:1.45;overflow-wrap:anywhere}
+.ticket-event-details a{display:inline-block;margin-top:10px;color:#c51f70;font-weight:900;text-decoration:underline}
+.ticket-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.ticket-actions .jump-button{margin:0}
+#ticket-share-message{min-height:1.2em;text-align:center}
+@media(max-width:520px){.ticket-actions{flex-direction:column}.ticket-actions .jump-button{width:100%}.ticket-event-details{padding:15px}}
