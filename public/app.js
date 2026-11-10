@@ -4,6 +4,7 @@
   const form = $("#rsvp-form");
   const message = $("#form-message");
   let guestCounter = 0;
+  let eventConfig = {};
   const invitationToken = window.location.pathname.split("/")[2] || "";
 
   function addGuest(value = "") {
@@ -93,6 +94,7 @@
       }
       const response = await fetchWithRetry("/api/config");
       const config = await response.json();
+      eventConfig = config || {};
       if (!response.ok) throw new Error(config.error || "Não foi possível carregar as informações da festa.");
       // O layout atual começa pelo vídeo e não contém mais os antigos elementos
       // event-name/event-age. Atualize-os somente se existirem para não interromper
@@ -162,6 +164,7 @@
         const qrTarget = $("#ticket-qr"); qrTarget.replaceChildren();
         if (window.QRCode) new QRCode(qrTarget, { text: data.ticketToken, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
         else { $("#invite-access-message").hidden = false; $("#invite-access-message").textContent = "Não foi possível gerar o QR Code neste aparelho. Entre em contato com a família."; }
+        renderTicketEventDetails();
         const namesBox = $("#ticket-guest-names"); namesBox.replaceChildren();
         const title = document.createElement("strong"); title.textContent = "Pessoas confirmadas"; namesBox.append(title);
         (data.guests || []).forEach(name => { const line = document.createElement("span"); line.textContent = "✓ " + name; namesBox.append(line); });
@@ -187,12 +190,50 @@
       updateGuestInputs();
     }
   });
-  $("#save-ticket-btn").addEventListener("click", () => {
-    const canvas = $("#ticket-qr canvas");
-    const image = $("#ticket-qr img");
-    const source = canvas ? canvas.toDataURL("image/png") : image?.src;
-    if (!source) return;
-    const link = document.createElement("a"); link.href = source; link.download = "comprovante-agnes-qr.png"; link.click();
+  function renderTicketEventDetails() {
+    const value = String(eventConfig.date || "A confirmar");
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(value + "T12:00:00") : null;
+    $("#ticket-event-date").textContent = parsed && !Number.isNaN(parsed.getTime()) ? parsed.toLocaleDateString("pt-BR", {day:"2-digit",month:"long",year:"numeric"}) : value;
+    $("#ticket-event-time").textContent = eventConfig.time || "A confirmar";
+    $("#ticket-event-venue").textContent = eventConfig.venue || "A confirmar";
+    $("#ticket-event-address").textContent = eventConfig.address || "A confirmar";
+    const map = $("#ticket-event-map"); map.hidden = !eventConfig.mapUrl; if (eventConfig.mapUrl) map.href = eventConfig.mapUrl;
+  }
+  function ticketShareText() {
+    return "Comprovante de entrada — Aniversário da " + (eventConfig.eventName || "Agnes") +
+      "\nData: " + $("#ticket-event-date").textContent + "\nHorário: " + $("#ticket-event-time").textContent +
+      "\nLocal: " + $("#ticket-event-venue").textContent + "\nEndereço: " + $("#ticket-event-address").textContent +
+      (eventConfig.mapUrl ? "\nComo chegar: " + eventConfig.mapUrl : "") + "\nApresente o QR Code na portaria.";
+  }
+  async function buildTicketImage() {
+    const qr = $("#ticket-qr canvas"); if (!qr) throw new Error("O QR Code ainda não está pronto.");
+    const canvas = document.createElement("canvas"); canvas.width=1000; canvas.height=1420;
+    const ctx=canvas.getContext("2d"); ctx.fillStyle="#fff8fc"; ctx.fillRect(0,0,1000,1420);
+    ctx.strokeStyle="#f3a5c9";ctx.lineWidth=12;ctx.strokeRect(24,24,952,1372);
+    ctx.textAlign="center";ctx.fillStyle="#d92f83";ctx.font="bold 52px Arial";ctx.fillText("ANIVERSÁRIO DA "+(eventConfig.eventName||"AGNES").toLocaleUpperCase("pt-BR"),500,105);
+    ctx.fillStyle="#6b5260";ctx.font="30px Arial";ctx.fillText("Comprovante de confirmação · Entrada",500,160);
+    ctx.drawImage(qr,300,205,400,400);
+    ctx.textAlign="left";ctx.fillStyle="#d92f83";ctx.font="bold 32px Arial";ctx.fillText("DETALHES DA FESTA",90,680);
+    ctx.fillStyle="#382b33";ctx.font="28px Arial";
+    ["Data: "+$("#ticket-event-date").textContent,"Horário: "+$("#ticket-event-time").textContent,"Local: "+$("#ticket-event-venue").textContent,"Endereço: "+$("#ticket-event-address").textContent].forEach((line,i)=>ctx.fillText(line.slice(0,58),90,740+i*52));
+    ctx.textAlign="center";ctx.fillStyle="#765568";ctx.font="24px Arial";ctx.fillText("Apresente este QR Code na portaria",500,1325);
+    return await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+  }
+  function saveTicketBlob(blob) {
+    if(!blob) throw new Error("Não foi possível gerar a imagem.");
+    const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="comprovante-agnes.png";link.click();window.setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+  $("#save-ticket-btn").addEventListener("click", async()=>{try{saveTicketBlob(await buildTicketImage());}catch(e){$("#ticket-share-message").textContent=e.message;}});
+  $("#share-ticket-btn").addEventListener("click", async()=>{
+    const button=$("#share-ticket-btn");button.disabled=true;
+    try{
+      const blob=await buildTicketImage();const file=new File([blob],"comprovante-agnes.png",{type:"image/png"});
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:"Comprovante de entrada",text:ticketShareText()});
+        $("#ticket-share-message").textContent="Comprovante compartilhado. Guarde-o para apresentar na portaria.";
+      }else{saveTicketBlob(blob);$("#ticket-share-message").textContent="Imagem salva. Anexe o PNG no WhatsApp ou WhatsApp Business. Os detalhes e o link do Maps também estão no texto desta tela.";}
+    }catch(e){if(e.name!=="AbortError")$("#ticket-share-message").textContent=e.message||"Não foi possível compartilhar.";}
+    finally{button.disabled=false;}
   });
   loadConfig();
 })();
