@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f42e91"><meta name="description" content="Um convite superpoderoso para uma missão de aniversário!">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js?v=20261110-back-navigation" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/app.js?v=20261110-complete-ticket" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -58,8 +58,17 @@
       <div class="ticket-heading"><span>✦</span><h2>Seu comprovante de entrada</h2><p>Apresente este QR Code na portaria. Ele registra a entrada de todas as pessoas desta confirmação.</p></div>
       <div id="ticket-qr" class="ticket-qr"></div>
       <div id="ticket-guest-names" class="ticket-guest-names"></div>
+      <div class="ticket-event-details" id="ticket-event-details">
+        <h3>Detalhes da festa</h3>
+        <p><strong>Data:</strong> <span id="ticket-event-date">Carregando...</span></p>
+        <p><strong>Horário:</strong> <span id="ticket-event-time">Carregando...</span></p>
+        <p><strong>Local:</strong> <span id="ticket-event-venue">Carregando...</span></p>
+        <p><strong>Endereço:</strong> <span id="ticket-event-address">Carregando...</span></p>
+        <a id="ticket-event-map" href="#" target="_blank" rel="noopener" hidden>📍 Abrir localização no Google Maps ↗</a>
+      </div>
       <p class="ticket-security">🔒 Código individual e de uso único.</p>
-      <button id="save-ticket-btn" class="jump-button" type="button">Salvar comprovante <span>↓</span></button>
+      <div class="ticket-actions"><button id="save-ticket-btn" class="jump-button" type="button">Salvar comprovante <span>↓</span></button><button id="share-ticket-btn" class="jump-button" type="button">Compartilhar comprovante <span>↗</span></button></div>
+      <p id="ticket-share-message" class="privacy-note" role="status" aria-live="polite"></p>
     </section>
   </section>
   <footer class="invite-footer stage-panel" id="footer-stage" hidden><div class="footer-hearts" aria-hidden="true">♥ ✦ ♥</div><strong>Uma festa fica ainda mais incrível<br>quando você está nela!</strong><p>Obrigada por fazer parte dessa aventura.</p><div class="footer-city" aria-hidden="true">▂ ▅ ▃ ▇ ▂ ▆ ▃ ▅ ▂ ▇ ▄</div></footer>
