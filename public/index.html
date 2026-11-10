@@ -16,10 +16,10 @@
         <source src="/assets/convite-agnes.mp4" type="video/mp4">
         Seu navegador não conseguiu reproduzir o vídeo.
       </video>
-    </div>
-    <div class="video-end-actions" id="video-end-actions" hidden>
-      <p>✨ Agora vamos para os detalhes da festa!</p>
-      <button class="jump-button next-step" id="continue-to-location" type="button">Ver local da festa <span>→</span></button>
+      <div class="video-end-actions" id="video-end-actions" hidden>
+        <p>✨ Agora vamos para os detalhes da festa!</p>
+        <button class="jump-button next-step" id="continue-to-location" type="button">Ver local da festa <span>→</span></button>
+      </div>
     </div>
   </section>
   <section class="event-section reveal stage-panel" id="event-stage" hidden aria-label="Informações da festa">
@@ -115,21 +115,23 @@
         'O vídeo não pôde ser carregado. Você pode continuar para os detalhes da festa.';
     });
 
+    const audioEvents = ['pointerdown', 'touchstart', 'keydown'];
     const enableAudioOnFirstInteraction = async () => {
       if (video.dataset.audioMode !== 'waiting-for-interaction') return;
       video.muted = false;
+      video.volume = 1;
       try {
-        await video.play();
+        if (!video.ended && video.paused) await video.play();
         video.dataset.audioMode = 'with-sound';
+        audioEvents.forEach(eventName => document.removeEventListener(eventName, enableAudioOnFirstInteraction));
       } catch (_) {
         video.muted = true;
       }
     };
-    ['pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
-      document.addEventListener(eventName, enableAudioOnFirstInteraction, { once: true, passive: true });
-    });
+    audioEvents.forEach(eventName => document.addEventListener(eventName, enableAudioOnFirstInteraction, { passive: true }));
 
-    // Tenta iniciar imediatamente e novamente quando a página terminar de carregar.
+    // O navegador inicia com áudio quando permitido; se bloquear, o primeiro toque
+    // normal na página libera o som, sem exibir botão adicional.
     startVideo();
     window.addEventListener('load', startVideo, { once: true });
   }
