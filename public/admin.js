@@ -157,7 +157,13 @@
       $("#event-map-input").value = data.mapUrl || "";
       $("#event-date-input").value = /^\d{4}-\d{2}-\d{2}$/.test(data.date || "") ? data.date : "";
       $("#event-time-input").value = data.time || "";
-      notice($("#settings-message"), "");
+      if (!data.databaseConnected) {
+        notice($("#settings-message"), "ATENÇÃO: o banco de dados está desconectado. As informações não podem ser garantidas nem salvas até corrigir a conexão MONGODB_URI no Render.", true);
+      } else if (!data.settingsStored) {
+        notice($("#settings-message"), "Ainda não existe um registro das informações da festa no MongoDB. Salve uma vez e confirme que a mensagem de sucesso apareceu.", true);
+      } else {
+        notice($("#settings-message"), "Informações carregadas do banco de dados permanente.");
+      }
     } catch (err) { notice($("#settings-message"), err.message, true); }
   }
   $("#event-settings-form").addEventListener("submit", async e => {
