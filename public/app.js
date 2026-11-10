@@ -91,6 +91,8 @@
         const inviteResponse = await fetchWithRetry("/api/invitation/" + encodeURIComponent(invitationToken));
         const inviteData = await inviteResponse.json();
         if (!inviteResponse.ok || !inviteData.valid) throw new Error(inviteData.error || "Link de convite inválido.");
+        const skipButton = $("#skip-watched-video");
+        if (skipButton) skipButton.hidden = !inviteData.videoWatched;
       }
       const response = await fetchWithRetry("/api/config");
       const config = await response.json();
