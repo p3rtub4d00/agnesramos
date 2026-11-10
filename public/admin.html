@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#ff4f9a"><title>Painel da festa</title><link rel="stylesheet" href="/admin.css"><script src="/vendor/simplewebauthn/index.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/admin.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#ff4f9a"><title>Painel da festa</title><link rel="stylesheet" href="/admin.css"><script src="/vendor/simplewebauthn/index.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/admin.js?v=20261110-ticket-send" defer></script></head>
 <body>
   <main class="admin-shell">
     <header class="admin-header"><a href="/" class="back-link">← Ver convite</a><div class="brand-mark">✦</div><div><p class="kicker">CENTRAL DA FESTA</p><h1>Painel de convidados</h1><p class="muted">Organize as confirmações e prepare a lista da portaria.</p></div></header>
@@ -35,6 +35,7 @@
           <div class="ticket-modal-actions">
             <button id="ticket-download-btn" class="secondary-btn" type="button">Baixar QR Code</button>
             <button id="ticket-share-btn" class="primary-btn" type="button">Enviar / compartilhar</button>
+            <button id="ticket-mark-sent-btn" class="secondary-btn" type="button">Marcar como enviado</button>
           </div>
           <p id="ticket-modal-message" class="notice" role="status" aria-live="polite"></p>
         </div>
