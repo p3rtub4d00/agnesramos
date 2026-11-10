@@ -216,35 +216,163 @@
       "\nLocal: " + $("#ticket-event-venue").textContent + "\nEndereço: " + $("#ticket-event-address").textContent +
       (eventConfig.mapUrl ? "\nComo chegar: " + eventConfig.mapUrl : "") + "\nApresente o QR Code na portaria.";
   }
-  async function buildTicketImage() {
-    const qr = $("#ticket-qr canvas"); if (!qr) throw new Error("O QR Code ainda não está pronto.");
-    const canvas = document.createElement("canvas"); canvas.width=1000; canvas.height=1420;
-    const ctx=canvas.getContext("2d"); ctx.fillStyle="#fff8fc"; ctx.fillRect(0,0,1000,1420);
-    ctx.strokeStyle="#f3a5c9";ctx.lineWidth=12;ctx.strokeRect(24,24,952,1372);
-    ctx.textAlign="center";ctx.fillStyle="#d92f83";ctx.font="bold 52px Arial";ctx.fillText("ANIVERSÁRIO DA "+(eventConfig.eventName||"AGNES").toLocaleUpperCase("pt-BR"),500,105);
-    ctx.fillStyle="#6b5260";ctx.font="30px Arial";ctx.fillText("Comprovante de confirmação · Entrada",500,160);
-    ctx.drawImage(qr,300,205,400,400);
-    ctx.textAlign="left";ctx.fillStyle="#d92f83";ctx.font="bold 32px Arial";ctx.fillText("DETALHES DA FESTA",90,680);
-    ctx.fillStyle="#382b33";ctx.font="28px Arial";
-    ["Data: "+$("#ticket-event-date").textContent,"Horário: "+$("#ticket-event-time").textContent,"Local: "+$("#ticket-event-venue").textContent,"Endereço: "+$("#ticket-event-address").textContent].forEach((line,i)=>ctx.fillText(line.slice(0,58),90,740+i*52));
-    ctx.textAlign="center";ctx.fillStyle="#765568";ctx.font="24px Arial";ctx.fillText("Apresente este QR Code na portaria",500,1325);
-    return await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+  async function buildTicketPdf() {
+    const qr = $("#ticket-qr canvas");
+    if (!qr) throw new Error("O QR Code ainda não está pronto.");
+    if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("O gerador de PDF não carregou. Verifique sua conexão e tente novamente.");
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageW = 210;
+    const pink = [238, 35, 137];
+    const darkPink = [190, 20, 103];
+    const ink = [54, 39, 52];
+    const pale = [255, 241, 249];
+    const softPink = [255, 220, 238];
+    const name = eventConfig.eventName || "Agnes";
+    const qrData = qr.toDataURL("image/png");
+    const date = $("#ticket-event-date").textContent || "A confirmar";
+    const time = $("#ticket-event-time").textContent || "A confirmar";
+    const venue = $("#ticket-event-venue").textContent || "A confirmar";
+    const address = $("#ticket-event-address").textContent || "A confirmar";
+    const mapUrl = eventConfig.mapUrl || "";
+
+    doc.setProperties({
+      title: "Comprovante de entrada - Aniversário de " + name,
+      subject: "Comprovante de confirmação com QR Code",
+      author: "Convite de aniversário"
+    });
+
+    // Fundo e moldura em estilo de quadrinhos, usando apenas a paleta da festa.
+    doc.setFillColor(...pale);
+    doc.rect(0, 0, pageW, 297, "F");
+    doc.setFillColor(...pink);
+    doc.roundedRect(8, 8, 194, 48, 7, 7, "F");
+    doc.setFillColor(255, 202, 226);
+    doc.circle(15, 15, 13, "F");
+    doc.circle(196, 51, 15, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text(String(name).toLocaleUpperCase("pt-BR"), 105, 27, { align: "center", maxWidth: 174 });
+    doc.setFontSize(12);
+    doc.text("COMPROVANTE DE CONFIRMACAO", 105, 39, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Sua presenca esta confirmada!", 105, 48, { align: "center" });
+
+    doc.setTextColor(...darkPink);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.text("QR CODE DE ENTRADA", 105, 70, { align: "center" });
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(...softPink);
+    doc.setLineWidth(1.2);
+    doc.roundedRect(62, 76, 86, 86, 5, 5, "FD");
+    doc.addImage(qrData, "PNG", 67, 81, 76, 76, undefined, "FAST");
+    doc.setTextColor(...ink);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Apresente este QR Code na portaria.", 105, 170, { align: "center" });
+
+    // Cartao de detalhes da festa.
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(...softPink);
+    doc.roundedRect(15, 181, 180, 79, 5, 5, "FD");
+    doc.setFillColor(...pink);
+    doc.roundedRect(15, 181, 180, 14, 5, 5, "F");
+    doc.rect(15, 190, 180, 5, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("DETALHES DA FESTA", 105, 190, { align: "center" });
+
+    let y = 207;
+    const detailRows = [
+      ["DATA", date],
+      ["HORARIO", time],
+      ["LOCAL", venue],
+      ["ENDERECO", address]
+    ];
+    detailRows.forEach(([label, value]) => {
+      doc.setTextColor(...darkPink);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text(label, 24, y);
+      doc.setTextColor(...ink);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      const lines = doc.splitTextToSize(String(value), 145);
+      doc.text(lines.slice(0, 2), 55, y);
+      y += Math.max(11, lines.slice(0, 2).length * 5 + 3);
+    });
+
+    if (mapUrl) {
+      doc.setFillColor(...pink);
+      doc.roundedRect(35, 265, 140, 12, 6, 6, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text("ABRIR LOCALIZACAO NO GOOGLE MAPS", 105, 273, { align: "center" });
+      doc.link(35, 265, 140, 12, { url: mapUrl });
+    } else {
+      doc.setTextColor(...darkPink);
+      doc.setFontSize(9);
+      doc.text("Consulte o endereco informado acima para chegar a festa.", 105, 272, { align: "center", maxWidth: 170 });
+    }
+
+    doc.setTextColor(120, 83, 106);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.text("Guarde este comprovante. O QR Code e individual e deve ser apresentado na entrada.", 105, 287, { align: "center", maxWidth: 185 });
+    return doc.output("blob");
   }
-  function saveTicketBlob(blob) {
-    if(!blob) throw new Error("Não foi possível gerar a imagem.");
-    const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="comprovante-agnes.png";link.click();window.setTimeout(()=>URL.revokeObjectURL(url),1500);
+
+  function downloadTicketPdf(blob) {
+    if (!blob) throw new Error("Nao foi possivel gerar o PDF.");
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "comprovante-agnes.pdf";
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
-  $("#save-ticket-btn").addEventListener("click", async()=>{try{saveTicketBlob(await buildTicketImage());}catch(e){$("#ticket-share-message").textContent=e.message;}});
-  $("#share-ticket-btn").addEventListener("click", async()=>{
-    const button=$("#share-ticket-btn");button.disabled=true;
-    try{
-      const blob=await buildTicketImage();const file=new File([blob],"comprovante-agnes.png",{type:"image/png"});
-      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-        await navigator.share({files:[file],title:"Comprovante de entrada",text:ticketShareText()});
-        $("#ticket-share-message").textContent="Comprovante compartilhado. Guarde-o para apresentar na portaria.";
-      }else{saveTicketBlob(blob);$("#ticket-share-message").textContent="Imagem salva. Anexe o PNG no WhatsApp ou WhatsApp Business. Os detalhes e o link do Maps também estão no texto desta tela.";}
-    }catch(e){if(e.name!=="AbortError")$("#ticket-share-message").textContent=e.message||"Não foi possível compartilhar.";}
-    finally{button.disabled=false;}
+
+  $("#save-ticket-btn").addEventListener("click", async () => {
+    const button = $("#save-ticket-btn");
+    button.disabled = true;
+    try {
+      downloadTicketPdf(await buildTicketPdf());
+      $("#ticket-share-message").textContent = "PDF gerado. Guarde o comprovante para apresentar na portaria.";
+    } catch (error) {
+      $("#ticket-share-message").textContent = error.message || "Nao foi possivel gerar o PDF.";
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("#share-ticket-btn").addEventListener("click", async () => {
+    const button = $("#share-ticket-btn");
+    button.disabled = true;
+    try {
+      const blob = await buildTicketPdf();
+      const file = new File([blob], "comprovante-agnes.pdf", { type: "application/pdf" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Comprovante de entrada - Aniversario de " + (eventConfig.eventName || "Agnes"),
+          text: "Segue o comprovante em PDF. Apresente o QR Code na portaria."
+        });
+        $("#ticket-share-message").textContent = "PDF compartilhado. Guarde-o para apresentar na portaria.";
+      } else {
+        downloadTicketPdf(blob);
+        $("#ticket-share-message").textContent = "PDF salvo no aparelho. Agora basta anexar o arquivo no WhatsApp ou WhatsApp Business.";
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") $("#ticket-share-message").textContent = error.message || "Nao foi possivel compartilhar o PDF.";
+    } finally {
+      button.disabled = false;
+    }
   });
   loadConfig();
 })();
