@@ -68,7 +68,13 @@
       people.append(guestNames);
       const contact = document.createElement("td"); contact.textContent = item.phone || "—";
       const quantity = document.createElement("td"); quantity.textContent = item.status === "confirmed" ? String((item.guests || []).length) : "—";
-      const statusCell = document.createElement("td"); const badge = document.createElement("span");
+      const statusCell = document.createElement("td");
+      if (item.status === "confirmed") {
+        const sent = document.createElement("span"); sent.className = "ticket-send-state " + (item.ticketSentAt ? "sent" : "not-sent");
+        sent.textContent = item.ticketSentAt ? "Comprovante enviado" : "Comprovante não enviado"; statusCell.append(sent);
+        if (item.ticketSentAt) { const count = document.createElement("small"); count.className = "ticket-send-count"; count.textContent = "Envios registrados: " + (item.ticketSendCount || 1); statusCell.append(count); }
+      }
+      const badge = document.createElement("span");
       badge.className = "status-badge " + item.status; badge.textContent = item.status === "confirmed" ? "Confirmado" : "Não irá"; statusCell.append(badge);
       const action = document.createElement("td");
       const ticketButton = document.createElement("button");
@@ -98,55 +104,56 @@
   function ticketCanvas() { return $("#admin-ticket-qr").querySelector("canvas"); }
   async function openTicket(item) {
     const data = await api("/api/admin/rsvps/" + encodeURIComponent(item.id) + "/ticket");
-    activeTicket = data;
+    activeTicket = { ...data, id: item.id };
     const target = $("#admin-ticket-qr");
     target.replaceChildren();
     $("#ticket-modal-responsible").textContent = data.responsible;
     $("#ticket-modal-names").textContent = (data.names || []).join(" · ");
     $("#ticket-modal-status").textContent = data.used ? "Este comprovante já foi utilizado na portaria." : "Comprovante válido · apresente este QR Code na entrada.";
-    notice($("#ticket-modal-message"), "");
+    $("#ticket-mark-sent-btn").textContent = data.sentAt ? "Registrar novo envio" : "Marcar como enviado";
+    notice($("#ticket-modal-message"), data.sentAt ? "Último envio: " + new Date(data.sentAt).toLocaleString("pt-BR") + " · " + (data.sendCount || 1) + " envio(s)." : "Ainda não há envio registrado para esta pessoa.");
     if (!window.QRCode) throw new Error("O gerador de QR Code não carregou. Atualize a página e tente novamente.");
     new QRCode(target, { text: data.ticketToken, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
     $("#ticket-modal").hidden = false;
   }
-  function downloadTicket() {
-    const canvas = ticketCanvas();
-    if (!canvas || !activeTicket) throw new Error("O QR Code ainda não está pronto.");
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
-    link.download = "comprovante-" + (activeTicket.responsible || "convidado").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").toLowerCase() + ".png";
-    link.click();
+  function ticketDetailsText() {
+    const e=activeTicket.event||{}; const date=/^\d{4}-\d{2}-\d{2}$/.test(e.date||"")?new Date(e.date+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"}):(e.date||"A confirmar");
+    return {date,time:e.time||"A confirmar",venue:e.venue||"A confirmar",address:e.address||"A confirmar"};
+  }
+  async function buildAdminTicketBlob() {
+    const qr=ticketCanvas();if(!qr||!activeTicket)throw new Error("O QR Code ainda não está pronto.");
+    const c=document.createElement("canvas");c.width=1000;c.height=1420;const x=c.getContext("2d");const e=activeTicket.event||{};const d=ticketDetailsText();
+    x.fillStyle="#fff8fc";x.fillRect(0,0,1000,1420);x.strokeStyle="#f3a5c9";x.lineWidth=12;x.strokeRect(24,24,952,1372);
+    x.textAlign="center";x.fillStyle="#d92f83";x.font="bold 52px Arial";x.fillText("ANIVERSÁRIO DA "+(e.eventName||"AGNES").toLocaleUpperCase("pt-BR"),500,105);
+    x.fillStyle="#6b5260";x.font="30px Arial";x.fillText("Comprovante · "+activeTicket.responsible,500,160);x.drawImage(qr,300,205,400,400);
+    x.textAlign="left";x.fillStyle="#d92f83";x.font="bold 32px Arial";x.fillText("DETALHES DA FESTA",90,680);
+    x.fillStyle="#382b33";x.font="28px Arial";["Data: "+d.date,"Horário: "+d.time,"Local: "+d.venue,"Endereço: "+d.address].forEach((v,i)=>x.fillText(v.slice(0,58),90,740+i*52));
+    x.textAlign="center";x.fillStyle="#765568";x.font="24px Arial";x.fillText("Apresente este QR Code na portaria",500,1325);
+    return await new Promise(resolve=>c.toBlob(resolve,"image/png"));
+  }
+  function downloadTicket(blob) {
+    if(!blob)throw new Error("Não foi possível gerar a imagem.");
+    const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="comprovante-agnes.png";link.click();window.setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+  async function recordTicketSent() {
+    const result=await api("/api/admin/rsvps/"+encodeURIComponent(activeTicket.id)+"/ticket-sent",{method:"POST"});
+    activeTicket.sentAt=result.sentAt;activeTicket.sendCount=result.sendCount;$("#ticket-mark-sent-btn").textContent="Registrar novo envio";
+    notice($("#ticket-modal-message"),"Envio registrado em "+new Date(result.sentAt).toLocaleString("pt-BR")+" · "+result.sendCount+" envio(s).");await loadItems();
   }
   $("#ticket-modal-close").addEventListener("click", () => { $("#ticket-modal").hidden = true; });
   $("#ticket-modal").addEventListener("click", e => { if (e.target === $("#ticket-modal")) $("#ticket-modal").hidden = true; });
-  $("#ticket-download-btn").addEventListener("click", () => {
-    try { downloadTicket(); notice($("#ticket-modal-message"), "QR Code baixado. Você já pode anexar a imagem no WhatsApp."); }
-    catch (err) { notice($("#ticket-modal-message"), err.message, true); }
+  $("#ticket-download-btn").addEventListener("click", async()=>{try{downloadTicket(await buildAdminTicketBlob());notice($("#ticket-modal-message"),"Comprovante completo baixado.");}catch(err){notice($("#ticket-modal-message"),err.message,true);}});
+  $("#ticket-share-btn").addEventListener("click",async()=>{
+    const button=$("#ticket-share-btn");button.disabled=true;
+    try{
+      const blob=await buildAdminTicketBlob();const file=new File([blob],"comprovante-agnes.png",{type:"image/png"});const d=ticketDetailsText();const e=activeTicket.event||{};
+      const msg="Comprovante de entrada — Aniversário da "+(e.eventName||"Agnes")+"\\nResponsável: "+activeTicket.responsible+"\\nData: "+d.date+"\\nHorário: "+d.time+"\\nLocal: "+d.venue+"\\nEndereço: "+d.address+(e.mapUrl?"\\nComo chegar: "+e.mapUrl:"")+"\\nApresente o QR Code na portaria.";
+      if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Comprovante de entrada",text:msg});await recordTicketSent();}
+      else{downloadTicket(blob);const phone=String(activeTicket.phone||"").replace(/\\D/g,"");if(phone)window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(msg+"\\nAnexe a imagem baixada."),"_blank","noopener,noreferrer");notice($("#ticket-modal-message"),"Imagem completa baixada. Depois de enviar pelo WhatsApp, toque em Marcar como enviado.");}
+    }catch(err){if(err.name!=="AbortError")notice($("#ticket-modal-message"),err.message||"Não foi possível compartilhar.",true);}
+    finally{button.disabled=false;}
   });
-  $("#ticket-share-btn").addEventListener("click", async () => {
-    const button = $("#ticket-share-btn");
-    button.disabled = true;
-    try {
-      const canvas = ticketCanvas();
-      if (!canvas || !activeTicket) throw new Error("O QR Code ainda não está pronto.");
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-      if (!blob) throw new Error("Não foi possível preparar a imagem do comprovante.");
-      const file = new File([blob], "comprovante-agnes.png", { type: "image/png" });
-      const shareData = { files: [file], title: "Comprovante de entrada", text: "Comprovante de entrada da família " + activeTicket.responsible + " · Aniversário da Agnes." };
-      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-        await navigator.share(shareData);
-        notice($("#ticket-modal-message"), "Compartilhamento aberto.");
-      } else {
-        downloadTicket();
-        const phone = String(activeTicket.phone || "").replace(/\\D/g, "");
-        const message = "Olá! Segue o comprovante QR Code da confirmação de " + activeTicket.responsible + " para apresentar na portaria. Anexe a imagem baixada.";
-        window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(message), "_blank", "noopener,noreferrer");
-        notice($("#ticket-modal-message"), "A imagem foi baixada. Anexe o arquivo PNG no WhatsApp que acabou de abrir.");
-      }
-    } catch (err) {
-      if (err.name !== "AbortError") notice($("#ticket-modal-message"), err.message || "Não foi possível compartilhar o comprovante.", true);
-    } finally { button.disabled = false; }
-  });
+  $("#ticket-mark-sent-btn").addEventListener("click",async()=>{const b=$("#ticket-mark-sent-btn");b.disabled=true;try{await recordTicketSent();}catch(err){notice($("#ticket-modal-message"),err.message,true);}finally{b.disabled=false;}});
   async function loadSettings() {
     notice($("#settings-message"), "Carregando informações do local...");
     try {
