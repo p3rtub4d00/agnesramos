@@ -314,7 +314,7 @@ app.post("/api/rsvp", async (req, res) => {
   const notes = String(req.body.notes || "").trim();
   if (responsible.length < 2 || responsible.length > 100) return res.status(400).json({ error: "Informe o nome do responsável (2 a 100 caracteres)." });
   if (phone.length > 30 || notes.length > 300) return res.status(400).json({ error: "Confira os campos informados." });
-  if (status === "confirmed" && guests.length === 0) return res.status(400).json({ error: "Informe pelo menos uma pessoa que irá à festa." });
+  // O responsável já conta como convidado; acompanhantes adicionais são opcionais.
   const allNames = [responsible, ...guests].map(n => n.toLocaleLowerCase("pt-BR"));
   if (new Set(allNames).size !== allNames.length) return res.status(400).json({ error: "O responsável ou algum acompanhante foi informado mais de uma vez." });
   let claimedLink = null;
