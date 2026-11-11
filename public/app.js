@@ -100,7 +100,7 @@
           if (videoActions) {
             videoActions.hidden = false;
             const hint = videoActions.querySelector("p");
-            if (hint) hint.textContent = "✨ Você já assistiu! Use os atalhos no topo da página.";
+            if (hint) hint.textContent = "✨ Você já assistiu! Use “Pular vídeo” no topo para ir às atrações.";
           }
           $("#video-intro-stage")?.classList.add("video-finished");
         }
