@@ -365,3 +365,15 @@ a.auction-info-link:focus-visible{outline:3px solid #39b6ed}
 .auction-info-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
 .auction-info-copy small{font:900 12px 'Nunito',sans-serif;color:#c51f70;letter-spacing:.1px}
 @media(max-width:700px){a.auction-info-link{min-height:75px}.auction-info-copy small{font-size:12px}}
+
+
+/* Nome e vínculo do acompanhante: linha compacta no desktop, campos empilhados no celular */
+.guest-row{align-items:flex-start}
+.guest-fields{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:9px;flex:1;min-width:0}
+.guest-fields input{width:100%;min-width:0}
+.guest-row .remove-guest{flex:0 0 43px;height:45px}
+@media(max-width:620px){
+  .guest-fields{grid-template-columns:1fr;gap:7px}
+  .guest-row .remove-guest{align-self:flex-start}
+  .guest-fields .guest-relationship{background:#fff9fd}
+}
