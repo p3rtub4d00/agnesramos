@@ -15,9 +15,12 @@
     guestCounter += 1;
     const row = document.createElement("div");
     row.className = "guest-row";
+    const fields = document.createElement("div");
+    fields.className = "guest-fields";
     const input = document.createElement("input");
     input.type = "text";
-    input.name = "guests";
+    input.name = "guestName";
+    input.className = "guest-name";
     input.maxLength = 100;
     input.required = true;
     input.placeholder = "Nome do acompanhante";
@@ -33,12 +36,21 @@
       row.remove();
       updateGuestInputs();
     });
-    row.append(input, remove);
+    const relationship = document.createElement("input");
+    relationship.type = "text";
+    relationship.name = "guestRelationship";
+    relationship.className = "guest-relationship";
+    relationship.maxLength = 60;
+    relationship.placeholder = "Quem é? Ex.: filho, sobrinho, vizinho";
+    relationship.autocomplete = "off";
+    relationship.setAttribute("aria-label", "Parentesco ou vínculo do acompanhante " + guestCounter + " (opcional)");
+    fields.append(input, relationship);
+    row.append(fields, remove);
     guestList.append(row);
     updateGuestInputs();
   }
   function updateGuestInputs() {
-    [...guestList.querySelectorAll("input")].forEach((input, index) => {
+    [...guestList.querySelectorAll(".guest-name")].forEach((input, index) => {
       input.placeholder = "Nome do acompanhante";
       input.required = document.querySelector('input[name="status"]:checked').value === "confirmed";
       input.setAttribute("aria-label", "Nome da pessoa " + (index + 1));
@@ -59,7 +71,7 @@
   $("#add-guest").addEventListener("click", () => addGuest());
   document.querySelectorAll('input[name="status"]').forEach(radio => radio.addEventListener("change", () => {
     const confirmed = document.querySelector('input[name="status"]:checked').value === "confirmed";
-    guestList.querySelectorAll("input").forEach(input => input.required = confirmed);
+    guestList.querySelectorAll(".guest-name").forEach(input => input.required = confirmed);
     $("#add-guest").disabled = !confirmed;
   }));
   // O responsável já é contado automaticamente como convidado no servidor.
@@ -164,9 +176,12 @@
     event.preventDefault();
     message.className = "form-message";
     const status = document.querySelector('input[name="status"]:checked').value;
-    const names = [...guestList.querySelectorAll("input")].map(input => input.value.trim()).filter(Boolean);
-    const uniqueNames = new Set(names.map(name => name.toLocaleLowerCase("pt-BR")));
-    if (uniqueNames.size !== names.length) return showMessage("Há nomes repetidos. Confira a lista de acompanhantes.", "error");
+    const guests = [...guestList.querySelectorAll(".guest-row")].map(row => ({
+      name: row.querySelector(".guest-name").value.trim(),
+      relationship: row.querySelector(".guest-relationship").value.trim()
+    })).filter(guest => guest.name);
+    const uniqueNames = new Set(guests.map(guest => guest.name.toLocaleLowerCase("pt-BR")));
+    if (uniqueNames.size !== guests.length) return showMessage("Há nomes repetidos. Confira a lista de acompanhantes.", "error");
     const button = form.querySelector(".submit-button");
     button.disabled = true;
     button.querySelector("span").textContent = "Enviando sua resposta...";
@@ -179,7 +194,7 @@
           inviteToken: invitationToken,
           responsible: $("#responsible").value.trim(),
           phone: $("#phone").value.trim(),
-          guests: names,
+          guests,
           notes: $("#notes").value.trim(),
           status
         })
