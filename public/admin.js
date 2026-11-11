@@ -37,7 +37,7 @@
     const rows = $("#rsvp-rows");
     rows.replaceChildren();
     const filtered = allItems.filter(item => {
-      const searchable = [item.responsible, item.phone, ...(item.guests || []).map(g => g.name)].join(" ").toLocaleLowerCase("pt-BR");
+      const searchable = [item.responsible, item.phone, ...(item.guests || []).map(g => g.name + " " + (g.relationship || ""))].join(" ").toLocaleLowerCase("pt-BR");
       return searchable.includes(q) && (status === "all" || item.status === status);
     });
     if (!filtered.length) {
@@ -53,7 +53,7 @@
       if (item.status === "confirmed") {
         (item.guests || []).forEach(g => {
           const line = document.createElement("div"); line.className = "guest-line";
-          const label = document.createElement("span"); label.textContent = (g.isResponsible ? "Responsável: " : "") + g.name + (g.checkedIn ? " ✓" : "");
+          const label = document.createElement("span"); label.textContent = (g.isResponsible ? "Responsável: " : "") + g.name + (g.relationship ? " (" + g.relationship + ")" : "") + (g.checkedIn ? " ✓" : "");
           const remove = document.createElement("button"); remove.className = "small-action danger-action"; remove.type = "button"; remove.textContent = "Excluir";
           remove.addEventListener("click", async () => {
             const message = "Excluir " + (g.isResponsible ? "o responsável " : "") + g.name + " da lista de convidados?";
@@ -228,10 +228,10 @@
   $("#logout-btn").addEventListener("click", async () => { await fetch("/api/logout", { method: "POST" }); showLogin(); });
   $("#print-btn").addEventListener("click", () => window.print());
   $("#export-btn").addEventListener("click", () => {
-    const rows = [["Responsável", "Telefone", "Status", "Convidado", "Entrada registrada", "Observações"]];
+    const rows = [["Responsável", "Telefone", "Status", "Convidado", "Parentesco / vínculo", "Entrada registrada", "Observações"]];
     allItems.forEach(item => {
-      if (item.status === "declined" || !item.guests.length) rows.push([item.responsible, item.phone, item.status === "confirmed" ? "Confirmado" : "Não irá", "", "", item.notes]);
-      else item.guests.forEach(g => rows.push([item.responsible, item.phone, "Confirmado", g.name, g.checkedIn ? "Sim" : "Não", item.notes]));
+      if (item.status === "declined" || !item.guests.length) rows.push([item.responsible, item.phone, item.status === "confirmed" ? "Confirmado" : "Não irá", "", "", "", item.notes]);
+      else item.guests.forEach(g => rows.push([item.responsible, item.phone, "Confirmado", g.name, g.relationship || "", g.checkedIn ? "Sim" : "Não", item.notes]));
     });
     const csv = "\ufeff" + rows.map(row => row.map(v => '"' + String(v ?? "").replace(/"/g, '""') + '"').join(";")).join("\r\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
