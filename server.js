@@ -366,12 +366,43 @@ app.post("/api/admin/invitation-links", requireRole("admin"), async (req, res) =
   }
 });
 app.get("/api/invitation/:token", async (req, res) => {
-  if (!dbReady()) return res.status(503).json({ valid: false, error: "Convites temporariamente indisponíveis." });
+  // Links pessoais não expiram por tempo. Abrir, pré-visualizar ou consultar
+  // é sempre uma leitura: somente a conclusão do RSVP pode consumir o link.
+  res.set("Cache-Control", "private, no-store, max-age=0");
+  if (!(await waitForDb(12000))) return res.status(503).json({
+    valid: false, code: "TEMPORARY_ERROR",
+    error: "O sistema está iniciando. Aguarde um instante e tente novamente. Seu link não expirou."
+  });
   const token = String(req.params.token || "");
-  if (!/^[a-f0-9]{64}$/i.test(token)) return res.status(404).json({ valid: false, error: "Este link de convite é inválido." });
-  const link = await InvitationLink.findOne({ tokenHash: hashToken(token), usedAt: null }).lean();
-  if (!link) return res.status(410).json({ valid: false, error: "Este link já foi utilizado. Peça um novo convite à família." });
-  res.json({ valid: true, videoWatched: !!link.videoWatchedAt });
+  if (!/^[a-f0-9]{64}$/i.test(token)) return res.status(404).json({
+    valid: false, code: "INVALID_FORMAT",
+    error: "O endereço do convite está incompleto. Abra o link inteiro enviado pela família."
+  });
+  try {
+    const fingerprint = hashToken(token);
+    const link = await InvitationLink.findOne({ tokenHash: fingerprint }).lean();
+    if (!link) {
+      console.warn("Convite não encontrado no banco", fingerprint.slice(0, 10));
+      return res.status(404).json({
+        valid: false, code: "NOT_FOUND",
+        error: "Este link não foi encontrado no sistema. Peça à família para gerar um novo convite."
+      });
+    }
+    if (link.usedAt) {
+      console.info("Consulta a convite já concluído", fingerprint.slice(0, 10));
+      return res.status(410).json({
+        valid: false, code: "ALREADY_REGISTERED",
+        error: "O cadastro deste convite já foi finalizado. Peça à família outro link, se necessário."
+      });
+    }
+    res.json({ valid: true, code: "ACTIVE", videoWatched: !!link.videoWatchedAt });
+  } catch (error) {
+    console.error("Erro ao verificar convite:", error.message);
+    res.status(503).json({
+      valid: false, code: "TEMPORARY_ERROR",
+      error: "Não foi possível verificar o convite agora. Tente novamente em alguns instantes; o link não expirou."
+    });
+  }
 });
 app.post("/api/invitation/:token/watched", async (req, res) => {
   if (!dbReady()) return res.status(503).json({ ok: false, error: "Convites temporariamente indisponíveis." });
@@ -505,7 +536,9 @@ app.delete("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
   try {
     const records = await Rsvp.find({});
     for (const record of records) await record.deleteOne();
-    await InvitationLink.deleteMany({});
+    // O botão ZERAR não deve apagar convites ainda válidos que já foram enviados.
+    // Limpa apenas links consumidos; os pendentes continuam válidos.
+    await InvitationLink.deleteMany({ usedAt: { $ne: null } });
     res.json({ ok: true, deletedCount: records.length });
   } catch (err) {
     console.error("Erro ao zerar confirmações:", err.message);
@@ -625,7 +658,10 @@ app.post("/api/portaria/checkin-ticket", requireRole("portaria"), async (req, re
 });
 app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "admin.html")));
 app.get("/portaria", (req, res) => res.sendFile(path.join(__dirname, "public", "portaria.html")));
-app.get("/convite/:token", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+app.get("/convite/:token", (req, res) => {
+  res.set("Cache-Control", "private, no-store, max-age=0");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return res.status(404).json({ error: "Rota não encontrada." });
   res.sendFile(path.join(__dirname, "public", "index.html"), err => { if (err) next(err); });
