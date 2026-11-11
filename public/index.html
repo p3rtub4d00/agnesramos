@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="Missão Especial | Aniversário da Agnes">
 <meta name="twitter:description" content="Um convite superpoderoso para uma missão de aniversário!">
 <meta name="twitter:image" content="https://agnesramos.onrender.com/assets/whatsapp-preview.jpg?v=20261110-3">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css?v=20261111-gifts-nav-1"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/vendor/jspdf/jspdf.umd.min.js?v=20261110-1"></script><script src="/app.js?v=20261111-gifts-nav-1" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css?v=20261111-gifts-nav-2"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/vendor/jspdf/jspdf.umd.min.js?v=20261110-1"></script><script src="/app.js?v=20261111-gifts-nav-1" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -29,9 +29,6 @@
   <nav class="invite-quick-nav" id="invite-quick-nav" aria-label="Acesso rápido às etapas do convite" hidden>
     <button type="button" class="quick-nav-skip" id="skip-watched-video" hidden>⏭ Pular vídeo</button>
     <button type="button" class="quick-nav-gifts" id="nav-to-gifts">🎁 Sugestões de presentes</button>
-    <button type="button" id="continue-to-attractions">🎉 Atrações</button>
-    <button type="button" id="nav-to-location">📍 Local</button>
-    <button type="button" id="nav-to-rsvp">✓ Confirmar presença</button>
   </nav>
   <section class="video-intro-stage" id="video-intro-stage" aria-label="Abertura do convite">
     <div class="video-frame">
@@ -235,11 +232,8 @@
     window.addEventListener('load', startVideo, { once: true });
   }
 
-  document.getElementById('continue-to-attractions').addEventListener('click', showAttractions);
   document.getElementById('skip-watched-video').addEventListener('click', showAttractions);
   document.getElementById('nav-to-gifts').addEventListener('click', showGifts);
-  document.getElementById('nav-to-location').addEventListener('click', showLocation);
-  document.getElementById('nav-to-rsvp').addEventListener('click', showRsvp);
   document.getElementById('continue-to-gifts').addEventListener('click', showGifts);
   document.getElementById('continue-to-location').addEventListener('click', showLocation);
   document.getElementById('back-from-gifts').addEventListener('click', showAttractions);
