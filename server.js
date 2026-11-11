@@ -22,6 +22,7 @@ app.use(express.static(path.join(__dirname, "public"), { extensions: ["html"] })
 
 const GuestSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 100 },
+  relationship: { type: String, trim: true, maxlength: 60, default: "" },
   checkedIn: { type: Boolean, default: false },
   checkedInAt: { type: Date, default: null },
   isResponsible: { type: Boolean, default: false }
@@ -315,13 +316,18 @@ app.post("/api/rsvp", async (req, res) => {
   const responsible = String(req.body.responsible || "").trim();
   const phone = String(req.body.phone || "").trim();
   const status = req.body.status === "declined" ? "declined" : "confirmed";
-  const names = Array.isArray(req.body.guests) ? req.body.guests : [];
-  const guests = names.map(v => String(v || "").trim()).filter(Boolean).slice(0, 20);
+  const inputGuests = Array.isArray(req.body.guests) ? req.body.guests : [];
+  if (inputGuests.length > 20) return res.status(400).json({ error: "O limite é de 20 acompanhantes." });
+  const guests = inputGuests.map(v => ({
+    name: String(typeof v === "string" ? v : v?.name || "").trim(),
+    relationship: String(typeof v === "object" && v !== null ? v.relationship || "" : "").trim()
+  })).filter(g => g.name);
+  if (guests.some(g => g.name.length > 100 || g.relationship.length > 60)) return res.status(400).json({ error: "Confira o nome e o vínculo dos acompanhantes." });
   const notes = String(req.body.notes || "").trim();
   if (responsible.length < 2 || responsible.length > 100) return res.status(400).json({ error: "Informe o nome do responsável (2 a 100 caracteres)." });
   if (phone.length > 30 || notes.length > 300) return res.status(400).json({ error: "Confira os campos informados." });
   // O responsável já conta como convidado; acompanhantes adicionais são opcionais.
-  const allNames = [responsible, ...guests].map(n => n.toLocaleLowerCase("pt-BR"));
+  const allNames = [responsible, ...guests.map(g => g.name)].map(n => n.toLocaleLowerCase("pt-BR"));
   if (new Set(allNames).size !== allNames.length) return res.status(400).json({ error: "O responsável ou algum acompanhante foi informado mais de uma vez." });
   let claimedLink = null;
   let doc = null;
@@ -329,10 +335,10 @@ app.post("/api/rsvp", async (req, res) => {
     claimedLink = await InvitationLink.findOneAndUpdate({ tokenHash: hashToken(inviteToken), usedAt: null }, { $set: { usedAt: new Date() } }, { new: true });
     if (!claimedLink) return res.status(410).json({ error: "Este link já foi utilizado ou expirou. Peça um novo convite à família." });
     const ticketToken = status === "confirmed" ? crypto.randomBytes(32).toString("hex") : "";
-    doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? [{ name: responsible, isResponsible: true }, ...guests.map(name => ({ name, isResponsible: false }))] : [], notes, ticketTokenHash: ticketToken ? hashToken(ticketToken) : "" });
+    doc = await Rsvp.create({ responsible, phone, status, guests: status === "confirmed" ? [{ name: responsible, isResponsible: true }, ...guests.map(g => ({ name: g.name, relationship: g.relationship, isResponsible: false }))] : [], notes, ticketTokenHash: ticketToken ? hashToken(ticketToken) : "" });
     claimedLink.usedByRsvpId = doc._id;
     await claimedLink.save();
-    res.status(201).json({ ok: true, message: status === "confirmed" ? "Presença registrada! Salve o comprovante com QR Code para apresentar na portaria." : "Resposta registrada. Obrigado por avisar!", id: String(doc._id), ticketToken: ticketToken || null, guests: status === "confirmed" ? [responsible, ...guests] : [] });
+    res.status(201).json({ ok: true, message: status === "confirmed" ? "Presença registrada! Salve o comprovante com QR Code para apresentar na portaria." : "Resposta registrada. Obrigado por avisar!", id: String(doc._id), ticketToken: ticketToken || null, guests: status === "confirmed" ? [responsible, ...guests.map(g => g.name)] : [] });
   } catch (err) {
     if (doc) await Rsvp.deleteOne({ _id: doc._id }).catch(() => {});
     if (claimedLink) await InvitationLink.updateOne({ _id: claimedLink._id, usedAt: { $ne: null } }, { $set: { usedAt: null, usedByRsvpId: null } }).catch(() => {});
@@ -442,7 +448,7 @@ app.get("/api/admin/rsvps", requireRole("admin"), async (req, res) => {
     const docs = await Rsvp.find().sort({ createdAt: -1 }).lean();
     const items = docs.map(d => {
       const guests = (d.guests || []).map(g => ({
-        id: String(g._id), name: g.name, isResponsible: !!g.isResponsible || String(g.name).trim().toLocaleLowerCase("pt-BR") === String(d.responsible).trim().toLocaleLowerCase("pt-BR"),
+        id: String(g._id), name: g.name, relationship: g.relationship || "", isResponsible: !!g.isResponsible || String(g.name).trim().toLocaleLowerCase("pt-BR") === String(d.responsible).trim().toLocaleLowerCase("pt-BR"),
         checkedIn: !!g.checkedIn, checkedInAt: g.checkedInAt
       }));
       const hasResponsible = guests.some(g => g.isResponsible);
@@ -558,7 +564,7 @@ app.get("/api/portaria/guests", requireRole("portaria"), async (req, res) => {
     const results = [];
     for (const d of docs) {
       const guests = (d.guests || []).map(g => ({
-        guestId: String(g._id), name: g.name,
+        guestId: String(g._id), name: g.name, relationship: g.relationship || "",
         checkedIn: !!g.checkedIn, checkedInAt: g.checkedInAt,
         isResponsible: !!g.isResponsible || String(g.name).trim().toLocaleLowerCase("pt-BR") === String(d.responsible).trim().toLocaleLowerCase("pt-BR")
       }));
@@ -567,7 +573,7 @@ app.get("/api/portaria/guests", requireRole("portaria"), async (req, res) => {
         checkedInAt: d.responsibleCheckedInAt || null, isResponsible: true
       });
       const matches = guests.filter(g => !q || g.name.toLocaleLowerCase("pt-BR").includes(normalized));
-      for (const g of matches) results.push({ id: String(d._id), guestId: g.guestId, name: g.name, responsible: d.responsible, total: guests.length, checkedIn: g.checkedIn, checkedInAt: g.checkedInAt });
+      for (const g of matches) results.push({ id: String(d._id), guestId: g.guestId, name: g.name, relationship: g.relationship || "", responsible: d.responsible, total: guests.length, checkedIn: g.checkedIn, checkedInAt: g.checkedInAt });
     }
     res.json({ items: results.slice(0, 100) });
   } catch (err) {
