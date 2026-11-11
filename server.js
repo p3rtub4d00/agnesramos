@@ -358,8 +358,10 @@ app.post("/api/admin/invitation-links", requireRole("admin"), async (req, res) =
   try {
     const token = crypto.randomBytes(32).toString("hex");
     await InvitationLink.create({ tokenHash: hashToken(token), usedAt: null });
-    const origin = process.env.PUBLIC_URL || (req.protocol + "://" + req.get("host"));
-    res.status(201).json({ url: (origin.endsWith("/") ? origin.slice(0, -1) : origin) + "/convite/" + token });
+    // Gera o link sempre no mesmo domínio HTTPS usado para acessar o painel.
+    // Evita links com PUBLIC_URL antigo configurado no Render.
+    const origin = req.protocol + "://" + req.get("host");
+    res.status(201).json({ url: origin + "/convite/" + token });
   } catch (err) {
     console.error("Erro ao gerar link de convite:", err.message);
     res.status(500).json({ error: "Não foi possível gerar o link agora." });
