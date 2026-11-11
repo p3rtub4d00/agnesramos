@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="Missão Especial | Aniversário da Agnes">
 <meta name="twitter:description" content="Um convite superpoderoso para uma missão de aniversário!">
 <meta name="twitter:image" content="https://agnesramos.onrender.com/assets/whatsapp-preview.jpg?v=20261110-3">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/vendor/jspdf/jspdf.umd.min.js?v=20261110-1"></script><script src="/app.js?v=20261110-ticket-pdf-local" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css?v=20261111-attractions-1"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/vendor/jspdf/jspdf.umd.min.js?v=20261110-1"></script><script src="/app.js?v=20261110-ticket-pdf-local" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -33,15 +33,44 @@
         Seu navegador não conseguiu reproduzir o vídeo.
       </video>
       <div class="video-end-actions" id="video-end-actions" hidden>
-        <p>✨ Agora vamos para os detalhes da festa!</p>
-        <button class="jump-button next-step" id="continue-to-location" type="button">Ver local da festa <span>→</span></button>
+        <p>✨ Veja todas as atrações da festa!</p>
+        <button class="jump-button next-step" id="continue-to-attractions" type="button">Ver atrações da festa <span>→</span></button>
         <button class="video-skip-button" id="skip-watched-video" type="button" hidden>Já assisti ao convite · Pular vídeo <span>→</span></button>
       </div>
     </div>
   </section>
+
+  <section class="attractions-stage reveal stage-panel" id="attractions-stage" hidden aria-label="Atrações e brincadeiras da festa">
+    <div class="attractions-panel">
+      <div class="attractions-header">
+        <span class="attractions-eyebrow">✦ PREPARE-SE PARA A FESTA ✦</span>
+        <h2>Diversão <em>Garantida!</em></h2>
+        <p>Uma festa cheia de aventuras para todo mundo se divertir!</p>
+      </div>
+      <button class="stage-back-button" id="back-to-invitation" type="button">← Voltar ao convite</button>
+      <div class="attractions-grid" aria-label="Atividades da festa">
+        <article class="attractions-tile"><span class="attractions-emoji" aria-hidden="true">⚽</span><strong>Campo de Futebol</strong></article>
+        <article class="attractions-tile"><span class="attractions-emoji" aria-hidden="true">🏐</span><strong>Vôlei de areia</strong></article>
+        <article class="attractions-tile"><span class="attractions-emoji" aria-hidden="true">🏓</span><strong>Ping Pong</strong></article>
+        <article class="attractions-tile"><span class="attractions-emoji" aria-hidden="true">🎱</span><strong>Sinuca</strong></article>
+        <article class="attractions-tile"><span class="attractions-emoji" aria-hidden="true">🏊</span><strong>Piscina</strong></article>
+      </div>
+      <div class="attractions-subheading">
+        <span class="attractions-subheading-icon" aria-hidden="true">🏆</span>
+        <h3>Brincadeiras e Premiações</h3>
+      </div>
+      <div class="attractions-grid attractions-prizes-grid" aria-label="Brincadeiras e premiações">
+        <article class="attractions-tile attractions-prize"><span class="attractions-emoji" aria-hidden="true">🎟️</span><strong>Bingo</strong></article>
+        <article class="attractions-tile attractions-prize attractions-surprise"><span class="attractions-emoji" aria-hidden="true">🎁</span><strong>Leilão Surpresa da Agnes</strong><span class="attractions-sparkle" aria-hidden="true">✦</span></article>
+        <article class="attractions-tile attractions-prize"><span class="attractions-emoji" aria-hidden="true">🥇</span><strong>Competições</strong></article>
+      </div>
+      <p class="attractions-finale"><span aria-hidden="true">✦</span> E muito mais... <span aria-hidden="true">✦</span></p>
+      <div class="attractions-actions"><button class="jump-button next-step" id="continue-to-location" type="button">Ver local da festa <span>→</span></button></div>
+    </div>
+  </section>
   <section class="event-section reveal stage-panel" id="event-stage" hidden aria-label="Informações da festa">
-    <div class="section-heading"><div><span class="section-index">01 / DETALHES</span><h2>Onde a magia acontece</h2></div><span class="heading-icon">✧</span></div>
-    <button class="stage-back-button" id="back-to-invitation" type="button">← Voltar ao convite</button>
+    <div class="section-heading"><div><span class="section-index">02 / DETALHES</span><h2>Onde a magia acontece</h2></div><span class="heading-icon">✧</span></div>
+    <button class="stage-back-button" id="back-to-attractions" type="button">← Voltar às atrações</button>
     <div class="event-details">
       <article class="detail-card date-card"><span class="detail-icon">▦</span><div><small>QUANDO</small><strong id="event-date">Data a definir</strong><em id="event-weekday"></em></div></article>
       <article class="detail-card time-card"><span class="detail-icon">◷</span><div><small>HORÁRIO</small><strong id="event-time">Horário a definir</strong></div></article>
@@ -50,7 +79,7 @@
     <div class="event-continue-wrap"><button class="jump-button next-step" id="continue-to-rsvp" type="button">Confirmar presença <span>→</span></button></div>
   </section>
   <section class="rsvp-card reveal stage-panel" id="rsvp" hidden>
-    <div class="rsvp-topline"><span class="section-index">02 / CONFIRMAÇÃO</span><span class="rsvp-stamp">SUA PRESENÇA<br>É IMPORTANTE!</span></div>
+    <div class="rsvp-topline"><span class="section-index">03 / CONFIRMAÇÃO</span><span class="rsvp-stamp">SUA PRESENÇA<br>É IMPORTANTE!</span></div>
     <button class="stage-back-button" id="back-to-location" type="button">← Voltar ao local da festa</button>
     <div class="rsvp-heading"><span class="heading-star">★</span><div><h2>Você vem para a festa?</h2><p>Confirme sua presença e entre para a lista da missão.</p></div></div>
     <div id="invite-access-message" class="form-message show error" hidden role="status" aria-live="polite"></div>
@@ -95,6 +124,7 @@
   const video = document.getElementById('invite-video');
   const videoStage = document.getElementById('video-intro-stage');
   const videoActions = document.getElementById('video-end-actions');
+  const attractions = document.getElementById('attractions-stage');
   const event = document.getElementById('event-stage');
   const rsvp = document.getElementById('rsvp');
   const footer = document.getElementById('footer-stage');
@@ -126,8 +156,17 @@
     }
   }
 
+  function showAttractions() {
+    videoStage.hidden = true;
+    event.hidden = true;
+    rsvp.hidden = true;
+    footer.hidden = true;
+    revealStage(attractions);
+  }
+
   function showLocation() {
     videoStage.hidden = true;
+    attractions.hidden = true;
     revealStage(event);
   }
 
@@ -171,14 +210,20 @@
     window.addEventListener('load', startVideo, { once: true });
   }
 
+  document.getElementById('continue-to-attractions').addEventListener('click', showAttractions);
+  document.getElementById('skip-watched-video').addEventListener('click', showAttractions);
   document.getElementById('continue-to-location').addEventListener('click', showLocation);
-  document.getElementById('skip-watched-video').addEventListener('click', showLocation);
 
   // Voltar entre as etapas sem reiniciar o vídeo nem apagar o formulário.
   document.getElementById('back-to-invitation').addEventListener('click', () => {
-    event.hidden = true;
+    attractions.hidden = true;
     videoStage.hidden = false;
     videoStage.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById('back-to-attractions').addEventListener('click', () => {
+    event.hidden = true;
+    revealStage(attractions);
   });
 
   document.getElementById('back-to-location').addEventListener('click', () => {
