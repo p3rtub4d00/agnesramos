@@ -377,3 +377,10 @@ a.auction-info-link:focus-visible{outline:3px solid #39b6ed}
   .guest-row .remove-guest{align-self:flex-start}
   .guest-fields .guest-relationship{background:#fff9fd}
 }
+
+
+/* Bingo Surpresa: card de acesso às regras, no mesmo estilo do Leilão */
+a.bingo-info-link{border-color:#d9c7fb;background:linear-gradient(140deg,#f8ecff,#fff7db);color:#4d306c}
+a.bingo-info-link .auction-info-copy small{color:#813cc6}
+a.bingo-info-link:hover,a.bingo-info-link:focus-visible{background:linear-gradient(135deg,#f0dcff,#ffe6f5);box-shadow:0 12px 28px #8f54c13d}
+a.bingo-info-link:focus-visible{outline-color:#a14ce2}
