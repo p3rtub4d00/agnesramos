@@ -194,8 +194,10 @@
     video.addEventListener('ended', async () => {
       videoActions.hidden = false;
       videoStage.classList.add('video-finished');
-      // A primeira visita exige a conclusão do vídeo antes de mostrar os atalhos.
-      unlockNavigation(false);
+      // O vídeo é obrigatório no primeiro acesso; só após terminar
+      // liberamos os atalhos e avançamos automaticamente para as atrações.
+      unlockNavigation(true);
+      showAttractions();
       const token = window.location.pathname.split('/')[2] || '';
       if (token) {
         try {
