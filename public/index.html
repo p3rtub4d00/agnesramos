@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="Missão Especial | Aniversário da Agnes">
 <meta name="twitter:description" content="Um convite superpoderoso para uma missão de aniversário!">
 <meta name="twitter:image" content="https://agnesramos.onrender.com/assets/whatsapp-preview.jpg?v=20261110-3">
-<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css?v=20261111-gifts-nav-2"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/vendor/jspdf/jspdf.umd.min.js?v=20261110-1"></script><script src="/app.js?v=20261111-gifts-nav-1" defer></script>
+<title>Missão Especial | Aniversário</title><link rel="stylesheet" href="/styles.css?v=20261111-gifts-nav-2"><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/vendor/jspdf/jspdf.umd.min.js?v=20261110-1"></script><script src="/app.js?v=20261111-video-shortcut-1" defer></script>
 </head>
 <body class="invite-page">
 <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
@@ -28,7 +28,6 @@
   <header class="topbar"><a class="mini-logo" href="/" aria-label="Convite de aniversário"><span class="logo-star">✦</span><span>MISSÃO<br><b>FESTA!</b></span></a><div class="topbar-pill"><span class="pulse-dot"></span> CONVITE OFICIAL <span>★</span></div></header>
   <nav class="invite-quick-nav" id="invite-quick-nav" aria-label="Acesso rápido às etapas do convite" hidden>
     <button type="button" class="quick-nav-skip" id="skip-watched-video" hidden>⏭ Pular vídeo</button>
-    <button type="button" class="quick-nav-gifts" id="nav-to-gifts">🎁 Sugestões de presentes</button>
   </nav>
   <section class="video-intro-stage" id="video-intro-stage" aria-label="Abertura do convite">
     <div class="video-frame">
@@ -37,7 +36,7 @@
         Seu navegador não conseguiu reproduzir o vídeo.
       </video>
       <div class="video-end-actions" id="video-end-actions" hidden>
-        <p>✨ Vídeo concluído! Escolha uma opção no menu superior.</p>
+        <p>✨ Vídeo concluído! Continue pelas etapas da festa.</p>
       </div>
     </div>
   </section>
@@ -144,9 +143,20 @@
   const rsvp = document.getElementById('rsvp');
   const footer = document.getElementById('footer-stage');
 
+  const skipButton = document.getElementById('skip-watched-video');
+  let videoHasBeenWatched = false;
+
+  // O atalho pertence exclusivamente à tela do vídeo e só é liberado
+  // após a API confirmar uma visita anterior ou o vídeo terminar.
+  function updateVideoShortcutVisibility() {
+    const visible = videoHasBeenWatched && !videoStage.hidden;
+    quickNav.hidden = !visible;
+    skipButton.hidden = !visible;
+  }
+
   function unlockNavigation(alreadyWatched) {
-    quickNav.hidden = false;
-    document.getElementById('skip-watched-video').hidden = !alreadyWatched;
+    videoHasBeenWatched = Boolean(alreadyWatched);
+    updateVideoShortcutVisibility();
   }
   window.unlockInviteNavigation = unlockNavigation;
 
@@ -178,6 +188,8 @@
   }
 
   function hideStages() {
+    quickNav.hidden = true;
+    skipButton.hidden = true;
     videoStage.hidden = true;
     attractions.hidden = true;
     gifts.hidden = true;
@@ -185,7 +197,7 @@
     rsvp.hidden = true;
     footer.hidden = true;
   }
-  function showAttractions() { hideStages(); revealStage(attractions); }
+  function showAttractions() { video?.pause(); hideStages(); revealStage(attractions); }
   function showGifts() { hideStages(); revealStage(gifts); }
   function showLocation() { hideStages(); revealStage(event); }
   function showRsvp() { hideStages(); revealStage(rsvp); }
@@ -234,16 +246,18 @@
     window.addEventListener('load', startVideo, { once: true });
   }
 
-  document.getElementById('skip-watched-video').addEventListener('click', showAttractions);
-  document.getElementById('nav-to-gifts').addEventListener('click', showGifts);
+  skipButton.addEventListener('click', () => {
+    if (videoHasBeenWatched && !videoStage.hidden) showAttractions();
+  });
   document.getElementById('continue-to-gifts').addEventListener('click', showGifts);
   document.getElementById('continue-to-location').addEventListener('click', showLocation);
   document.getElementById('back-from-gifts').addEventListener('click', showAttractions);
 
   // Voltar entre as etapas sem reiniciar o vídeo nem apagar o formulário.
   document.getElementById('back-to-invitation').addEventListener('click', () => {
-    attractions.hidden = true;
+    hideStages();
     videoStage.hidden = false;
+    updateVideoShortcutVisibility();
     videoStage.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
