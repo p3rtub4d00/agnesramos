@@ -55,7 +55,8 @@ const EventSettingsSchema = new mongoose.Schema({
   address: { type: String, trim: true, maxlength: 240, default: "" },
   mapUrl: { type: String, trim: true, maxlength: 500, default: "" },
   date: { type: String, trim: true, maxlength: 20, default: "" },
-  time: { type: String, trim: true, maxlength: 80, default: "" }
+  time: { type: String, trim: true, maxlength: 80, default: "" },
+  giftSuggestions: { type: String, trim: true, maxlength: 1800, default: "" }
 }, { timestamps: true });
 const EventSettings = mongoose.model("EventSettings", EventSettingsSchema);
 
@@ -302,6 +303,7 @@ app.get("/api/config", async (req, res) => {
     venue: settings?.venue || process.env.EVENT_VENUE || "Local a definir",
     address: settings?.address || process.env.EVENT_ADDRESS || "Endereço a definir",
     mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "",
+    giftSuggestions: settings?.giftSuggestions || "",
     deadline: process.env.RSVP_DEADLINE || ""
   });
 });
@@ -393,6 +395,7 @@ app.get("/api/admin/settings", requireRole("admin"), async (req, res) => {
       mapUrl: settings?.mapUrl || process.env.EVENT_MAP_URL || "",
       date: settings?.date || process.env.EVENT_DATE || "",
       time: settings?.time || process.env.EVENT_TIME || "",
+      giftSuggestions: settings?.giftSuggestions || "",
       databaseConnected: dbReady(),
       settingsStored: !!settings
     });
@@ -409,11 +412,13 @@ app.put("/api/admin/settings", requireRole("admin"), async (req, res) => {
   const mapUrl = String(req.body.mapUrl || "").trim();
   const date = String(req.body.date || "").trim();
   const time = String(req.body.time || "").trim();
+  const giftSuggestions = String(req.body.giftSuggestions || "").trim();
   if (eventName.length < 2 || eventName.length > 80) return res.status(400).json({ error: "Informe o nome da aniversariante (2 a 80 caracteres)." });
   if (venue.length > 120 || address.length > 240 || mapUrl.length > 500 || date.length > 20 || time.length > 80) return res.status(400).json({ error: "Confira os limites dos campos de local, endereço, data e horário." });
+  if (giftSuggestions.length > 1800 || giftSuggestions.split(/\r?\n/).filter(line => line.trim()).length > 18) return res.status(400).json({ error: "Informe até 18 sugestões de presentes e no máximo 1800 caracteres." });
   if (mapUrl && !/^https:\/\//i.test(mapUrl)) return res.status(400).json({ error: "O link do mapa deve começar com https://" });
   try {
-    await EventSettings.findOneAndUpdate({ key: "main" }, { $set: { eventName, venue, address, mapUrl, date, time } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
+    await EventSettings.findOneAndUpdate({ key: "main" }, { $set: { eventName, venue, address, mapUrl, date, time, giftSuggestions } }, { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true });
     res.json({ ok: true });
   } catch (err) {
     console.error("Erro ao salvar configurações:", err.message);

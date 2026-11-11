@@ -91,16 +91,18 @@
         const inviteResponse = await fetchWithRetry("/api/invitation/" + encodeURIComponent(invitationToken));
         const inviteData = await inviteResponse.json();
         if (!inviteResponse.ok || !inviteData.valid) throw new Error(inviteData.error || "Link de convite inválido.");
-        const skipButton = $("#skip-watched-video");
-        if (skipButton) {
-          skipButton.hidden = !inviteData.videoWatched;
-          if (inviteData.videoWatched) {
-            const video = $("#invite-video");
-            const videoActions = $("#video-end-actions");
-            if (video) video.pause();
-            if (videoActions) videoActions.hidden = false;
-            $("#video-intro-stage")?.classList.add("video-finished");
+        if (inviteData.videoWatched) {
+          // Somente a API libera os atalhos em visitas posteriores.
+          window.unlockInviteNavigation?.(true);
+          const video = $("#invite-video");
+          const videoActions = $("#video-end-actions");
+          if (video) video.pause();
+          if (videoActions) {
+            videoActions.hidden = false;
+            const hint = videoActions.querySelector("p");
+            if (hint) hint.textContent = "✨ Você já assistiu! Use os atalhos no topo da página.";
           }
+          $("#video-intro-stage")?.classList.add("video-finished");
         }
       }
       const response = await fetchWithRetry("/api/config");
@@ -123,6 +125,23 @@
       if (mapLink) {
         mapLink.hidden = !config.mapUrl;
         if (config.mapUrl) mapLink.href = config.mapUrl;
+      }
+      const giftList = $("#gift-suggestions-list");
+      if (giftList) {
+        const suggestions = String(config.giftSuggestions || "").split(/\r?\n/).map(line => line.trim()).filter(Boolean).slice(0, 18);
+        giftList.replaceChildren();
+        suggestions.forEach(item => {
+          const li = document.createElement("li");
+          const symbol = document.createElement("span");
+          symbol.setAttribute("aria-hidden", "true");
+          symbol.textContent = "🎁";
+          const label = document.createElement("strong");
+          label.textContent = item;
+          li.append(symbol, label);
+          giftList.append(li);
+        });
+        giftList.hidden = suggestions.length === 0;
+        $("#gift-suggestions-empty").hidden = suggestions.length !== 0;
       }
       if (config.deadline) {
         const deadline = new Date(config.deadline + "T23:59:59");

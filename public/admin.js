@@ -165,6 +165,7 @@
       $("#event-map-input").value = data.mapUrl || "";
       $("#event-date-input").value = /^\d{4}-\d{2}-\d{2}$/.test(data.date || "") ? data.date : "";
       $("#event-time-input").value = data.time || "";
+      $("#event-gifts-input").value = data.giftSuggestions || "";
       if (!data.databaseConnected) {
         notice($("#settings-message"), "ATENÇÃO: o banco de dados está desconectado. As informações não podem ser garantidas nem salvas até corrigir a conexão MONGODB_URI no Render.", true);
       } else if (!data.settingsStored) {
@@ -180,8 +181,8 @@
     button.disabled = true;
     notice($("#settings-message"), "Salvando...");
     try {
-      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ eventName: $("#event-name-input").value, venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value, date: $("#event-date-input").value, time: $("#event-time-input").value }) });
-      notice($("#settings-message"), "Nome, local e endereço salvos. O convite público já está atualizado.");
+      await api("/api/admin/settings", { method: "PUT", body: JSON.stringify({ eventName: $("#event-name-input").value, venue: $("#event-venue-input").value, address: $("#event-address-input").value, mapUrl: $("#event-map-input").value, date: $("#event-date-input").value, time: $("#event-time-input").value, giftSuggestions: $("#event-gifts-input").value }) });
+      notice($("#settings-message"), "Informações da festa e sugestões de presentes salvas. O convite público já está atualizado.");
     } catch (err) { notice($("#settings-message"), err.message, true); }
     finally { button.disabled = false; }
   });

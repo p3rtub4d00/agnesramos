@@ -34,3 +34,7 @@
 @media print{.ticket-modal{display:none!important}.ticket-action{display:none!important}}
 
 .ticket-send-state{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;background:#fff0f5;color:#a33b67}.ticket-send-state.sent{background:#e6f7ed;color:#237448}.ticket-send-count{display:block;margin-top:5px;color:#68717c;font-size:11px}#ticket-mark-sent-btn{width:100%;margin-top:8px}
+
+/* Sugestões de presentes editáveis no painel ADM */
+.settings-form textarea{display:block;width:100%;box-sizing:border-box;resize:vertical;min-height:125px;border:1px solid var(--line);border-radius:11px;padding:12px 13px;outline:none;color:var(--ink);font:inherit;background:#fff}
+.settings-form textarea:focus{border-color:#ed7eb3;box-shadow:0 0 0 3px #ed7eb31f}
