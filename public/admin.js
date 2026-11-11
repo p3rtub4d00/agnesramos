@@ -239,20 +239,67 @@
   });
   const settingsDetails = document.querySelector(".settings-details");
   if (window.matchMedia("(max-width: 750px)").matches && settingsDetails) settingsDetails.open = false;
+  async function checkGeneratedInviteLink() {
+    const url = $("#generated-invite-url").value.trim();
+    let token;
+    try {
+      const parsed = new URL(url);
+      const match = parsed.pathname.match(/^\/convite\/([a-f0-9]{64})\/?$/i);
+      if (!match) throw new Error("Formato do link incompleto.");
+      token = match[1];
+    } catch (_) {
+      throw new Error("O link não tem o formato correto. Gere outro convite.");
+    }
+    // Consulta de leitura: não consome nem altera o link, inclusive no iPhone.
+    const response = await fetch("/api/invitation/" + token, { cache: "no-store" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.valid) {
+      throw new Error(data.error || "Não foi possível confirmar se este link está válido.");
+    }
+    return true;
+  }
+
   $("#generate-invite-btn").addEventListener("click", async () => {
-    const button = $("#generate-invite-btn"); button.disabled = true;
-    notice($("#invite-link-message"), "Gerando link seguro...");
+    const button = $("#generate-invite-btn");
+    button.disabled = true;
+    notice($("#invite-link-message"), "Gerando e verificando o link...");
     try {
       const data = await api("/api/admin/invitation-links", { method: "POST", body: JSON.stringify({}) });
       $("#generated-invite-url").value = data.url;
       $("#invite-link-result").hidden = false;
-      $("#share-whatsapp-btn").hidden = false;
-      $("#invite-link-expiry").textContent = "Uso único · será invalidado assim que o cadastro for finalizado.";
-      notice($("#invite-link-message"), "Link criado. Envie somente à pessoa convidada.");
-    } catch (err) { notice($("#invite-link-message"), err.message, true); }
-    finally { button.disabled = false; }
+      $("#share-whatsapp-btn").hidden = true;
+      $("#invite-link-expiry").textContent = "Uso único · permanece ativo até o cadastro ser concluído.";
+      try {
+        await checkGeneratedInviteLink();
+        $("#share-whatsapp-btn").hidden = false;
+        notice($("#invite-link-message"), "✓ Link verificado no MongoDB: ATIVO. Pode compartilhar com o convidado.");
+      } catch (err) {
+        notice($("#invite-link-message"), "O link foi criado, mas a validação falhou: " + err.message + " Clique em Conferir validade antes de enviá-lo.", true);
+      }
+    } catch (err) {
+      notice($("#invite-link-message"), err.message, true);
+    } finally {
+      button.disabled = false;
+    }
   });
-  $("#copy-invite-btn").addEventListener("click", async () => {
+
+  $("#verify-invite-btn").addEventListener("click", async () => {
+    const button = $("#verify-invite-btn");
+    button.disabled = true;
+    notice($("#invite-link-message"), "Consultando a validade do link...");
+    try {
+      await checkGeneratedInviteLink();
+      $("#share-whatsapp-btn").hidden = false;
+      notice($("#invite-link-message"), "✓ Link ATIVO, ainda não foi utilizado. Pode enviar pelo WhatsApp.");
+    } catch (err) {
+      $("#share-whatsapp-btn").hidden = true;
+      notice($("#invite-link-message"), "Não foi possível validar: " + err.message, true);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+    $("#copy-invite-btn").addEventListener("click", async () => {
     const value = $("#generated-invite-url").value;
     try { await navigator.clipboard.writeText(value); notice($("#invite-link-message"), "Link copiado. Já pode enviar pelo WhatsApp."); }
     catch { $("#generated-invite-url").select(); notice($("#invite-link-message"), "Selecione e copie o link manualmente.", true); }
