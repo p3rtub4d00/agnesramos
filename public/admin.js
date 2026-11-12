@@ -305,11 +305,37 @@
     catch { $("#generated-invite-url").select(); notice($("#invite-link-message"), "Selecione e copie o link manualmente.", true); }
   });
 
-  $("#share-whatsapp-btn").addEventListener("click", () => {
+  $("#share-whatsapp-btn").addEventListener("click", async () => {
     const link = $("#generated-invite-url").value.trim();
     if (!link) { notice($("#invite-link-message"), "Gere um link antes de compartilhar.", true); return; }
     const message = "Olá! Você recebeu um convite especial para o aniversário da Agnes! 🎉\n\nConfirme sua presença pelo link pessoal abaixo:\n" + link + "\n\nAtenção: este link é pessoal e só pode ser utilizado uma vez. Após finalizar o cadastro, ele deixa de funcionar.";
-    window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank", "noopener,noreferrer");
+    const encoded = encodeURIComponent(message);
+    const agent = navigator.userAgent || "";
+
+    if (/Android/i.test(agent)) {
+      // Android: a indicação explícita do pacote com.whatsapp evita que
+      // o navegador entregue o link ao WhatsApp Business (com.whatsapp.w4b).
+      notice($("#invite-link-message"), "Abrindo o WhatsApp normal. Se não abrir, verifique se ele está instalado no aparelho.");
+      window.location.href = "intent://send?text=" + encoded + "#Intent;scheme=whatsapp;package=com.whatsapp;end";
+      return;
+    }
+    if (/iPad|iPhone|iPod/i.test(agent)) {
+      // O esquema whatsapp:// corresponde ao aplicativo pessoal no iOS.
+      // Não usar wa.me, que pode seguir o aplicativo padrão do aparelho.
+      notice($("#invite-link-message"), "Abrindo o WhatsApp normal. Se não abrir, verifique se ele está instalado no aparelho.");
+      window.location.href = "whatsapp://send?text=" + encoded;
+      return;
+    }
+
+    // Desktop e dispositivos sem suporte a deep link exclusivo: copiar a mensagem
+    // é preferível a redirecionar para o Business ou escolher o app automaticamente.
+    try {
+      await navigator.clipboard.writeText(message);
+      notice($("#invite-link-message"), "Mensagem copiada! Abra o WhatsApp normal e cole no contato desejado.");
+    } catch (_) {
+      $("#generated-invite-url").select();
+      notice($("#invite-link-message"), "Não foi possível abrir o WhatsApp normal automaticamente neste aparelho. Copie o link e envie pelo WhatsApp pessoal.", true);
+    }
   });
 
   async function refreshPasskeyAvailability() {
